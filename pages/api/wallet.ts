@@ -6,11 +6,11 @@ import { JSONRPCError } from "@open-rpc/client-js";
 import { NextApiHandler } from "next";
 
 export const key = new KeyClient(
-  process.env.WALLET_ACCESS_KEY!,
+  process.env.SUPER_ACCESS_KEY!,
   process.env.KEY_RPC_URL_OVERRIDE
 );
 export const wallet = new WalletClient(
-  process.env.WALLET_ACCESS_KEY!,
+  process.env.SUPER_ACCESS_KEY!,
   process.env.WALLET_RPC_URL_OVERRIDE
 );
 
