@@ -1,5 +1,5 @@
 import { ApiErrorBody, throwExpression } from "@/lib/error";
-import { Hero, MintHero } from "@/lib/hero";
+import { Hero, MintHero, SendHero } from "@/lib/hero";
 import { Wallet } from "@/lib/wallet";
 import { createSuiProvider } from "@/sdk/shinami/sui";
 import {
@@ -122,6 +122,20 @@ export function useBurnHero(
         undefined,
         "DELETE"
       ),
+    onSuccess: () =>
+      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner]),
+  });
+}
+
+export function useSendHero(
+  owner: string
+): UseMutationResult<boolean, ApiError, SendHero & { address: string }> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ address, recipient }) =>
+      mutateInternal(`/api/heroes/${address}/send`, literal(true), {
+        recipient,
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner]),
   });

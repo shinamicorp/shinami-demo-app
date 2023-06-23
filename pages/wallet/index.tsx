@@ -1,24 +1,33 @@
 import {
+  useSuiExplorerAddressUrl,
+  useSuiExplorerObjectUrl,
+} from "@/hooks/explorer";
+import {
   useBurnHero,
   useMintHero,
   useSuiOwnedObjects,
   useWallet,
 } from "@/hooks/query";
 import { MintHero, PACKAGE_ID } from "@/lib/hero";
-import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import { Wallet } from "@/lib/wallet";
+import { UserProfile, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import { SuiObjectData } from "@mysten/sui.js";
 import Image from "next/image";
 import Link from "next/link";
-import { FormEventHandler, MouseEventHandler, useCallback } from "react";
+import {
+  FormEventHandler,
+  FunctionComponent,
+  MouseEventHandler,
+  useCallback,
+} from "react";
 
-const SUI_EXPLORER_NETWORK =
-  process.env.NEXT_PUBLIC_SUI_EXPLORER_NETWORK ?? "mainnet";
-
-type WalletProps = {
-  address: string;
+export type WalletProps = {
+  wallet: Wallet;
+  user: UserProfile;
 };
 
-function MintHeroForm({ address: owner }: WalletProps) {
-  const { mutateAsync: mintHero, isLoading } = useMintHero(owner);
+function MintHeroForm({ wallet }: WalletProps) {
+  const { mutateAsync: mintHero, isLoading } = useMintHero(wallet.address);
 
   const handleMint: FormEventHandler<HTMLFormElement> = useCallback(
     (event) => {
@@ -44,9 +53,55 @@ function MintHeroForm({ address: owner }: WalletProps) {
   );
 }
 
-function WalletContents({ address }: WalletProps) {
+function WalletItem({
+  wallet,
+  item: { objectId, display },
+}: {
+  wallet: Wallet;
+  item: SuiObjectData;
+}) {
+  const { mutateAsync: burnHero, isLoading } = useBurnHero(wallet.address);
+  const objectUrl = useSuiExplorerObjectUrl(objectId);
+
+  const handleBurn: MouseEventHandler<HTMLButtonElement> = useCallback(
+    () => burnHero(objectId),
+    [burnHero, objectId]
+  );
+
+  if (typeof display?.data !== "object" || !display.data) return <></>;
+  return (
+    <tr>
+      <td>
+        <Image
+          src={display.data["image_url"]}
+          width={64}
+          height={64}
+          alt="hero image"
+        />
+      </td>
+      <td>{display.data["name"]}</td>
+      <td>
+        <Link href={objectUrl} target="_blank">
+          {objectId}
+        </Link>
+      </td>
+      <td>
+        <button disabled={isLoading} onClick={handleBurn}>
+          Burn me
+        </button>
+      </td>
+      <td>
+        <Link href={`/wallet/send?hero=${objectId}`}>
+          <button>Send me</button>
+        </Link>
+      </td>
+    </tr>
+  );
+}
+
+function WalletContents({ wallet }: WalletProps) {
   const { data, error, status, hasNextPage, fetchNextPage } =
-    useSuiOwnedObjects(address, {
+    useSuiOwnedObjects(wallet.address, {
       filter: {
         MatchAll: [
           {
@@ -65,13 +120,6 @@ function WalletContents({ address }: WalletProps) {
       },
     });
 
-  const { mutateAsync: burnHero, isLoading } = useBurnHero(address);
-
-  const handleBurn: MouseEventHandler<HTMLButtonElement> = useCallback(
-    (event) => burnHero(event.currentTarget.dataset["objectId"]!),
-    [burnHero]
-  );
-
   if (status === "loading") return <p>Loading...</p>;
   if (status === "error") return <p>{error.toString()}</p>;
 
@@ -81,36 +129,12 @@ function WalletContents({ address }: WalletProps) {
         {data.pages.flatMap((page) =>
           page.data.map(
             (obj) =>
-              obj.data?.display?.data &&
-              typeof obj.data.display.data === "object" && (
-                <tr key={obj.data.objectId}>
-                  <td>
-                    <Image
-                      src={obj.data.display.data["image_url"]}
-                      width={64}
-                      height={64}
-                      alt="hero image"
-                    />
-                  </td>
-                  <td>{obj.data.display.data["name"]}</td>
-                  <td>
-                    <Link
-                      href={`https://suiexplorer.com/object/${obj.data.objectId}?network=${SUI_EXPLORER_NETWORK}`}
-                      target="_blank"
-                    >
-                      {obj.data.objectId}
-                    </Link>
-                  </td>
-                  <td>
-                    <button
-                      disabled={isLoading}
-                      onClick={handleBurn}
-                      data-object-id={obj.data.objectId}
-                    >
-                      Burn me
-                    </button>
-                  </td>
-                </tr>
+              obj.data && (
+                <WalletItem
+                  wallet={wallet}
+                  item={obj.data}
+                  key={obj.data.objectId}
+                />
               )
           )
         )}
@@ -128,24 +152,28 @@ function WalletContents({ address }: WalletProps) {
   );
 }
 
-export default withPageAuthRequired(({ user }) => {
-  const { data: wallet, error, status } = useWallet();
+export const withWallet = (Component: FunctionComponent<WalletProps>) =>
+  withPageAuthRequired(({ user }) => {
+    const { data: wallet, error, status } = useWallet();
 
-  if (!user.email_verified) return <p>Please verify your email first</p>;
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "error") return <p>{error.message}</p>;
+    if (!user.email_verified) return <p>Please verify your email first</p>;
+    if (status === "loading") return <p>Loading...</p>;
+    if (status === "error") return <p>{error.message}</p>;
+
+    return <Component wallet={wallet} user={user} />;
+  });
+
+export default withWallet(({ wallet, user }) => {
+  const walletUrl = useSuiExplorerAddressUrl(wallet.address);
 
   return (
     <div>
       <h2>{user.name}&apos;s wallet</h2>
-      <Link
-        href={`https://suiexplorer.com/address/${wallet.address}?network=${SUI_EXPLORER_NETWORK}`}
-        target="_blank"
-      >
+      <Link href={walletUrl} target="_blank">
         {wallet.address}
       </Link>
-      <MintHeroForm address={wallet.address} />
-      <WalletContents address={wallet.address} />
+      <MintHeroForm wallet={wallet} user={user} />
+      <WalletContents wallet={wallet} user={user} />
     </div>
   );
 });
