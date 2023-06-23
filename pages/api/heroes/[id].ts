@@ -1,9 +1,10 @@
 import { ApiErrorBody } from "@/lib/error";
+import { PACKAGE_ID } from "@/lib/hero";
 import { buildGaslessTransactionBytes } from "@/sdk/shinami/gas";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { TransactionBlock } from "@mysten/sui.js";
 import { NextApiHandler } from "next";
-import { key, wallet } from "../wallet";
+import { WALLET_SECRET, key, wallet } from "../wallet";
 import { sui } from "./index";
 
 const handler: NextApiHandler<true | ApiErrorBody> = async (req, res) => {
@@ -25,7 +26,7 @@ const handler: NextApiHandler<true | ApiErrorBody> = async (req, res) => {
 
     const txb = new TransactionBlock();
     txb.moveCall({
-      target: `${process.env.NEXT_PUBLIC_PACKAGE_ID}::my_hero::burn`,
+      target: `${PACKAGE_ID}::my_hero::burn`,
       arguments: [txb.object(id as string)],
     });
 
@@ -36,7 +37,7 @@ const handler: NextApiHandler<true | ApiErrorBody> = async (req, res) => {
       me
     );
 
-    const session = await key.createSession(process.env.WALLET_SECRET!);
+    const session = await key.createSession(WALLET_SECRET);
     const txResp = await wallet.executeGaslessTransactionBlock(
       user.email,
       session,

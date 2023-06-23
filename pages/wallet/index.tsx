@@ -4,7 +4,7 @@ import {
   useSuiOwnedObjects,
   useWallet,
 } from "@/hooks/query";
-import { MintHero } from "@/lib/hero";
+import { MintHero, PACKAGE_ID } from "@/lib/hero";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import Image from "next/image";
 import Link from "next/link";
@@ -50,7 +50,7 @@ function WalletContents({ address }: WalletProps) {
       filter: {
         MatchAll: [
           {
-            StructType: `${process.env.NEXT_PUBLIC_PACKAGE_ID}::my_hero::Hero`,
+            StructType: `${PACKAGE_ID}::my_hero::Hero`,
           },
         ],
       },

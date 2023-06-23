@@ -5,3 +5,7 @@ export const ApiErrorBody = object({
 });
 
 export type ApiErrorBody = Infer<typeof ApiErrorBody>;
+
+export function throwExpression(error: any): never {
+  throw error;
+}

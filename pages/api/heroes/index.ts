@@ -1,15 +1,15 @@
 import { ApiErrorBody } from "@/lib/error";
-import { Hero, MintHero } from "@/lib/hero";
+import { Hero, MintHero, PACKAGE_ID } from "@/lib/hero";
 import { buildGaslessTransactionBytes } from "@/sdk/shinami/gas";
 import { createSuiProvider } from "@/sdk/shinami/sui";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { TransactionBlock } from "@mysten/sui.js";
 import { NextApiHandler } from "next";
 import { validate } from "superstruct";
-import { key, wallet } from "../wallet";
+import { SUPER_ACCESS_KEY, WALLET_SECRET, key, wallet } from "../wallet";
 
 export const sui = createSuiProvider(
-  process.env.NEXT_PUBLIC_NODE_ACCESS_KEY!,
+  SUPER_ACCESS_KEY,
   process.env.NEXT_PUBLIC_NODE_RPC_URL_OVERRIDE,
   process.env.NEXT_PUBLIC_NODE_WSS_URL_OVERRIDE
 );
@@ -37,7 +37,7 @@ const handler: NextApiHandler<Hero | ApiErrorBody> = async (req, res) => {
 
     const txb = new TransactionBlock();
     const [hero] = txb.moveCall({
-      target: `${process.env.NEXT_PUBLIC_PACKAGE_ID}::my_hero::mint`,
+      target: `${PACKAGE_ID}::my_hero::mint`,
       arguments: [txb.pure(name), txb.pure(imageUrl)],
     });
     txb.transferObjects([hero], txb.pure(me));
@@ -49,7 +49,7 @@ const handler: NextApiHandler<Hero | ApiErrorBody> = async (req, res) => {
       me
     );
 
-    const session = await key.createSession(process.env.WALLET_SECRET!);
+    const session = await key.createSession(WALLET_SECRET);
     const txResp = await wallet.executeGaslessTransactionBlock(
       user.email,
       session,

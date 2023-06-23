@@ -1,4 +1,4 @@
-import { ApiErrorBody } from "@/lib/error";
+import { ApiErrorBody, throwExpression } from "@/lib/error";
 import { Hero, MintHero } from "@/lib/hero";
 import { Wallet } from "@/lib/wallet";
 import { createSuiProvider } from "@/sdk/shinami/sui";
@@ -49,7 +49,8 @@ export function useWallet(): UseQueryResult<Wallet, ApiError> {
 }
 
 const sui = createSuiProvider(
-  process.env.NEXT_PUBLIC_NODE_ACCESS_KEY!,
+  process.env.NEXT_PUBLIC_NODE_ACCESS_KEY ??
+    throwExpression(new Error("NEXT_PUBLIC_NODE_ACCESS_KEY not configured")),
   process.env.NEXT_PUBLIC_NODE_RPC_URL_OVERRIDE,
   process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE
 );

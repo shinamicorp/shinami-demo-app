@@ -1,16 +1,24 @@
-import { ApiErrorBody } from "@/lib/error";
+import { ApiErrorBody, throwExpression } from "@/lib/error";
 import { Wallet } from "@/lib/wallet";
 import { KeyClient, WalletClient } from "@/sdk/shinami/wallet";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { JSONRPCError } from "@open-rpc/client-js";
 import { NextApiHandler } from "next";
 
+export const SUPER_ACCESS_KEY =
+  process.env.SUPER_ACCESS_KEY ??
+  throwExpression(new Error("SUPER_ACCESS_KEY not configured"));
+
+export const WALLET_SECRET =
+  process.env.WALLET_SECRET ??
+  throwExpression(new Error("WALLET_SECRET not configured"));
+
 export const key = new KeyClient(
-  process.env.SUPER_ACCESS_KEY!,
+  SUPER_ACCESS_KEY,
   process.env.KEY_RPC_URL_OVERRIDE
 );
 export const wallet = new WalletClient(
-  process.env.SUPER_ACCESS_KEY!,
+  SUPER_ACCESS_KEY,
   process.env.WALLET_RPC_URL_OVERRIDE
 );
 
@@ -45,7 +53,7 @@ const handler: NextApiHandler<Wallet | ApiErrorBody> = async (req, res) => {
   }
 
   try {
-    res.json(await getOrCreateWallet(user.email, process.env.WALLET_SECRET!));
+    res.json(await getOrCreateWallet(user.email, WALLET_SECRET));
   } catch (e) {
     console.error("Unhandled error", e);
     res.status(500).json({ error: "Internal error" });

@@ -1,4 +1,5 @@
 import { Infer, object, omit, string } from "superstruct";
+import { throwExpression } from "./error";
 
 export const Hero = object({
   objectId: string(),
@@ -12,3 +13,7 @@ export type Hero = Infer<typeof Hero>;
 export const MintHero = omit(Hero, ["objectId", "version"]);
 
 export type MintHero = Infer<typeof MintHero>;
+
+export const PACKAGE_ID =
+  process.env.NEXT_PUBLIC_PACKAGE_ID ??
+  throwExpression(new Error("NEXT_PUBLIC_PACKAGE_ID not configured"));
