@@ -62,6 +62,7 @@ export async function buildGaslessTransactionBytes(
       onlyTransactionKind: true,
     })
   );
+  // TODO - retire in favor of server side budgeting.
   if (estimateGasBudget) {
     const {
       effects: { gasUsed },

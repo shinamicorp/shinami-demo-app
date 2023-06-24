@@ -4,8 +4,8 @@ import { buildGaslessTransactionBytes } from "@/sdk/shinami/gas";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { TransactionBlock } from "@mysten/sui.js";
 import { NextApiHandler } from "next";
-import { WALLET_SECRET, key, wallet } from "../wallet";
-import { sui } from "./index";
+import { sui } from "..";
+import { WALLET_SECRET, key, wallet } from "../../wallet";
 
 const handler: NextApiHandler<true | ApiErrorBody> = async (req, res) => {
   if (req.method !== "DELETE") {
