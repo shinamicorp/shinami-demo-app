@@ -1,12 +1,11 @@
 import { ApiErrorBody } from "@/lib/error";
 import { SendHero } from "@/lib/hero";
-import { buildGaslessTransactionBytes } from "@/sdk/shinami/gas";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
-import { TransactionBlock } from "@mysten/sui.js";
 import { NextApiHandler } from "next";
+import { ShinamiWalletSigner, buildGaslessTransactionBytes } from "shinami";
 import { validate } from "superstruct";
 import { sui } from "..";
-import { WALLET_SECRET, key, wallet } from "../../wallet";
+import { WALLET_SECRET, key, wal } from "../../wallet";
 
 const handler: NextApiHandler<true | ApiErrorBody> = async (req, res) => {
   if (req.method !== "POST") {
@@ -28,24 +27,20 @@ const handler: NextApiHandler<true | ApiErrorBody> = async (req, res) => {
   }
 
   try {
-    const me = await wallet.getWallet(user.email);
-
-    const txb = new TransactionBlock();
-    txb.transferObjects([txb.object(id as string)], txb.pure(body.recipient));
-
-    const { txBytes, gasBudget } = await buildGaslessTransactionBytes(
-      txb,
+    const signer = new ShinamiWalletSigner(user.email, WALLET_SECRET, key, wal);
+    const txBytes = await buildGaslessTransactionBytes({
       sui,
-      true,
-      me
-    );
+      build: async (txb) => {
+        txb.transferObjects(
+          [txb.object(id as string)],
+          txb.pure(body.recipient)
+        );
+      },
+    });
 
-    const session = await key.createSession(WALLET_SECRET);
-    const txResp = await wallet.executeGaslessTransactionBlock(
-      user.email,
-      session,
+    const txResp = await signer.executeGaslessTransactionBlock(
       txBytes,
-      gasBudget!,
+      5_000_000,
       { showEffects: true }
     );
 
