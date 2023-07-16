@@ -1,7 +1,6 @@
 import { ApiErrorBody, throwExpression } from "@/lib/error";
 import { Hero, MintHero, SendHero } from "@/lib/hero";
 import { Wallet } from "@/lib/wallet";
-import { createSuiProvider } from "@/sdk/shinami/sui";
 import {
   PaginatedObjectsResponse,
   SuiObjectResponseQuery,
@@ -16,6 +15,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { createSuiProvider } from "shinami";
 import { Struct, create, literal } from "superstruct";
 
 export class ApiError extends Error {

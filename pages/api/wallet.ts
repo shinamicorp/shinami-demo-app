@@ -1,9 +1,8 @@
 import { ApiErrorBody, throwExpression } from "@/lib/error";
 import { Wallet } from "@/lib/wallet";
-import { KeyClient, WalletClient } from "@/sdk/shinami/wallet";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
-import { JSONRPCError } from "@open-rpc/client-js";
 import { NextApiHandler } from "next";
+import { KeyClient, ShinamiWalletSigner, WalletClient } from "shinami";
 
 export const SUPER_ACCESS_KEY =
   process.env.SUPER_ACCESS_KEY ??
@@ -17,28 +16,10 @@ export const key = new KeyClient(
   SUPER_ACCESS_KEY,
   process.env.KEY_RPC_URL_OVERRIDE
 );
-export const wallet = new WalletClient(
+export const wal = new WalletClient(
   SUPER_ACCESS_KEY,
   process.env.WALLET_RPC_URL_OVERRIDE
 );
-
-async function getOrCreateWallet(id: string, secret: string): Promise<Wallet> {
-  try {
-    return {
-      address: await wallet.getWallet(id),
-    };
-  } catch (e) {
-    if (!(e instanceof JSONRPCError && e.code === -32602)) {
-      throw e;
-    }
-  }
-
-  console.info("Creating wallet", id);
-
-  return {
-    address: await wallet.createWallet(id, await key.createSession(secret)),
-  };
-}
 
 const handler: NextApiHandler<Wallet | ApiErrorBody> = async (req, res) => {
   if (req.method !== "GET") {
@@ -53,7 +34,8 @@ const handler: NextApiHandler<Wallet | ApiErrorBody> = async (req, res) => {
   }
 
   try {
-    res.json(await getOrCreateWallet(user.email, WALLET_SECRET));
+    const signer = new ShinamiWalletSigner(user.email, WALLET_SECRET, key, wal);
+    res.json({ address: await signer.getAddress(true) });
   } catch (e) {
     console.error("Unhandled error", e);
     res.status(500).json({ error: "Internal error" });

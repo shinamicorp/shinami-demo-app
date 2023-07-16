@@ -1,12 +1,14 @@
 import { ApiErrorBody } from "@/lib/error";
 import { Hero, MintHero, PACKAGE_ID } from "@/lib/hero";
-import { buildGaslessTransactionBytes } from "@/sdk/shinami/gas";
-import { createSuiProvider } from "@/sdk/shinami/sui";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
-import { TransactionBlock } from "@mysten/sui.js";
 import { NextApiHandler } from "next";
+import {
+  ShinamiWalletSigner,
+  buildGaslessTransactionBytes,
+  createSuiProvider,
+} from "shinami";
 import { validate } from "superstruct";
-import { SUPER_ACCESS_KEY, WALLET_SECRET, key, wallet } from "../wallet";
+import { SUPER_ACCESS_KEY, WALLET_SECRET, key, wal } from "../wallet";
 
 export const sui = createSuiProvider(
   SUPER_ACCESS_KEY,
@@ -33,28 +35,21 @@ const handler: NextApiHandler<Hero | ApiErrorBody> = async (req, res) => {
   const { name, imageUrl } = body;
 
   try {
-    const me = await wallet.getWallet(user.email);
-
-    const txb = new TransactionBlock();
-    const [hero] = txb.moveCall({
-      target: `${PACKAGE_ID}::my_hero::mint`,
-      arguments: [txb.pure(name), txb.pure(imageUrl)],
-    });
-    txb.transferObjects([hero], txb.pure(me));
-
-    const { txBytes, gasBudget } = await buildGaslessTransactionBytes(
-      txb,
+    const signer = new ShinamiWalletSigner(user.email, WALLET_SECRET, key, wal);
+    const txBytes = await buildGaslessTransactionBytes({
       sui,
-      true,
-      me
-    );
+      build: async (txb) => {
+        const [hero] = txb.moveCall({
+          target: `${PACKAGE_ID}::my_hero::mint`,
+          arguments: [txb.pure(name), txb.pure(imageUrl)],
+        });
+        txb.transferObjects([hero], txb.pure(await signer.getAddress()));
+      },
+    });
 
-    const session = await key.createSession(WALLET_SECRET);
-    const txResp = await wallet.executeGaslessTransactionBlock(
-      user.email,
-      session,
+    const txResp = await signer.executeGaslessTransactionBlock(
       txBytes,
-      gasBudget!,
+      5_000_000,
       { showEffects: true }
     );
 
