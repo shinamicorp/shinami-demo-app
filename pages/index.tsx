@@ -1,32 +1,51 @@
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { withUserWallet } from "@/lib/components/auth";
+import {
+  getSuiExplorerAddressUrl,
+  useParsedSuiOwnedObjects,
+} from "@/lib/hooks/sui";
+import { HERO_MOVE_TYPE, Hero } from "@/lib/shared/hero";
 import Link from "next/link";
 
-export default function Home() {
-  const { user, error, isLoading } = useUser();
+export default withUserWallet(({ user, wallet }) => {
+  const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
+    wallet.address,
+    HERO_MOVE_TYPE,
+    Hero
+  );
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>{error.message}</div>;
-
-  if (user) {
-    return (
+  return (
+    <>
       <div>
-        <img src={user.picture!} alt={user.name!} />
-        <h2>{user.name}</h2>
-        <p>{user.email}</p>
-        <p>
-          <Link href="/wallet">My wallet</Link>
-        </p>
-        <p>
-          <Link href="/api/auth/logout">Logout</Link>
-        </p>
+        <h2>{user.name}&apos;s wallet</h2>
+        <Link href={getSuiExplorerAddressUrl(wallet.address)} target="_blank">
+          {wallet.address}
+        </Link>
       </div>
-    );
-  } else {
-    return (
+      {isLoading && <div>Loading heroes...</div>}
+      {!isLoading && !heroes && <div>Failed to load heroes</div>}
+      {!isLoading && heroes && (
+        <div>
+          {heroes.length === 0 && <h3>No heroes yet</h3>}
+          {heroes.length > 0 && (
+            <div>
+              <h3>My heroes</h3>
+              <ul>
+                {heroes.map((hero) => (
+                  <li key={hero.id.id}>
+                    <Link href={`/heroes/${hero.id.id}}`}>{hero.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <Link href="/heroes/new">New hero</Link>
+        </div>
+      )}
       <div>
-        <h2>Shinami in-app wallet demo</h2>
-        <Link href="/api/auth/login">Login</Link>
+        <Link href="/api/auth/logout">
+          Sign out
+        </Link>
       </div>
-    );
-  }
-}
+    </>
+  );
+});
