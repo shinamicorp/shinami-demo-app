@@ -25,7 +25,7 @@ export default withUserWallet(({ user, wallet }) => {
       {!isLoading && !heroes && <div>Failed to load heroes</div>}
       {!isLoading && heroes && (
         <div>
-          {heroes.length === 0 && <h3>No heroes yet</h3>}
+          {heroes.length === 0 && <h3>No heroes yet - Test</h3>}
           {heroes.length > 0 && (
             <div>
               <h3>My heroes</h3>
@@ -42,9 +42,7 @@ export default withUserWallet(({ user, wallet }) => {
         </div>
       )}
       <div>
-        <Link href="/api/auth/logout">
-          Sign out
-        </Link>
+        <Link href="/api/auth/logout">Sign out</Link>
       </div>
     </>
   );
