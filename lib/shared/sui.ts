@@ -108,10 +108,10 @@ export function parseObjectWithOwner<T>(
   };
 }
 
-export function ownerAddress(owner: ObjectOwner): string {
+export function ownerAddress(owner: ObjectOwner): string | null {
   if (owner !== "Immutable") {
     if ("AddressOwner" in owner) return owner.AddressOwner;
     if ("ObjectOwner" in owner) return owner.ObjectOwner;
   }
-  throw new Error("Not an owned object");
+  return null;
 }

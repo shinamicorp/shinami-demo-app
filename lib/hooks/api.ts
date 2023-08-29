@@ -56,8 +56,9 @@ function apiQueryFn<T>(schema: Struct<T>) {
 
 export function useWallet(): UseQueryResult<Wallet, ApiError> {
   return useQuery({
-    queryKey: ["internal", "/api/wallet"],
+    queryKey: ["api", "/api/wallet"],
     queryFn: apiQueryFn(Wallet),
+    staleTime: Infinity,
   });
 }
 
