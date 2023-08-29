@@ -12,9 +12,10 @@ module shinami_demo::hero {
     use sui::display;
 
 
-    const EBadName: u64 = 0;
-    const EAttributePointsMismatch: u64 = 1;
-    const EHeroIdMismatch: u64 = 2;
+    const EUnknownPublisher: u64 = 0;
+    const EBadName: u64 = 1;
+    const EAttributePointsMismatch: u64 = 2;
+    const EHeroIdMismatch: u64 = 3;
 
     /// A collectible hero in the imaginary Shinami games.
     /// Can be tranferred freely.
@@ -110,12 +111,14 @@ module shinami_demo::hero {
     ////////////////////////////////////////////////////////////////////////////
 
     /// Creates a new admin cap.
-    public fun new_admin_cap(_: &Publisher, ctx: &mut TxContext): AdminCap {
+    public fun new_admin_cap(publisher: &Publisher, ctx: &mut TxContext): AdminCap {
+        assert!(package::from_package<AdminCap>(publisher), EUnknownPublisher);
         AdminCap { id: object::new(ctx) }
     }
 
     /// Transfers an admin cap.
-    public fun transfer_admin_cap(_: &Publisher, cap: AdminCap, recipient: address) {
+    public fun transfer_admin_cap(publisher: &Publisher, cap: AdminCap, recipient: address) {
+        assert!(package::from_package<AdminCap>(publisher), EUnknownPublisher);
         transfer::transfer(cap, recipient);
     }
 
