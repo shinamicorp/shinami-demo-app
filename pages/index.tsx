@@ -62,12 +62,16 @@ export default withUserWallet(({ user, wallet }) => {
         <VStack width="1028px" gap="50px" mt="70px">
           <Divider />
           <VStack gap="22px">
-            <Button variant="solid">Create new hero</Button>
-            <Button variant="outline">SUI Explorer</Button>
-            <Button variant="outline">Logout</Button>
+            <Button variant="solid" href={"/heroes/new"}>
+              Create new hero
+            </Button>
+            <Button variant="outline" href={"/"}>
+              SUI Explorer
+            </Button>
+            <Button variant="outline" href={"/api/auth/logout"}>
+              Logout
+            </Button>
           </VStack>
-          {/* <Link href="/heroes/new">New hero</Link>
-          <Link href="/api/auth/logout">Sign out</Link> */}
         </VStack>
       </Flex>
     </Canvas>

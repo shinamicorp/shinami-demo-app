@@ -16,6 +16,9 @@ export const theme = extendTheme({
         _active: {
           transform: "skew(-10deg) scale(0.98)",
         },
+        _hover: {
+          boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
+        },
       },
       sizes: {
         lg: {
@@ -35,10 +38,10 @@ export const theme = extendTheme({
         solid: {
           bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.70) 0%, rgba(222, 202, 173, 0.70) 100%)",
           _hover: {
-            bg: "linear-gradient(180deg, #1A780B 0%, #C8DEAD 100%)",
+            bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.80) 0%, rgba(222, 202, 173, 0.80) 100%)",
           },
           _active: {
-            bg: "linear-gradient(180deg, #1A780B 0%, #C8DEAD 100%)",
+            bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.80) 0%, rgba(222, 202, 173, 0.80) 100%)",
           },
         },
         outline: {

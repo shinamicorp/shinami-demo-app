@@ -1,3 +1,4 @@
+import { Link } from "@chakra-ui/next-js";
 import {
   Box,
   Button as ChakraButton,
@@ -16,10 +17,12 @@ export const Divider = () => (
   ></Box>
 );
 
-export const Button = ({ children, variant }: any) => (
-  <ChakraButton variant={variant}>
-    <span style={{ transform: "skew(10deg)" }}>{children}</span>
-  </ChakraButton>
+export const Button = ({ children, variant, href }: any) => (
+  <Link href={href}>
+    <ChakraButton variant={variant}>
+      <span style={{ transform: "skew(10deg)" }}>{children}</span>
+    </ChakraButton>
+  </Link>
 );
 
 export const NewHeroCard = () => (
@@ -36,7 +39,7 @@ export const NewHeroCard = () => (
     padding="20px"
     _hover={{
       background: "rgba(63, 49, 55, 0.8)",
-      boxShadow: "lg",
+      boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
       transform: "scale(1.02) skew(-10deg)",
     }}
     _active={{
@@ -81,8 +84,8 @@ export const HeroCard = ({ name, character }: HeroCardProps) => {
       transform="skew(-10deg)"
       _hover={{
         background: "rgba(63, 49, 55, 0.8)",
-        boxShadow: "lg",
         transform: "scale(1.02) skew(-10deg)",
+        boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
       }}
       _active={{
         transform: "scale(1.0) skew(-10deg)",
