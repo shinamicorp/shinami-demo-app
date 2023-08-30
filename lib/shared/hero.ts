@@ -78,3 +78,8 @@ export const LevelUpRequest = object({
   defense: integer(),
 });
 export type LevelUpRequest = Infer<typeof LevelUpRequest>;
+
+export const UpdateHeroRequest = object({
+  name: HeroName,
+});
+export type UpdateHeroRequest = Infer<typeof UpdateHeroRequest>;

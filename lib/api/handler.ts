@@ -2,23 +2,33 @@ import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextApiHandler } from "next";
 import { ApiErrorBody } from "../shared/error";
 
-export function withMethodHandlers<G = unknown, P = unknown, D = unknown>({
+export function withMethodHandlers<
+  G = unknown,
+  P = unknown,
+  U = unknown,
+  D = unknown
+>({
   get,
   post,
+  patch,
   del,
 }: {
   get?: NextApiHandler<G>;
   post?: NextApiHandler<P>;
+  patch?: NextApiHandler<U>;
   del?: NextApiHandler<D>;
-}): NextApiHandler<G | P | D | ApiErrorBody> {
+}): NextApiHandler<G | P | U | D | ApiErrorBody> {
   return async (req, res) => {
-    let handler: NextApiHandler<G | P | D> | undefined;
+    let handler: NextApiHandler<G | P | U | D> | undefined;
     switch (req.method) {
       case "GET":
         handler = get;
         break;
       case "POST":
         handler = post;
+        break;
+      case "PATCH":
+        handler = patch;
         break;
       case "DELETE":
         handler = del;

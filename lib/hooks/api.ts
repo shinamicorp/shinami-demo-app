@@ -18,6 +18,7 @@ import {
   MintHeroRequest,
   MintTicket,
   MintTicketRequest,
+  UpdateHeroRequest,
   WithHero,
   WithLevelUpTicket,
   WithMintTicket,
@@ -239,6 +240,32 @@ export function useSendHero(): UseMutationResult<
       ]);
       queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
       queryClient.invalidateQueries([...suiObjectQueryKey, heroId]);
+    },
+  });
+}
+
+export function useUpdateHero(): UseMutationResult<
+  Hero & WithOwner & WithTxDigest,
+  ApiError,
+  { heroId: string } & UpdateHeroRequest
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiMutationFn(
+      ({ heroId }) => `/api/heroes/${heroId}`,
+      intersection([WithHero, WithOwner, WithTxDigest]),
+      ({ heroId, ...req }) => req,
+      "PATCH"
+    ),
+    onSuccess: (res) => {
+      const owner = ownerAddress(res.owner);
+      queryClient.invalidateQueries([
+        ...suiOwnedObjectsQueryKey,
+        owner,
+        HERO_MOVE_TYPE,
+      ]);
+      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
+      queryClient.invalidateQueries([...suiObjectQueryKey, res.id.id]);
     },
   });
 }
