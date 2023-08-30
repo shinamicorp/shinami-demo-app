@@ -32,7 +32,7 @@ export default withUserWallet(({ user, wallet }) => {
               <ul>
                 {heroes.map((hero) => (
                   <li key={hero.id.id}>
-                    <Link href={`/heroes/${hero.id.id}}`}>{hero.name}</Link>
+                    <Link href={`/heroes/${hero.id.id}`}>{hero.name}</Link>
                   </li>
                 ))}
               </ul>

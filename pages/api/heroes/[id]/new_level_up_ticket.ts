@@ -63,6 +63,13 @@ const handler: NextApiHandler<
     return res.status(500).json({ error: "Object not created" });
   }
 
+  // Workaround for routing inconsistency between this client and wallet service
+  await sui.waitForTransactionBlock({
+    digest: txResp.digest,
+    timeout: 30_000,
+    pollInterval: 1_000,
+  });
+
   const ticket = parseObjectWithOwner(
     await sui.getObject({
       id: ref.objectId,

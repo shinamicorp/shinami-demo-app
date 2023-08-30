@@ -28,7 +28,7 @@ The core app consists of two parts:
 Notably, the core app doesn't require its own database to operate, even though many players can sign up and mint and evolve their heroes.
 All operating states are maintained by these external infra:
 
-- The Sui blockchain itself, where all heroe states are maintained.
+- The Sui blockchain itself, where all hero states are maintained.
 - Shinami invisible wallet, where _encrypted_ copies of wallet keys are securely kept.
 - Auth0, where players' sign-in information is maintained.
 

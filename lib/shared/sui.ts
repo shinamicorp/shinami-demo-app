@@ -100,6 +100,7 @@ export function parseObjectWithOwner<T>(
   schema: Struct<T>
 ): T & WithOwner {
   if (!obj.data?.owner) {
+    console.error("Response doesn't contain an owner", obj);
     throw new Error("Response doesn't contain an owner");
   }
   return {
