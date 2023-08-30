@@ -11,7 +11,11 @@ export const theme = extendTheme({
       baseStyle: {
         fontFamily: "var(--font-irishGrover)",
         border: "2px #FFF solid",
-        transform: "skew(-20deg)",
+        transform: "skew(-10deg)",
+        transition: "all 0.1s ease",
+        _active: {
+          transform: "skew(-10deg) scale(0.98)",
+        },
       },
       sizes: {
         lg: {
@@ -30,6 +34,12 @@ export const theme = extendTheme({
 
         solid: {
           bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.70) 0%, rgba(222, 202, 173, 0.70) 100%)",
+          _hover: {
+            bg: "linear-gradient(180deg, #1A780B 0%, #C8DEAD 100%)",
+          },
+          _active: {
+            bg: "linear-gradient(180deg, #1A780B 0%, #C8DEAD 100%)",
+          },
         },
         outline: {
           border: "2px #FFF solid",
