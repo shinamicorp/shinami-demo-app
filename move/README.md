@@ -32,7 +32,11 @@ It can also be played by a human when ad-hoc operations need to be performed.
 Priviledged operations:
 
 - Issuing and transferring new `hero::MintTicket` to players, which indirectly controls the supply of `hero::Hero` objects.
-- Issuing and transferring new `hero::LevelUpTicket` to players, which indirectly controls the evolution of `hero::Hero` objects.
+  - `hero::MintTicket` cannot be freely transferred.
+    Only an admin can do that.
+- Issuing new `hero::LevelUpTicket` to players, which indirectly controls the evolution of `hero::Hero` objects.
+  - `hero::LevelUpTicket` can be freely transferred.
+    However, it's only usable on a specific `hero::Hero`.
 
 ### Player
 
@@ -41,8 +45,8 @@ This role is intended to be controlled by a human player.
 
 Priviledged operations:
 
-- Minting a new `hero::Hero` upon possessing a `hero::MintTicket`.
-- Leveling up an owned `hero::Hero` upon possessing a corresponding `hero::LevelUpTicket`.
+- Minting a new `hero::Hero` upon acquiring a `hero::MintTicket`.
+- Leveling up an owned `hero::Hero` upon acquiring a corresponding `hero::LevelUpTicket`.
 - Transferring an owned `hero::Hero` to someone else.
   - This allows players to freely export their heroes to their self-custody wallets, or to a marketplace.
   - They can also import heroes acquired somewhere else into their in-game wallets.
@@ -51,4 +55,4 @@ Priviledged operations:
 
 Everyone else.
 Since all hero attributes are stored on-chain in a non-obfuscated fashion, anyone can read them.
-However, they cannot cause any mutations on them.
+However, they cannot cause any mutations on them, nor reference them in any on-chain transactions.
