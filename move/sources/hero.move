@@ -1,82 +1,309 @@
-// Copyright (c) Mysten Labs, Inc.
+// Copyright 2023 Shinami Corp.
 // SPDX-License-Identifier: Apache-2.0
 
-// Adapted from https://github.com/MystenLabs/sui/blob/2f37537d5c552934a60fe216afeed08175b92fe3/doc/book/examples/sources/basics/display.move
-
-/// Example of an unlimited "Sui Hero" collection - anyone is free to
-/// mint their Hero. Shows how to initialize the `Publisher` and how
-/// to use it to get the `Display<Hero>` object - a way to describe a
-/// type for the ecosystem.
-module wallet_demo::my_hero {
+/// An example module to create game heroes and manage their lifecycles.
+module shinami_demo::hero {
     use sui::tx_context::{sender, TxContext};
-    use std::string::{utf8, String};
+    use std::string::{Self, utf8, String};
     use sui::transfer;
-    use sui::object::{Self, UID};
+    use sui::object::{Self, ID, UID};
 
-    // The creator bundle: these two packages often go together.
-    use sui::package;
+    use sui::package::{Self, Publisher};
     use sui::display;
 
-    /// The Hero - an outstanding collection of digital art.
+
+    const EUnknownPublisher: u64 = 0;
+    const EBadName: u64 = 1;
+    const EAttributePointsMismatch: u64 = 2;
+    const EHeroIdMismatch: u64 = 3;
+
+    /// A collectible hero in the imaginary Shinami games.
+    /// Can be tranferred freely.
     struct Hero has key, store {
         id: UID,
+
+        // Immutable attributes
+        character: u8,
+
+        // Mutable attributes
         name: String,
-        img_url: String,
+        level: u8,
+        damage: u8,
+        speed: u8,
+        defense: u8,
     }
 
-    /// One-Time-Witness for the module.
-    struct MY_HERO has drop {}
+    /// A ticket to mint a new hero.
+    /// Not publically transferrable.
+    struct MintTicket has key {
+        id: UID,
 
-    /// In the module initializer we claim the `Publisher` object
-    /// to then create a `Display`. The `Display` is initialized with
-    /// a set of fields (but can be modified later) and published via
-    /// the `update_version` call.
-    ///
-    /// Keys and values are set in the initializer but could also be
-    /// set after publishing if a `Publisher` object was created.
-    fun init(otw: MY_HERO, ctx: &mut TxContext) {
+        /// Hero character.
+        character: u8,
+
+        /// Initial level.
+        level: u8,
+
+        /// Initial attribute points to be allocated.
+        attribute_points: u8,
+    }
+
+    /// A ticket to level up a hero.
+    /// Can be tranferred freely, but is only applicable to a specific hero.
+    struct LevelUpTicket has key, store {
+        id: UID,
+
+        /// Id of the hero to level up.
+        hero_id: ID,
+
+        /// Additional attribute points to be allocated.
+        attribute_points: u8,
+    }
+
+    /// Capability to run privileged operations.
+    /// Not publically transferrable.
+    struct AdminCap has key { id: UID }
+
+    /// One-Time-Witness for the module.
+    struct HERO has drop {}
+
+    /// Initializes the module by:
+    /// - Claiming the publisher.
+    /// - Creating a display protocol for heroes.
+    /// - Issuing an admin cap to the sender.
+    fun init(otw: HERO, ctx: &mut TxContext) {
+        // Display properties defined by the standard:
+        // https://docs.sui.io/build/sui-object-display#display-properties
         let keys = vector[
             utf8(b"name"),
+            utf8(b"description"),
             utf8(b"link"),
             utf8(b"image_url"),
-            utf8(b"description"),
+            utf8(b"thumbnail_url"),
             utf8(b"project_url"),
             utf8(b"creator"),
         ];
-
         let values = vector[
             utf8(b"{name}"),
-            utf8(b"https://shinami.com"),
-            utf8(b"{img_url}"),
-            utf8(b"A true Hero of the Sui ecosystem!"),
-            utf8(b"https://shinami.com"),
-            utf8(b"Unknown Sui Fan")
+            utf8(b"A collectible hero in the imaginary Shinami games"),
+            utf8(b"https://demo.shinami.com/heroes/{id}"),
+            utf8(b"https://assets.shinami.com/heroes/{character}.png"),
+            utf8(b"https://assets.shinami.com/heroes/{character}_thumb.png"),
+            utf8(b"https://demo.shinami.com"),
+            utf8(b"Shinami")
         ];
 
-        // Claim the `Publisher` for the package!
         let publisher = package::claim(otw, ctx);
 
-        // Get a new `Display` object for the `Hero` type.
         let display = display::new_with_fields<Hero>(
             &publisher, keys, values, ctx
         );
-
-        // Commit first version of `Display` to apply changes.
         display::update_version(&mut display);
+        transfer::public_transfer(display, sender(ctx));
+
+        new_admin_cap_to_recipient(&publisher, sender(ctx), ctx);
 
         transfer::public_transfer(publisher, sender(ctx));
-        transfer::public_transfer(display, sender(ctx));
     }
 
-    /// Anyone can mint their `Hero`!
-    public fun mint(name: String, img_url: String, ctx: &mut TxContext): Hero {
-        let id = object::new(ctx);
-        Hero { id, name, img_url }
+    ////////////////////////////////////////////////////////////////////////////
+    // Publisher-only operations.
+    ////////////////////////////////////////////////////////////////////////////
+
+    /// Creates a new admin cap.
+    public fun new_admin_cap(publisher: &Publisher, ctx: &mut TxContext): AdminCap {
+        assert!(package::from_package<AdminCap>(publisher), EUnknownPublisher);
+        AdminCap { id: object::new(ctx) }
     }
 
-    /// Anyone can burn their `Hero` too!
-    public fun burn(hero: Hero) {
-        let Hero { id, name: _, img_url: _ } = hero;
+    /// Transfers an admin cap.
+    public fun transfer_admin_cap(publisher: &Publisher, cap: AdminCap, recipient: address) {
+        assert!(package::from_package<AdminCap>(publisher), EUnknownPublisher);
+        transfer::transfer(cap, recipient);
+    }
+
+    /// Issues a new admin cap to the recipient.
+    /// A convenience function for the CLI.
+    public fun new_admin_cap_to_recipient(
+        publisher: &Publisher,
+        recipient: address,
+        ctx: &mut TxContext,
+    ) {
+        transfer_admin_cap(publisher, new_admin_cap(publisher, ctx), recipient);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Admin-only operations.
+    ////////////////////////////////////////////////////////////////////////////
+
+    /// Issues a new mint ticket.
+    public fun new_mint_ticket(
+        _: &AdminCap,
+        character: u8,
+        level: u8,
+        attribute_points: u8,
+        ctx: &mut TxContext,
+    ): MintTicket {
+        MintTicket {
+            id: object::new(ctx),
+            character,
+            level,
+            attribute_points,
+        }
+    }
+
+    /// Transfers a mint ticket.
+    public fun transfer_mint_ticket(_: &AdminCap, ticket: MintTicket, recipient: address) {
+        transfer::transfer(ticket, recipient);
+    }
+
+    /// Issues a new mint ticket to the recipient.
+    /// A convenience function for the CLI.
+    public fun new_mint_ticket_to_recipient(
+        cap: &AdminCap,
+        character: u8,
+        level: u8,
+        attribute_points: u8,
+        recipient: address,
+        ctx: &mut TxContext,
+    ) {
+        transfer_mint_ticket(
+            cap,
+            new_mint_ticket(cap, character, level, attribute_points, ctx),
+            recipient,
+        );
+    }
+
+    /// Issues a new level-up ticket.
+    public fun new_level_up_ticket(
+        _: &AdminCap,
+        hero_id: ID,
+        attribute_points: u8,
+        ctx: &mut TxContext,
+    ): LevelUpTicket {
+        LevelUpTicket {
+            id: object::new(ctx),
+            hero_id,
+            attribute_points,
+        }
+    }
+
+    /// Issues a new level-up ticket to the recipient.
+    /// A convenience function for the CLI.
+    public fun new_level_up_ticket_to_recipient(
+        cap: &AdminCap,
+        hero_id: ID,
+        attribute_points: u8,
+        recipient: address,
+        ctx: &mut TxContext,
+    ) {
+        transfer::public_transfer(
+            new_level_up_ticket(cap, hero_id, attribute_points, ctx),
+            recipient,
+        );
+    }
+
+    /// Burns an admin cap.
+    public fun burn_admin_cap(cap: AdminCap) {
+        let AdminCap { id } = cap;
+
         object::delete(id);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Non-restricted operations.
+    ////////////////////////////////////////////////////////////////////////////
+
+    /// Mints a new hero with a mint ticket.
+    public fun mint_hero(
+        ticket: MintTicket,
+        name: String,
+        damage: u8,
+        speed: u8,
+        defense: u8,
+        ctx: &mut TxContext,
+    ): Hero {
+        assert!(is_valid_hero_name(&name), EBadName);
+
+        let MintTicket { id, character, level, attribute_points } = ticket;
+        assert!(damage + speed + defense == attribute_points, EAttributePointsMismatch);
+
+        object::delete(id);
+
+        Hero {
+            id: object::new(ctx),
+            character,
+            name,
+            level,
+            damage,
+            speed,
+            defense,
+        }
+    }
+
+    /// Mints a new hero and transfer them to the recipient.
+    /// A convenience function for the CLI.
+    public fun mint_hero_to_recipient(
+        ticket: MintTicket,
+        name: String,
+        damage: u8,
+        speed: u8,
+        defense: u8,
+        recipient: address,
+        ctx: &mut TxContext,
+    ) {
+        transfer::public_transfer(
+            mint_hero(ticket, name, damage, speed, defense, ctx),
+            recipient,
+        );
+    }
+
+    /// Levels up a hero with a level-up ticket.
+    public fun level_up_hero(
+        hero: &mut Hero,
+        ticket: LevelUpTicket,
+        damage: u8,
+        speed: u8,
+        defense: u8,
+    ) {
+        let LevelUpTicket { id, hero_id, attribute_points } = ticket;
+        assert!(object::borrow_id(hero) == &hero_id, EHeroIdMismatch);
+        assert!(damage + speed + defense == attribute_points, EAttributePointsMismatch);
+
+        object::delete(id);
+
+        hero.level = hero.level + 1;
+        hero.damage = hero.damage + damage;
+        hero.speed = hero.speed + speed;
+        hero.defense = hero.defense + defense;
+    }
+
+    /// Renames a hero.
+    public fun rename_hero(hero: &mut Hero, name: String) {
+        assert!(is_valid_hero_name(&name), EBadName);
+        hero.name = name;
+    }
+
+    /// Burns a hero.
+    public fun burn_hero(hero: Hero) {
+        let Hero {
+            id,
+            character: _,
+            name: _,
+            level: _,
+            damage: _,
+            speed: _,
+            defense: _,
+        } = hero;
+
+        object::delete(id);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Utilities.
+    ////////////////////////////////////////////////////////////////////////////
+
+    fun is_valid_hero_name(name: &String): bool {
+        !string::is_empty(name) && string::length(name) <= 128
     }
 }

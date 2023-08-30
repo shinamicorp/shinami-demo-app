@@ -4,7 +4,7 @@ import {
 } from "@/lib/api/handler";
 import { getUserWallet } from "@/lib/api/shinami";
 import { ApiErrorBody } from "@/lib/shared/error";
-import { Hero, PACKAGE_ID, UpdateHeroRequest } from "@/lib/shared/hero";
+import { Hero, LevelUpRequest, PACKAGE_ID } from "@/lib/shared/hero";
 import {
   WithOwner,
   WithTxDigest,
@@ -15,46 +15,13 @@ import { NextApiHandler } from "next";
 import { buildGaslessTransactionBytes } from "shinami";
 import { validate } from "superstruct";
 
-const burnHandler: NextApiHandler<
-  (WithOwner & WithTxDigest) | ApiErrorBody
-> = async (req, res) => {
-  const { id } = req.query;
-  const userWallet = (await getUserWallet(req, res))!;
-  const txBytes = await buildGaslessTransactionBytes({
-    sui,
-    build: async (txb) => {
-      txb.moveCall({
-        target: `${PACKAGE_ID}::hero::burn_hero`,
-        arguments: [txb.object(id as string)],
-      });
-    },
-  });
-
-  const txResp = await userWallet.executeGaslessTransactionBlock(
-    txBytes,
-    5_000_000,
-    { showEffects: true }
-  );
-
-  if (txResp.effects?.status.status !== "success") {
-    console.error("Tx execution failed", txResp);
-    return res.status(500).json({
-      error: `Tx execution failed: ${txResp.effects?.status.error}`,
-    });
-  }
-  res.json({
-    owner: { AddressOwner: await userWallet.getAddress() },
-    txDigest: txResp.digest,
-  });
-};
-
-const updateHandler: NextApiHandler<
+const handler: NextApiHandler<
   (Hero & WithOwner & WithTxDigest) | ApiErrorBody
 > = async (req, res) => {
   const { id } = req.query;
-  const [error, body] = validate(req.body, UpdateHeroRequest);
-  if (error) {
-    return res.status(400).json({ error: error.message });
+  const [_, body] = validate(req.body, LevelUpRequest);
+  if (!body) {
+    return res.status(400).json({ error: "Invalid request body" });
   }
 
   const userWallet = (await getUserWallet(req, res))!;
@@ -62,8 +29,14 @@ const updateHandler: NextApiHandler<
     sui,
     build: async (txb) => {
       txb.moveCall({
-        target: `${PACKAGE_ID}::hero::rename_hero`,
-        arguments: [txb.object(id as string), txb.pure(body.name)],
+        target: `${PACKAGE_ID}::hero::level_up_hero`,
+        arguments: [
+          txb.object(id as string),
+          txb.object(body.ticketId),
+          txb.pure(body.damage),
+          txb.pure(body.speed),
+          txb.pure(body.defense),
+        ],
       });
     },
   });
@@ -95,10 +68,7 @@ const updateHandler: NextApiHandler<
     }),
     Hero
   );
-
   res.json({ ...hero, txDigest: txResp.digest });
 };
 
-export default withVerifiedEmailRequired(
-  withMethodHandlers({ del: burnHandler, patch: updateHandler })
-);
+export default withVerifiedEmailRequired(withMethodHandlers({ post: handler }));
