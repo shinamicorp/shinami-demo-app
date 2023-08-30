@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Struct, create, intersection } from "superstruct";
-import { ApiErrorBody } from "../shared/error";
+import { ApiErrorBody, WithApiErrorBody } from "../shared/error";
 import {
   HERO_MOVE_TYPE,
   Hero,
@@ -48,7 +48,7 @@ function apiQueryFn<T>(schema: Struct<T>) {
     });
     const data = await resp.json();
     if (!resp.ok) {
-      throw new ApiError(create(data, ApiErrorBody));
+      throw new ApiError(create(data, WithApiErrorBody));
     }
     return create(data, schema);
   };
@@ -79,7 +79,7 @@ function apiMutationFn<T, P>(
     });
     const data = await resp.json();
     if (!resp.ok) {
-      throw new ApiError(create(data, ApiErrorBody));
+      throw new ApiError(create(data, WithApiErrorBody));
     }
     return create(data, resultSchema);
   };
