@@ -3,14 +3,13 @@ import {
   withMethodHandlers,
   withVerifiedEmailRequired,
 } from "@/lib/api/handler";
-import { adminWallet, getUserWallet } from "@/lib/api/shinami";
+import { adminWallet, getUserWallet, sui } from "@/lib/api/shinami";
 import { ApiErrorBody } from "@/lib/shared/error";
 import { LevelUpTicket, PACKAGE_ID } from "@/lib/shared/hero";
 import {
   WithOwner,
   WithTxDigest,
   parseObjectWithOwner,
-  sui,
 } from "@/lib/shared/sui";
 import { NextApiHandler } from "next";
 import { buildGaslessTransactionBytes } from "shinami";

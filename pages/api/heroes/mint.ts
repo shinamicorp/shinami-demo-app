@@ -2,14 +2,13 @@ import {
   withMethodHandlers,
   withVerifiedEmailRequired,
 } from "@/lib/api/handler";
-import { getUserWallet } from "@/lib/api/shinami";
+import { getUserWallet, sui } from "@/lib/api/shinami";
 import { ApiErrorBody } from "@/lib/shared/error";
 import { Hero, MintHeroRequest, PACKAGE_ID } from "@/lib/shared/hero";
 import {
   WithOwner,
   WithTxDigest,
   parseObjectWithOwner,
-  sui,
 } from "@/lib/shared/sui";
 import { NextApiHandler } from "next";
 import { buildGaslessTransactionBytes } from "shinami";

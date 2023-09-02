@@ -1,8 +1,8 @@
 import {
+  SuiClient,
   ObjectOwner as SuiObjectOwner,
   SuiObjectResponse,
 } from "@mysten/sui.js/client";
-import { createSuiClient } from "shinami";
 import {
   Describe,
   Infer,
@@ -14,14 +14,6 @@ import {
   type,
   union,
 } from "superstruct";
-import { throwExpression } from "./error";
-
-export const sui = createSuiClient(
-  process.env.NEXT_PUBLIC_NODE_ACCESS_KEY ??
-    throwExpression(new Error("NEXT_PUBLIC_NODE_ACCESS_KEY not configured")),
-  process.env.NEXT_PUBLIC_NODE_RPC_URL_OVERRIDE,
-  process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE
-);
 
 export const ObjectId = object({
   id: string(),
@@ -60,6 +52,7 @@ export const SendTarget = object({
 export type SendTarget = Infer<typeof SendTarget>;
 
 export async function* getOwnedObjects(
+  sui: SuiClient,
   owner: string,
   type?: string
 ): AsyncGenerator<SuiObjectResponse> {

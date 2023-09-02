@@ -1,6 +1,11 @@
 import { getSession } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
-import { KeyClient, ShinamiWalletSigner, WalletClient } from "shinami";
+import {
+  KeyClient,
+  ShinamiWalletSigner,
+  WalletClient,
+  createSuiClient,
+} from "shinami";
 import { ApiErrorBody, throwExpression } from "../shared/error";
 
 const SUPER_ACCESS_KEY =
@@ -23,6 +28,14 @@ export const key = new KeyClient(
 export const wal = new WalletClient(
   SUPER_ACCESS_KEY,
   process.env.WALLET_RPC_URL_OVERRIDE
+);
+
+// A separate sui client for backend only, using the super key.
+// This is so we can enable different access controls on the node key and the super key.
+export const sui = createSuiClient(
+  SUPER_ACCESS_KEY,
+  process.env.NEXT_PUBLIC_NODE_RPC_URL_OVERRIDE,
+  process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE
 );
 
 export const adminWallet = new ShinamiWalletSigner(
