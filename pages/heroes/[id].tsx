@@ -11,12 +11,19 @@
 //        3c2. Otherwise, show "request level-up" button, simulating an in-game milestone.
 //             Submit with useNewLevelUpTicket()
 
+import Canvas from "@/lib/components/Canvas";
 import { useWallet } from "@/lib/hooks/api";
 import { getSuiExplorerObjectUrl, useParsedSuiObject } from "@/lib/hooks/sui";
 import { Hero } from "@/lib/shared/hero";
 import { ownerAddress } from "@/lib/shared/sui";
 import Link from "next/link";
 import { useRouter } from "next/router";
+
+const heroImages = {
+  0: "/fighter-bg.jpg",
+  1: "/rogue-bg.jpg",
+  2: "/warrior-bg.jpg",
+};
 
 export default function HeroPage() {
   const router = useRouter();
@@ -29,7 +36,9 @@ export default function HeroPage() {
   const { data: wallet, isLoading: isLoadingWallet } = useWallet();
 
   return (
-    <>
+    <Canvas
+      image={heroImages[hero?.content.character as keyof typeof heroImages]}
+    >
       {isLoadingHero && <div>Loading hero...</div>}
       {!isLoadingHero && !hero && <div>Failed to load hero</div>}
       {hero && (
@@ -56,6 +65,6 @@ export default function HeroPage() {
           this hero
         </div>
       )}
-    </>
+    </Canvas>
   );
 }

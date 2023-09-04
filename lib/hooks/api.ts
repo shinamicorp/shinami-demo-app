@@ -98,6 +98,8 @@ export function useNewMintTicket(): UseMutationResult<
       intersection([WithMintTicket, WithOwner, WithTxDigest])
     ),
     onSuccess: (res) => {
+      // TODO remove
+      console.log(res);
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries([
         ...suiOwnedObjectsQueryKey,
@@ -105,6 +107,9 @@ export function useNewMintTicket(): UseMutationResult<
         MINT_TICKET_MOVE_TYPE,
       ]);
       queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
+    },
+    onError: (error: Error) => {
+      console.log(error);
     },
   });
 }

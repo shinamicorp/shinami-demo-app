@@ -1,4 +1,4 @@
-import { Box, Flex, Image } from "@chakra-ui/react";
+import { Box, Fade, Flex, Image } from "@chakra-ui/react";
 
 const Canvas = (props: {
   image: string;
@@ -14,18 +14,26 @@ const Canvas = (props: {
     | undefined;
 }) => {
   return (
-    <Flex height="100vh" width="100vw" align="center" justify="center">
-      <Box height="1024px" width="1440px" backgroundImage={props.image}>
-        <Image
-          position="absolute"
-          padding="40px"
-          src="/shinami-games.svg"
-          alt="Shinami games logo"
-        />
-        <Flex height="100%" width="100%" align="center" justify="center">
-          {props.children}
-        </Flex>
-      </Box>
+    <Flex
+      height="100vh"
+      width="100vw"
+      align="center"
+      justify="center"
+      backgroundColor="black"
+    >
+      <Fade transition={{ enter: { duration: 2 } }} in>
+        <Box height="1024px" width="1440px" backgroundImage={props.image}>
+          <Image
+            position="absolute"
+            padding="40px"
+            src="/shinami-games.svg"
+            alt="Shinami games logo"
+          />
+          <Flex height="100%" width="100%" align="center" justify="center">
+            {props.children}
+          </Flex>
+        </Box>
+      </Fade>
     </Flex>
   );
 };

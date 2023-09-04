@@ -7,6 +7,9 @@ import {
   Image,
   VStack,
   Text,
+  HStack,
+  Fade,
+  ScaleFade,
 } from "@chakra-ui/react";
 
 export const Divider = () => (
@@ -17,9 +20,9 @@ export const Divider = () => (
   ></Box>
 );
 
-export const Button = ({ children, variant, href }: any) => (
+export const Button = ({ children, variant, href, type = "" }: any) => (
   <Link href={href}>
-    <ChakraButton variant={variant}>
+    <ChakraButton type={type} variant={variant}>
       <span style={{ transform: "skew(10deg)" }}>{children}</span>
     </ChakraButton>
   </Link>
@@ -117,5 +120,30 @@ export const HeroCard = ({ name, character }: HeroCardProps) => {
         </Text>
       </VStack>
     </Flex>
+  );
+};
+
+export const HeroAttributes = ({ count }: any) => {
+  return (
+    <HStack>
+      {[...Array(count)].map((e, i) => (
+        <ScaleFade
+          initialScale={0.8}
+          key={i}
+          transition={{ enter: { duration: i / 8 } }}
+          in
+        >
+          <Box
+            key={i}
+            height="26px"
+            width="24px"
+            bgGradient="linear-gradient(180deg, #00A3FF 27.60%, #0FF 100%)"
+            transform="skew(-10deg)"
+            borderRadius="4"
+            border="2px #FFF solid"
+          />
+        </ScaleFade>
+      ))}
+    </HStack>
   );
 };

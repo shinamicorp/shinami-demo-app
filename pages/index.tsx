@@ -1,17 +1,20 @@
 import Canvas from "@/lib/components/Canvas";
-import {
-  Button,
-  Divider,
-  HeroCard,
-  NewHeroCard,
-} from "@/lib/components/Elements";
+import { Divider, HeroCard, NewHeroCard } from "@/lib/components/Elements";
 import { withUserWallet } from "@/lib/components/auth";
 import {
   getSuiExplorerAddressUrl,
   useParsedSuiOwnedObjects,
 } from "@/lib/hooks/sui";
 import { HERO_MOVE_TYPE, Hero } from "@/lib/shared/hero";
-import { Box, Flex, HStack, Heading, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Button,
+  Heading,
+  VStack,
+  ScaleFade,
+  HStack,
+} from "@chakra-ui/react";
 import Link from "next/link";
 
 export default withUserWallet(({ user, wallet }) => {
@@ -22,7 +25,7 @@ export default withUserWallet(({ user, wallet }) => {
   );
 
   return (
-    <Canvas image="/home-bg.jpg">
+    <Canvas image="/hero-select-bg.jpg">
       <Flex flexDir="column" align="center">
         {/* <div>
           <h2>{user.name}&apos;s wallet</h2>
@@ -37,40 +40,51 @@ export default withUserWallet(({ user, wallet }) => {
             {heroes.length === 0 && (
               <VStack gap="50px">
                 <Heading size="3xl">No Heroes yet</Heading>
-                {/* <NewHeroCard /> */}
-                <HStack gap="10">
-                  <HeroCard name="Shilo" character={0} />
-                  <HeroCard name="Olive" character={1} />
-                  <HeroCard name="Ragnar" character={2} />
-                </HStack>
+                <Link href="/heroes/new">
+                  <ScaleFade
+                    initialScale={0.95}
+                    transition={{ enter: { duration: 1 } }}
+                    in
+                  >
+                    <NewHeroCard />
+                  </ScaleFade>
+                </Link>
               </VStack>
             )}
             {heroes.length > 0 && (
-              <div>
+              <VStack gap="50px">
                 <Heading size="3xl">My Heroes</Heading>
-                <ul>
-                  {heroes.map((hero) => (
-                    <li key={hero.id.id}>
-                      <Link href={`/heroes/${hero.id.id}}`}>{hero.name}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                <ScaleFade
+                  initialScale={0.95}
+                  transition={{ enter: { duration: 1 } }}
+                  in
+                >
+                  <HStack gap="42px">
+                    {heroes.map((hero) => (
+                      <Link key={hero.id.id} href={`/heroes/${hero.id.id}`}>
+                        <HeroCard name={hero.name} character={hero.character} />
+                      </Link>
+                    ))}
+                  </HStack>
+                </ScaleFade>
+              </VStack>
             )}
           </div>
         )}
         <VStack width="1028px" gap="50px" mt="70px">
           <Divider />
           <VStack gap="22px">
-            <Button variant="solid" href={"/heroes/new"}>
-              Create new hero
+            <Link href="/heroes/new">
+              <Button isDisabled={heroes?.length === 3} variant="solid">
+                <Box transform="skew(10deg)">Create new hero</Box>
+              </Button>
+            </Link>
+            <Button variant="outline">
+              <Box transform="skew(10deg)">SUI Explorer</Box>
             </Button>
-            <Button variant="outline" href={"/"}>
-              SUI Explorer
-            </Button>
-            <Button variant="outline" href={"/api/auth/logout"}>
-              Logout
-            </Button>
+            <Link href="/api/auth/logout">
+              <Button variant="ghost">Logout</Button>
+            </Link>
           </VStack>
         </VStack>
       </Flex>

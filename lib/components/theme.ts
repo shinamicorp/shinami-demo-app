@@ -16,9 +16,7 @@ export const theme = extendTheme({
         _active: {
           transform: "skew(-10deg) scale(0.98)",
         },
-        _hover: {
-          boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
-        },
+        _hover: {},
       },
       sizes: {
         lg: {
@@ -38,7 +36,8 @@ export const theme = extendTheme({
         solid: {
           bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.70) 0%, rgba(222, 202, 173, 0.70) 100%)",
           _hover: {
-            bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.80) 0%, rgba(222, 202, 173, 0.80) 100%)",
+            bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.80) 0%, rgba(222, 202, 173, 0.80), 100%)",
+            boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
           },
           _active: {
             bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.80) 0%, rgba(222, 202, 173, 0.80) 100%)",
@@ -47,6 +46,19 @@ export const theme = extendTheme({
         outline: {
           border: "2px #FFF solid",
           borderColor: "#FFF",
+          _hover: {
+            boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
+          },
+        },
+        ghost: {
+          border: "none",
+          _hover: {
+            textDecoration: "underline",
+            bg: "none",
+          },
+          _active: {
+            bg: "none",
+          },
         },
       },
 
