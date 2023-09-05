@@ -29,7 +29,13 @@ const Canvas = (props: {
             src="/shinami-games.svg"
             alt="Shinami games logo"
           />
-          <Flex height="100%" width="100%" align="center" justify="center">
+          <Flex
+            height="100%"
+            width="100%"
+            align="center"
+            justify="center"
+            direction="column"
+          >
             {props.children}
           </Flex>
         </Box>

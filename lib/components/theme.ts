@@ -7,7 +7,6 @@ export const theme = extendTheme({
   },
   components: {
     Button: {
-      // 1. We can update the base styles
       baseStyle: {
         fontFamily: "var(--font-irishGrover)",
         border: "2px #FFF solid",
@@ -28,9 +27,14 @@ export const theme = extendTheme({
       },
 
       variants: {
-        "with-shadow": {
-          bg: "red.400",
-          boxShadow: "0 0 2px 2px #efdfde",
+        danger: {
+          bg: "#0000009c",
+          border: "2px red solid",
+          borderColor: "red",
+          color: "red",
+          _hover: {
+            boxShadow: "0px 0px 10px #F00",
+          },
         },
 
         solid: {

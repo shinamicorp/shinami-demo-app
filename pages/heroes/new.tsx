@@ -57,6 +57,7 @@ const heroAtts = {
 export default withUserWallet(({ user, wallet }) => {
   const [hero, setHero] = useState(0);
   const [heroName, setHeroName] = useState("");
+  const [mintStatus, setMintStatus] = useState(0);
 
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -81,7 +82,9 @@ export default withUserWallet(({ user, wallet }) => {
 
     if (
       mintTickets &&
-      !mintTickets.find((ticket) => ticket.character === hero)
+      !mintTickets.find(
+        (ticket) => ticket.character === hero && ticket.attribute_points === 10
+      )
     ) {
       newMintTicket.mutateAsync({ character: hero }).then(() => {
         const ticket = mintTickets.find(
@@ -89,13 +92,16 @@ export default withUserWallet(({ user, wallet }) => {
             ticket.character === hero && ticket.attribute_points === 10
         );
         if (ticket) {
-          mintHero.mutate({
-            name: heroName,
-            damage: heroAtts[hero as keyof typeof heroAtts].damage,
-            speed: heroAtts[hero as keyof typeof heroAtts].speed,
-            defense: heroAtts[hero as keyof typeof heroAtts].defense,
-            ticketId: ticket.id.id,
-          });
+          mintHero
+            .mutateAsync({
+              name: heroName,
+              damage: heroAtts[hero as keyof typeof heroAtts].damage,
+              speed: heroAtts[hero as keyof typeof heroAtts].speed,
+              defense: heroAtts[hero as keyof typeof heroAtts].defense,
+              ticketId: ticket.id.id,
+            })
+            .then(() => setMintStatus(1))
+            .catch(() => setMintStatus(2));
         }
       });
     } else if (mintTickets) {
@@ -103,13 +109,16 @@ export default withUserWallet(({ user, wallet }) => {
         (ticket) => ticket.character === hero && ticket.attribute_points === 10
       );
       if (ticket) {
-        mintHero.mutate({
-          name: heroName,
-          damage: heroAtts[hero as keyof typeof heroAtts].damage,
-          speed: heroAtts[hero as keyof typeof heroAtts].speed,
-          defense: heroAtts[hero as keyof typeof heroAtts].defense,
-          ticketId: ticket.id.id,
-        });
+        mintHero
+          .mutateAsync({
+            name: heroName,
+            damage: heroAtts[hero as keyof typeof heroAtts].damage,
+            speed: heroAtts[hero as keyof typeof heroAtts].speed,
+            defense: heroAtts[hero as keyof typeof heroAtts].defense,
+            ticketId: ticket.id.id,
+          })
+          .then(() => setMintStatus(1))
+          .catch(() => setMintStatus(2));
       }
     }
 
@@ -258,7 +267,7 @@ export default withUserWallet(({ user, wallet }) => {
         isCentered
         size="2xl"
       >
-        <ModalOverlay />
+        <ModalOverlay background="#000000e6" />
         <ModalContent
           py="55px"
           display="flex"
@@ -275,12 +284,31 @@ export default withUserWallet(({ user, wallet }) => {
             gap="32px"
             alignItems="center"
           >
-            <Heading textAlign="center" size="3xl">
-              A hero is born!
-            </Heading>
-            <Button onClick={() => router.replace("/")}>
-              Let&apos;s make history
-            </Button>
+            {mintStatus === 0 && (
+              <>
+                <Heading textAlign="center" size="3xl">
+                  Minting hero
+                </Heading>
+              </>
+            )}
+            {mintStatus == 1 && (
+              <>
+                <Heading textAlign="center" size="3xl">
+                  A hero is born!
+                </Heading>
+                <Button onClick={() => router.replace("/")}>
+                  Let&apos;s make history
+                </Button>
+              </>
+            )}
+            {mintStatus == 2 && (
+              <>
+                <Heading textAlign="center" size="3xl">
+                  Error creating hero
+                </Heading>
+                <Button onClick={onClose}>Go back</Button>
+              </>
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>
