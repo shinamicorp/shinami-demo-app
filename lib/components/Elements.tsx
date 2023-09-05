@@ -123,7 +123,15 @@ export const HeroCard = ({ name, character }: HeroCardProps) => {
   );
 };
 
-export const HeroAttributes = ({ count }: any) => {
+interface HeroAttributesProps {
+  count: number;
+  edit?: boolean;
+}
+
+export const HeroAttributes = ({
+  count,
+  edit = false,
+}: HeroAttributesProps) => {
   return (
     <HStack>
       {[...Array(count)].map((e, i) => (
@@ -144,6 +152,24 @@ export const HeroAttributes = ({ count }: any) => {
           />
         </ScaleFade>
       ))}
+      {edit &&
+        [...Array(10 - count)].map((e, i) => (
+          <ScaleFade
+            initialScale={0.8}
+            key={i}
+            transition={{ enter: { duration: i / 8 } }}
+            in
+          >
+            <Box
+              key={i}
+              height="26px"
+              width="24px"
+              transform="skew(-10deg)"
+              borderRadius="4"
+              border="2px #FFF solid"
+            />
+          </ScaleFade>
+        ))}
     </HStack>
   );
 };

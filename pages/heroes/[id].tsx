@@ -12,7 +12,7 @@
 //             Submit with useNewLevelUpTicket()
 
 import Canvas from "@/lib/components/Canvas";
-import { Divider } from "@/lib/components/Elements";
+import { Divider, HeroAttributes } from "@/lib/components/Elements";
 import { useBurnHero, useWallet } from "@/lib/hooks/api";
 import { getSuiExplorerObjectUrl, useParsedSuiObject } from "@/lib/hooks/sui";
 import { Hero } from "@/lib/shared/hero";
@@ -20,6 +20,7 @@ import { ownerAddress } from "@/lib/shared/sui";
 import { Box, Button, HStack, Heading, Icon, VStack } from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 const heroImages = {
   0: "/fighter-bg.jpg",
@@ -48,11 +49,18 @@ const DeleteIcon = (
 export default function HeroPage() {
   const router = useRouter();
   const heroId = router.query.id as string;
-
   const { data: hero, isLoading: isLoadingHero } = useParsedSuiObject(
     heroId,
     Hero
   );
+
+  const [editAttributes, setEditAttributes] = useState(false);
+  const [heroAttributes, setHeroAttributes] = useState(hero?.content);
+
+  useEffect(() => {
+    setHeroAttributes(hero?.content);
+  }, [hero]);
+
   const { data: wallet, isLoading: isLoadingWallet } = useWallet();
 
   const burnHero = useBurnHero();
@@ -63,7 +71,7 @@ export default function HeroPage() {
       .then(() => router.replace("/"))
       .catch(() => console.log("Hero delete unsuccessful"));
   };
-
+  console.log(heroAttributes);
   return (
     <Canvas
       image={heroImages[hero?.content.character as keyof typeof heroImages]}
@@ -71,12 +79,52 @@ export default function HeroPage() {
       {isLoadingHero && <div>Loading hero...</div>}
       {!isLoadingHero && !hero && <div>Failed to load hero</div>}
       {hero && (
-        <HStack width="80%" height="70%" justifyContent="space-between">
+        <HStack
+          mt="50px"
+          width="80%"
+          height="70%"
+          justifyContent="space-between"
+        >
           <VStack height="100%" align="start" justify="space-between">
-            <VStack>
+            <Box>
               <Heading size="4xl">{hero.content.name}</Heading>
               <Heading>Level: {hero.content.level}</Heading>
-            </VStack>
+              <VStack mt="42px" mb="32px" align="start" gap="22px">
+                <HStack>
+                  <Heading size="lg">Damage: </Heading>
+                  <HeroAttributes
+                    edit={editAttributes}
+                    count={hero.content.damage}
+                  />
+                </HStack>
+                <HStack>
+                  <Heading size="lg">Speed:</Heading>
+                  <HeroAttributes
+                    edit={editAttributes}
+                    count={hero.content.speed}
+                  />
+                </HStack>
+                <HStack>
+                  <Heading size="lg">Defense:</Heading>
+                  <HeroAttributes
+                    edit={editAttributes}
+                    count={hero.content.defense}
+                  />
+                </HStack>
+              </VStack>
+              <Button
+                onClick={() => setEditAttributes((prev) => !prev)}
+                leftIcon={TransferIcon}
+                size="md"
+                variant="outline"
+              >
+                {editAttributes ? (
+                  <Box transform="skew(10deg)">Save</Box>
+                ) : (
+                  <Box transform="skew(10deg)">Spend points</Box>
+                )}
+              </Button>
+            </Box>
             <Link href="/">
               <Button minW="none" variant="ghost">
                 Go back
