@@ -75,8 +75,12 @@ export default withUserWallet(({ user, wallet }) => {
           <Divider />
           <VStack gap="22px">
             <Link href="/heroes/new">
-              <Button isDisabled={heroes?.length === 3} variant="solid">
-                <Box transform="skew(10deg)">Create new hero</Box>
+              <Button isDisabled={heroes?.length === 4} variant="solid">
+                {heroes?.length === 4 ? (
+                  <Box transform="skew(10deg)">Hero limit reached</Box>
+                ) : (
+                  <Box transform="skew(10deg)">Create new hero</Box>
+                )}
               </Button>
             </Link>
             <Button variant="outline">

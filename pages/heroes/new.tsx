@@ -8,6 +8,7 @@
 
 import { withUserWallet } from "@/lib/components/auth";
 import Canvas from "@/lib/components/Canvas";
+import { Carousel } from "@/lib/components/carousel";
 import { HeroCard, Divider, HeroAttributes } from "@/lib/components/Elements";
 import { useMintHero, useNewMintTicket } from "@/lib/hooks/api";
 import {
@@ -46,7 +47,6 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { Carousel } from "react-carousel-card-3d";
 
 const heroAtts = {
   0: { damage: 3, speed: 4, defense: 3 },
