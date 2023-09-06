@@ -2,6 +2,7 @@ import { getSession } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   KeyClient,
+  KeySession,
   ShinamiWalletSigner,
   WalletClient,
   createSuiClient,
@@ -40,10 +41,12 @@ export const sui = createSuiClient(
 
 export const adminWallet = new ShinamiWalletSigner(
   "demo:admin", // admin wallet id
+  wal,
   ADMIN_WALLET_SECRET,
-  key,
-  wal
+  key
 );
+
+export const userWalletSession = new KeySession(PLAYER_WALLET_SECRET, key);
 
 export async function getUserWallet(
   req: NextApiRequest,
@@ -57,8 +60,7 @@ export async function getUserWallet(
 
   return new ShinamiWalletSigner(
     `demo:user:${user.email}`, // user wallet id
-    PLAYER_WALLET_SECRET,
-    key,
-    wal
+    wal,
+    userWalletSession
   );
 }
