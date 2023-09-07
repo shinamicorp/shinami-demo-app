@@ -103,9 +103,14 @@ export default withUserWallet(({ user, wallet }) => {
                 )}
               </Button>
             </Link>
-            <Button variant="outline">
-              <Box transform="skew(10deg)">SUI Explorer</Box>
-            </Button>
+            <Link
+              href={getSuiExplorerAddressUrl(wallet.address)}
+              target="_blank"
+            >
+              <Button variant="outline">
+                <Box transform="skew(10deg)">Wallet</Box>
+              </Button>
+            </Link>
             <Link href="/api/auth/logout">
               <Button variant="ghost">Logout</Button>
             </Link>

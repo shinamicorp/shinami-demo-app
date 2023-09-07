@@ -116,7 +116,7 @@ export const HeroCard = ({ name, character, levelUpPoints }: HeroCardProps) => {
         borderBottomRadius="20px"
         justify="center"
       >
-        <Text color="#2E2E2E" fontSize="28px" fontWeight="700">
+        <Text color="#2E2E2E" fontSize="32px">
           {name}
         </Text>
       </VStack>
@@ -133,7 +133,7 @@ export const HeroCard = ({ name, character, levelUpPoints }: HeroCardProps) => {
         transform="skew(10deg)"
         display={levelUpPoints ? "flex" : "none"}
       >
-        <Heading size="lg">4</Heading>
+        <Heading size="lg">+</Heading>
       </Box>
     </Flex>
   );

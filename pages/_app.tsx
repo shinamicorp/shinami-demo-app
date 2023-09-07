@@ -3,11 +3,12 @@ import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { AppProps } from "next/app";
-import { Irish_Grover } from "next/font/google";
+import { Irish_Grover, Metal_Mania } from "next/font/google";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 const irishGrover = Irish_Grover({ weight: "400", subsets: ["latin"] });
+const metalMania = Metal_Mania({ weight: "400", subsets: ["latin"] });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -16,6 +17,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         {`
           :root {
             --font-irishGrover: ${irishGrover.style.fontFamily};
+            --font-metalMania: ${metalMania.style.fontFamily};
           }
         `}
       </style>

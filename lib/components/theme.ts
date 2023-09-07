@@ -3,7 +3,7 @@ import { StyleFunctionProps, extendTheme } from "@chakra-ui/react";
 export const theme = extendTheme({
   fonts: {
     heading: "var(--font-irishGrover)",
-    //body: "var(--font-irishGrover)",
+    body: "var(--font-metalMania)",
   },
   components: {
     Button: {

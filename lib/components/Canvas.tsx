@@ -22,7 +22,12 @@ const Canvas = (props: {
       backgroundColor="black"
     >
       <Fade transition={{ enter: { duration: 2 } }} in>
-        <Box height="1024px" width="1460px" backgroundImage={props.image}>
+        <Box
+          height="1024px"
+          width="1460px"
+          backgroundImage={props.image}
+          backgroundSize="cover"
+        >
           <Image
             position="absolute"
             padding="40px"

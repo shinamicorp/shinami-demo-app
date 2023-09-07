@@ -18,6 +18,7 @@ import {
   useBurnHero,
   useLevelUpHero,
   useNewLevelUpTicket,
+  useSendHero,
   useWallet,
 } from "@/lib/hooks/api";
 import {
@@ -47,6 +48,10 @@ import {
   useDisclosure,
   Image,
   ScaleFade,
+  FormControl,
+  FormErrorMessage,
+  Input,
+  Textarea,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -129,20 +134,21 @@ export default withUserWallet(({ user, wallet }) => {
     LEVEL_UP_TICKET_MOVE_TYPE,
     LevelUpTicket
   );
-  const {
-    data: hero,
-    isLoading: isLoadingHero,
-    refetch: refetchHero,
-  } = useParsedSuiObject(heroId, Hero);
+  const { data: hero, isLoading: isLoadingHero } = useParsedSuiObject(
+    heroId,
+    Hero
+  );
   const newLevelUpTicket = useNewLevelUpTicket();
   const levelUpHero = useLevelUpHero();
   const burnHero = useBurnHero();
+  const sendHero = useSendHero();
 
   const [editAttributes, setEditAttributes] = useState(false);
   const [heroAttributes, setHeroAttributes] = useState(hero?.content);
   const [heroStatus, setHeroStatus] = useState(0);
   const [hasLevelUpTicket, setHasLevelUpTicket] = useState(false);
   const [levelUpPoints, setLevelUpPoints] = useState(0);
+  const [walletTransfer, setWalletTransfer] = useState("");
 
   useEffect(() => {
     setHeroAttributes(hero?.content);
@@ -195,6 +201,24 @@ export default withUserWallet(({ user, wallet }) => {
         .then(() => {
           setLevelUpPoints(0);
           setEditAttributes(false);
+        });
+    }
+  };
+
+  const handleTransfer = (e: any) => {
+    e.preventDefault();
+
+    if (hero) {
+      sendHero
+        .mutateAsync({
+          heroId: hero.content.id.id,
+          recipient: walletTransfer,
+        })
+        .then(() => {
+          setHeroStatus(4);
+        })
+        .catch(() => {
+          setHeroStatus(5);
         });
     }
   };
@@ -345,9 +369,18 @@ export default withUserWallet(({ user, wallet }) => {
                 </HStack>
                 {editAttributes && (
                   <HStack>
-                    <Heading size="lg">
-                      Level up points remaining: {levelUpPoints}
-                    </Heading>
+                    <Heading size="lg">Level up points remaining:</Heading>
+                    <Box
+                      alignItems="center"
+                      justifyContent="center"
+                      backgroundColor="red"
+                      borderRadius="100px"
+                      w="40px"
+                      h="40px"
+                      display="flex"
+                    >
+                      <Heading size="lg">{levelUpPoints}</Heading>
+                    </Box>
                   </HStack>
                 )}
               </VStack>
@@ -372,7 +405,7 @@ export default withUserWallet(({ user, wallet }) => {
                     isLoading={levelUpHero.isLoading}
                     isDisabled={levelUpPoints > 0}
                   >
-                    <Box transform="skew(10deg)">Save</Box>
+                    <Box transform="skew(10deg)">Level up!</Box>
                   </Button>
                 </HStack>
               ) : (
@@ -386,14 +419,16 @@ export default withUserWallet(({ user, wallet }) => {
                   <Box transform="skew(10deg)">Spend points</Box>
                   <Box
                     position="absolute"
+                    alignItems="center"
+                    justifyContent="center"
                     top="-10px"
                     right="-10px"
                     backgroundColor="red"
                     borderRadius="100px"
-                    px="9px"
-                    py="4px"
+                    h="28px"
+                    width="28px"
                     transform="skew(10deg)"
-                    display={hasLevelUpTicket ? "block" : "none"}
+                    display={hasLevelUpTicket ? "flex" : "none"}
                   >
                     {levelUpPoints}
                   </Box>
@@ -418,7 +453,15 @@ export default withUserWallet(({ user, wallet }) => {
                 </Button>
               </Link>
 
-              <Button leftIcon={TransferIcon} size="md" variant="outline">
+              <Button
+                onClick={() => {
+                  setHeroStatus(3);
+                  onOpen();
+                }}
+                leftIcon={TransferIcon}
+                size="md"
+                variant="outline"
+              >
                 <Box transform="skew(10deg)">Transfer</Box>
               </Button>
               <Button
@@ -464,7 +507,7 @@ export default withUserWallet(({ user, wallet }) => {
           height="600px"
         >
           <ModalBody
-            width="300px"
+            width="432px"
             display="flex"
             flexDir="column"
             gap="32px"
@@ -478,10 +521,12 @@ export default withUserWallet(({ user, wallet }) => {
                   transition={{ enter: { duration: 1 } }}
                   in
                 >
-                  <Image src="/spinner.svg" alt="spinner" />
-                  <Heading textAlign="center" size="3xl">
-                    Burning hero!
-                  </Heading>
+                  <VStack>
+                    <Image src="/spinner.svg" alt="spinner" />
+                    <Heading textAlign="center" size="3xl">
+                      Burning hero!
+                    </Heading>
+                  </VStack>
                 </ScaleFade>
               </>
             )}
@@ -503,6 +548,79 @@ export default withUserWallet(({ user, wallet }) => {
               <>
                 <Heading textAlign="center" size="3xl">
                   Unable to burn hero
+                </Heading>
+                <Button onClick={onClose}>Go back</Button>
+              </>
+            )}
+            {heroStatus == 3 && !sendHero.isLoading && (
+              <>
+                <Heading textAlign="center" size="3xl">
+                  Transfer hero
+                </Heading>
+                <form action="" onSubmit={handleTransfer}>
+                  <FormControl isRequired mb="22px">
+                    <Textarea
+                      value={walletTransfer}
+                      autoComplete="off"
+                      onChange={(e) => setWalletTransfer(e.target.value)}
+                      _hover={{
+                        border: "2px #FFF solid",
+                        boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
+                      }}
+                      _focus={{
+                        border: "2px #FFF solid",
+                        boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
+                      }}
+                      _placeholder={{ color: "#fff" }}
+                      border={"2px #FFF solid"}
+                      placeholder="Enter wallet address"
+                      fontFamily="var(--font-irishGrover)"
+                      fontSize="2xl"
+                      width="432px"
+                      height="200px"
+                    />
+                    <FormErrorMessage>
+                      Wallet address is required
+                    </FormErrorMessage>
+                  </FormControl>
+                  <HStack justifyContent="space-between">
+                    <Button
+                      onClick={() => {
+                        onClose();
+                        setHeroStatus(0);
+                      }}
+                      variant="outline"
+                      size="md"
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" size="md">
+                      Transfer
+                    </Button>
+                  </HStack>
+                </form>
+              </>
+            )}
+            {sendHero.isLoading && (
+              <>
+                <Image src="/spinner.svg" alt="spinner" />
+                <Heading textAlign="center" size="3xl">
+                  Sending hero!
+                </Heading>
+              </>
+            )}
+            {heroStatus === 4 && (
+              <>
+                <Heading textAlign="center" size="3xl">
+                  Hero sent!
+                </Heading>
+                <Button onClick={() => router.replace("/")}>Go home</Button>
+              </>
+            )}
+            {heroStatus == 5 && (
+              <>
+                <Heading textAlign="center" size="3xl">
+                  Unable to send hero
                 </Heading>
                 <Button onClick={onClose}>Go back</Button>
               </>
