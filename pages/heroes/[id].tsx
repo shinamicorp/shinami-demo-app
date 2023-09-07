@@ -480,7 +480,7 @@ export default withUserWallet(({ user, wallet }) => {
                 size="md"
                 variant="danger"
               >
-                <Box transform="skew(10deg)">Delete hero</Box>
+                <Box transform="skew(10deg)">Burn hero</Box>
               </Button>
             </HStack>
           </VStack>
