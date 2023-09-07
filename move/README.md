@@ -41,6 +41,7 @@ Priviledged operations:
 - Issuing new `hero::LevelUpTicket` to players, which indirectly controls the evolution of `hero::Hero` objects.
   - `hero::LevelUpTicket` can be freely transferred.
     However, it's only usable on a specific `hero::Hero`.
+- Relinquishing its admin role by burning the `hero::AdminCap` object.
 
 ### Player
 
@@ -54,6 +55,7 @@ Priviledged operations:
 - Transferring an owned `hero::Hero` to someone else.
   - This allows players to freely export their heroes to their self-custody wallets, or to a marketplace.
   - They can also import heroes acquired somewhere else into their in-game wallets.
+- Burning an owned `hero::Hero`.
 
 ### Observer
 
