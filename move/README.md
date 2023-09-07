@@ -29,6 +29,10 @@ A game admin, identified by the possession of a `hero::AdminCap`.
 This role is intended to be machine-operated, running on game servers.
 It can also be played by a human when ad-hoc operations need to be performed.
 
+> 💡 Note that `hero::AdminCap` objects are a means to control priviledged operations while taking advantage of Sui's partial transaction ordering, to minimize latency and maximize concurrency.
+Like with any owned objects on Sui, you are responsible for sequentializing transactions involving the same object.
+To increase concurrency, you can simply mint more `hero::AdminCap` objects and assign them to multiple backend servers.
+
 Priviledged operations:
 
 - Issuing and transferring new `hero::MintTicket` to players, which indirectly controls the supply of `hero::Hero` objects.
