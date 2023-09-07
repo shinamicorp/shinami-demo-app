@@ -5,7 +5,12 @@ import {
   getSuiExplorerAddressUrl,
   useParsedSuiOwnedObjects,
 } from "@/lib/hooks/sui";
-import { HERO_MOVE_TYPE, Hero } from "@/lib/shared/hero";
+import {
+  HERO_MOVE_TYPE,
+  Hero,
+  LEVEL_UP_TICKET_MOVE_TYPE,
+  LevelUpTicket,
+} from "@/lib/shared/hero";
 import {
   Box,
   Flex,
@@ -22,6 +27,12 @@ export default withUserWallet(({ user, wallet }) => {
     wallet.address,
     HERO_MOVE_TYPE,
     Hero
+  );
+
+  const { data: levelUpTickets } = useParsedSuiOwnedObjects(
+    wallet.address,
+    LEVEL_UP_TICKET_MOVE_TYPE,
+    LevelUpTicket
   );
 
   return (
@@ -60,11 +71,20 @@ export default withUserWallet(({ user, wallet }) => {
                   in
                 >
                   <HStack gap="42px">
-                    {heroes.map((hero) => (
-                      <Link key={hero.id.id} href={`/heroes/${hero.id.id}`}>
-                        <HeroCard name={hero.name} character={hero.character} />
-                      </Link>
-                    ))}
+                    {heroes.map((hero) => {
+                      const levelup = levelUpTickets?.find(
+                        (ticket) => ticket.hero_id === hero.id.id
+                      );
+                      return (
+                        <Link key={hero.id.id} href={`/heroes/${hero.id.id}`}>
+                          <HeroCard
+                            name={hero.name}
+                            character={hero.character}
+                            levelUpPoints={!!levelup}
+                          />
+                        </Link>
+                      );
+                    })}
                   </HStack>
                 </ScaleFade>
               </VStack>
@@ -75,8 +95,8 @@ export default withUserWallet(({ user, wallet }) => {
           <Divider />
           <VStack gap="22px">
             <Link href="/heroes/new">
-              <Button isDisabled={heroes?.length === 4} variant="solid">
-                {heroes?.length === 4 ? (
+              <Button isDisabled={heroes?.length === 3} variant="solid">
+                {heroes?.length === 3 ? (
                   <Box transform="skew(10deg)">Hero limit reached</Box>
                 ) : (
                   <Box transform="skew(10deg)">Create new hero</Box>

@@ -65,9 +65,10 @@ export const NewHeroCard = () => (
 interface HeroCardProps {
   name: string;
   character: number;
+  levelUpPoints?: boolean;
 }
 
-export const HeroCard = ({ name, character }: HeroCardProps) => {
+export const HeroCard = ({ name, character, levelUpPoints }: HeroCardProps) => {
   const characters: { [index: number]: string } = {
     0: "/fighter-p.png",
     1: "/rogue-p.png",
@@ -119,6 +120,21 @@ export const HeroCard = ({ name, character }: HeroCardProps) => {
           {name}
         </Text>
       </VStack>
+      <Box
+        alignItems="center"
+        justifyContent="center"
+        position="absolute"
+        top="-10px"
+        right="-10px"
+        backgroundColor="red"
+        borderRadius="100px"
+        w="40px"
+        h="40px"
+        transform="skew(10deg)"
+        display={levelUpPoints ? "flex" : "none"}
+      >
+        <Heading size="lg">4</Heading>
+      </Box>
     </Flex>
   );
 };

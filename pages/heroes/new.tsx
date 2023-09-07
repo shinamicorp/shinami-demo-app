@@ -46,7 +46,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const heroAtts = {
   0: { damage: 3, speed: 4, defense: 3 },
@@ -58,6 +58,33 @@ export default withUserWallet(({ user, wallet }) => {
   const [hero, setHero] = useState(0);
   const [heroName, setHeroName] = useState("");
   const [mintStatus, setMintStatus] = useState(0);
+  const [hasMintTicket, setHasMintTicket] = useState(false);
+  const { data: mintTickets, isLoading } = useParsedSuiOwnedObjects(
+    wallet.address,
+    MINT_TICKET_MOVE_TYPE,
+    MintTicket,
+    (hero) => hero.attribute_points === 10
+  );
+  const newMintTicket = useNewMintTicket();
+  const mintHero = useMintHero();
+
+  useEffect(() => {
+    if (
+      mintTickets &&
+      mintTickets.find((ticket) => ticket.character === hero)
+    ) {
+      setHasMintTicket(true);
+    } else if (mintTickets && !hasMintTicket) {
+      newMintTicket
+        .mutateAsync({ character: hero })
+        .then(() => {
+          setHasMintTicket(true);
+        })
+        .catch(() => setHasMintTicket(false));
+    } else {
+      setHasMintTicket(false);
+    }
+  }, [hero, mintTickets, hasMintTicket]); // including newMintTicket caused infinite loop
 
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -69,45 +96,11 @@ export default withUserWallet(({ user, wallet }) => {
     setHero((prev) => (((prev - 1) % 3) + 3) % 3);
   };
 
-  const { data: mintTickets, isLoading } = useParsedSuiOwnedObjects(
-    wallet.address,
-    MINT_TICKET_MOVE_TYPE,
-    MintTicket
-  );
-  const newMintTicket = useNewMintTicket();
-  const mintHero = useMintHero();
-
   const handleSubmit = (e: any) => {
     e.preventDefault();
 
-    if (
-      mintTickets &&
-      !mintTickets.find(
-        (ticket) => ticket.character === hero && ticket.attribute_points === 10
-      )
-    ) {
-      newMintTicket.mutateAsync({ character: hero }).then(() => {
-        const ticket = mintTickets.find(
-          (ticket) =>
-            ticket.character === hero && ticket.attribute_points === 10
-        );
-        if (ticket) {
-          mintHero
-            .mutateAsync({
-              name: heroName,
-              damage: heroAtts[hero as keyof typeof heroAtts].damage,
-              speed: heroAtts[hero as keyof typeof heroAtts].speed,
-              defense: heroAtts[hero as keyof typeof heroAtts].defense,
-              ticketId: ticket.id.id,
-            })
-            .then(() => setMintStatus(1))
-            .catch(() => setMintStatus(2));
-        }
-      });
-    } else if (mintTickets) {
-      const ticket = mintTickets.find(
-        (ticket) => ticket.character === hero && ticket.attribute_points === 10
-      );
+    if (mintTickets) {
+      const ticket = mintTickets.find((ticket) => ticket.character === hero);
       if (ticket) {
         mintHero
           .mutateAsync({
@@ -120,12 +113,10 @@ export default withUserWallet(({ user, wallet }) => {
           .then(() => setMintStatus(1))
           .catch(() => setMintStatus(2));
       }
+      setHeroName("");
+      onOpen();
     }
-
-    setHeroName("");
-    onOpen();
   };
-
   return (
     <Canvas image="/home-bg.jpg">
       <Flex flexDir="column" align="center">
@@ -231,6 +222,7 @@ export default withUserWallet(({ user, wallet }) => {
                   textAlign="center"
                   type="text"
                   value={heroName}
+                  autoComplete="off"
                   onChange={(e) => setHeroName(e.target.value)}
                   _hover={{
                     border: "2px #FFF solid",
@@ -250,7 +242,7 @@ export default withUserWallet(({ user, wallet }) => {
                 />
                 <FormErrorMessage>Hero name is required</FormErrorMessage>
               </FormControl>
-              <Button type="submit" variant="solid">
+              <Button type="submit" variant="solid" isDisabled={!hasMintTicket}>
                 <Box transform="skew(10deg)">Let&apos;s go!</Box>
               </Button>
             </form>
@@ -273,9 +265,12 @@ export default withUserWallet(({ user, wallet }) => {
           display="flex"
           flexDir="column"
           alignItems="center"
+          justifyContent="center"
           backgroundImage="/mint-hero-bg.png"
           backgroundPosition="bottom"
           backgroundSize="cover"
+          width="700px"
+          height="600px"
         >
           <ModalBody
             width="300px"
@@ -283,9 +278,11 @@ export default withUserWallet(({ user, wallet }) => {
             flexDir="column"
             gap="32px"
             alignItems="center"
+            justifyContent="center"
           >
             {mintStatus === 0 && (
               <>
+                <Image src="/spinner.svg" alt="spinner" />
                 <Heading textAlign="center" size="3xl">
                   Minting hero
                 </Heading>
@@ -293,12 +290,18 @@ export default withUserWallet(({ user, wallet }) => {
             )}
             {mintStatus == 1 && (
               <>
-                <Heading textAlign="center" size="3xl">
-                  A hero is born!
-                </Heading>
-                <Button onClick={() => router.replace("/")}>
-                  Let&apos;s make history
-                </Button>
+                <ScaleFade
+                  initialScale={0.95}
+                  transition={{ enter: { duration: 1 } }}
+                  in
+                >
+                  <Heading mb="22px" textAlign="center" size="3xl">
+                    A hero is born!
+                  </Heading>
+                  <Button onClick={() => router.replace("/")}>
+                    Let&apos;s make history
+                  </Button>
+                </ScaleFade>
               </>
             )}
             {mintStatus == 2 && (

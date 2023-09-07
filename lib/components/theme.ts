@@ -36,6 +36,26 @@ export const theme = extendTheme({
             boxShadow: "0px 0px 10px #F00",
           },
         },
+        minus: {
+          bgGradient: "linear-gradient(180deg, #8D3300 27.6%, #FF4D00 100%)",
+          _active: {
+            bgGradient: "linear-gradient(180deg, #8D3300 27.6%, #FF4D00 90%)",
+          },
+          _hover: {
+            boxShadow: "0px 0px 10px #F00",
+          },
+        },
+        plus: {
+          bgGradient:
+            "linear-gradient(180deg, rgba(26, 120, 11, 0.70) 0%, rgba(189, 222, 173, 0.70) 100%)",
+          _active: {
+            bgGradient:
+              "linear-gradient(180deg, rgba(26, 120, 11, 0.90) 0%, rgba(189, 222, 173, 0.90) 100%)",
+          },
+          _hover: {
+            boxShadow: "0px 0px 10px green",
+          },
+        },
 
         solid: {
           bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.70) 0%, rgba(222, 202, 173, 0.70) 100%)",

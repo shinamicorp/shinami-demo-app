@@ -98,8 +98,6 @@ export function useNewMintTicket(): UseMutationResult<
       intersection([WithMintTicket, WithOwner, WithTxDigest])
     ),
     onSuccess: (res) => {
-      // TODO remove
-      console.log(res);
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries([
         ...suiOwnedObjectsQueryKey,
@@ -213,11 +211,10 @@ export function useBurnHero(): UseMutationResult<
     ),
     onSuccess: (res, { heroId }) => {
       const owner = ownerAddress(res.owner);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        HERO_MOVE_TYPE,
-      ]);
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, HERO_MOVE_TYPE],
+        refetchType: "all",
+      });
       queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
       queryClient.invalidateQueries([...suiObjectQueryKey, heroId]);
     },
