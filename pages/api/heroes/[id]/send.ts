@@ -2,9 +2,9 @@ import {
   withMethodHandlers,
   withVerifiedEmailRequired,
 } from "@/lib/api/handler";
-import { getUserWallet } from "@/lib/api/shinami";
+import { getUserWallet, sui } from "@/lib/api/shinami";
 import { ApiErrorBody } from "@/lib/shared/error";
-import { SendTarget, WithOwner, WithTxDigest, sui } from "@/lib/shared/sui";
+import { SendTarget, WithOwner, WithTxDigest } from "@/lib/shared/sui";
 import { NextApiHandler } from "next";
 import { buildGaslessTransactionBytes } from "shinami";
 import { validate } from "superstruct";
