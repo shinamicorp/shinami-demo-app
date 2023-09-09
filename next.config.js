@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["react-carousel-card-3d"],
-};
+  output: 'standalone',
+}
 
 module.exports = nextConfig;
