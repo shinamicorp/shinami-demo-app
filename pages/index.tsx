@@ -38,12 +38,6 @@ export default withUserWallet(({ user, wallet }) => {
   return (
     <Canvas image="/hero-select-bg.jpg">
       <Flex flexDir="column" align="center">
-        {/* <div>
-          <h2>{user.name}&apos;s wallet</h2>
-          <Link href={getSuiExplorerAddressUrl(wallet.address)} target="_blank">
-            {wallet.address}
-          </Link>
-        </div> */}
         {isLoading && <div>Loading heroes...</div>}
         {!isLoading && !heroes && <div>Failed to load heroes</div>}
         {!isLoading && heroes && (

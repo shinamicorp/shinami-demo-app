@@ -106,9 +106,6 @@ export function useNewMintTicket(): UseMutationResult<
       ]);
       queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
     },
-    onError: (error: Error) => {
-      console.log(error);
-    },
   });
 }
 

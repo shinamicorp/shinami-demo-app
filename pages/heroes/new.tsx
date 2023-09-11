@@ -62,8 +62,7 @@ export default withUserWallet(({ user, wallet }) => {
   const { data: mintTickets, isLoading } = useParsedSuiOwnedObjects(
     wallet.address,
     MINT_TICKET_MOVE_TYPE,
-    MintTicket,
-    (hero) => hero.attribute_points === 10
+    MintTicket
   );
   const newMintTicket = useNewMintTicket();
   const mintHero = useMintHero();
@@ -71,7 +70,9 @@ export default withUserWallet(({ user, wallet }) => {
   useEffect(() => {
     if (
       mintTickets &&
-      mintTickets.find((ticket) => ticket.character === hero)
+      mintTickets.find(
+        (ticket) => ticket.character === hero && ticket.attribute_points === 10
+      )
     ) {
       setHasMintTicket(true);
     } else if (mintTickets && !hasMintTicket) {
@@ -100,7 +101,9 @@ export default withUserWallet(({ user, wallet }) => {
     e.preventDefault();
 
     if (mintTickets) {
-      const ticket = mintTickets.find((ticket) => ticket.character === hero);
+      const ticket = mintTickets.find(
+        (ticket) => ticket.character === hero && ticket.attribute_points === 10
+      );
       if (ticket) {
         mintHero
           .mutateAsync({

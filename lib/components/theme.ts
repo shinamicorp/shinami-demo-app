@@ -1,6 +1,15 @@
 import { StyleFunctionProps, extendTheme } from "@chakra-ui/react";
 
 export const theme = extendTheme({
+  styles: {
+    global: {
+      // styles for the `body`
+      body: {
+        bg: "gray.400",
+        color: "white",
+      },
+    },
+  },
   fonts: {
     heading: "var(--font-irishGrover)",
     body: "var(--font-metalMania)",
@@ -72,6 +81,7 @@ export const theme = extendTheme({
           borderColor: "#FFF",
           _hover: {
             boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
+            bg: "none",
           },
         },
         ghost: {
