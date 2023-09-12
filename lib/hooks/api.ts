@@ -210,7 +210,7 @@ export function useBurnHero(): UseMutationResult<
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries({
         queryKey: [...suiOwnedObjectsQueryKey, owner, HERO_MOVE_TYPE],
-        refetchType: "all",
+        //refetchType: "all",
       });
       queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
       queryClient.invalidateQueries([...suiObjectQueryKey, heroId]);

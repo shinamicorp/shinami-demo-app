@@ -2,6 +2,7 @@ import { UserProfile, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import { FunctionComponent } from "react";
 import { useWallet } from "../hooks/api";
 import { Wallet } from "../shared/wallet";
+import { Box, Heading, VStack } from "@chakra-ui/react";
 
 /**
  * A higher-order component to require the user to be signed in with a verified email.
@@ -29,7 +30,14 @@ export type UserWalletProps = {
 export const withUserWallet = (Component: FunctionComponent<UserWalletProps>) =>
   withVerifiedEmailRequired(({ user }) => {
     const { data: wallet, error, isLoading, isError } = useWallet();
-    if (isLoading) return <p>Loading user wallet...</p>;
+    if (isLoading)
+      return (
+        <VStack justify="center" w="100vw" h="100vh" background="black">
+          <Heading color="gray.700" size="sm">
+            Loading user wallet...
+          </Heading>
+        </VStack>
+      );
     if (isError) return <p>{error.message}</p>;
 
     return <Component wallet={wallet} user={user} />;
