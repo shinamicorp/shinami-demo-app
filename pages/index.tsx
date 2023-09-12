@@ -102,7 +102,7 @@ export default withUserWallet(({ user, wallet }) => {
               target="_blank"
             >
               <Button variant="outline">
-                <Box transform="skew(10deg)">View on Explorer</Box>
+                <Box transform="skew(10deg)">View address</Box>
               </Button>
             </Link>
             <Link href="/api/auth/logout">

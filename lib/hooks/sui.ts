@@ -63,18 +63,17 @@ export function useParsedSuiOwnedObjects<T>(
   owner: string,
   type: string,
   schema: Struct<T>,
-  predicate?: (obj: T) => boolean,
   limit?: number
 ) {
   return useQuery({
-    queryKey: [...suiOwnedObjectsQueryKey, owner, type],
+    queryKey: [...suiOwnedObjectsQueryKey, owner, type, limit],
     queryFn: async () => {
       const result: T[] = [];
       if (limit !== undefined && limit <= 0) return result;
 
       for await (const obj of getOwnedObjects(sui, owner, type)) {
         const parsed = parseObject(obj, schema);
-        if (!predicate || predicate(parsed)) result.push(parsed);
+        result.push(parsed);
         if (limit !== undefined && result.length >= limit) break;
       }
       return result;

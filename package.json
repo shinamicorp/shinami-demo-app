@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format:check": "prettier \"**/*.+(json|ts|tsx)\"",
-    "format:fix": "npm run prettier -- --write"
+    "format:check": "prettier . --check",
+    "format:fix": "prettier . --write"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^2.6.2",

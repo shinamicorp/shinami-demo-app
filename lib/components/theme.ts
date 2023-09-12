@@ -8,6 +8,7 @@ export const theme = extendTheme({
         bg: "gray.400",
         color: "white",
       },
+      a: { color: "white" },
     },
   },
   fonts: {
@@ -67,6 +68,7 @@ export const theme = extendTheme({
         },
 
         solid: {
+          color: "white",
           bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.70) 0%, rgba(222, 202, 173, 0.70) 100%)",
           _hover: {
             bg: "linear-gradient(180deg, rgba(120, 76, 11, 0.80) 0%, rgba(222, 202, 173, 0.80), 100%)",
@@ -77,6 +79,7 @@ export const theme = extendTheme({
           },
         },
         outline: {
+          color: "white",
           border: "2px #FFF solid",
           borderColor: "#FFF",
           _hover: {
@@ -85,6 +88,7 @@ export const theme = extendTheme({
           },
         },
         ghost: {
+          color: "white",
           border: "none",
           _hover: {
             textDecoration: "underline",

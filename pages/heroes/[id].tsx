@@ -75,73 +75,97 @@ export default withUserWallet(({ user, wallet }) => {
     heroId,
     Hero
   );
-  const newLevelUpTicket = useNewLevelUpTicket();
-  const levelUpHero = useLevelUpHero();
-  const burnHero = useBurnHero();
-  const sendHero = useSendHero();
+  const {
+    mutateAsync: newLevelUpTicket,
+    isLoading: newLevelUpTicketIsLoading,
+  } = useNewLevelUpTicket();
+  const { mutateAsync: levelUpHero, isLoading: levelUpHeroLoading } =
+    useLevelUpHero();
+  const {
+    mutateAsync: burnHero,
+    isLoading: burnHeroIsLoading,
+    isSuccess: burnHeroIsSuccess,
+    isError: burnHeroIsError,
+  } = useBurnHero();
+  const {
+    mutateAsync: sendHero,
+    isLoading: sendHeroIsLoading,
+    isSuccess: sendHeroIsSuccess,
+    isError: sendHeroIsError,
+  } = useSendHero();
 
   const [editAttributes, setEditAttributes] = useState(false);
-  const [heroAttributes, setHeroAttributes] = useState(hero?.content);
+  const [heroAttributes, setHeroAttributes] = useState<Hero>();
   const [showSendWindow, setShowSendWindow] = useState(false);
-  const [hasLevelUpTicket, setHasLevelUpTicket] = useState(false);
+  const [chosenTicket, setChosenTicket] = useState<LevelUpTicket>();
   const [levelUpPoints, setLevelUpPoints] = useState(0);
-  const [walletTransfer, setWalletTransfer] = useState("");
+  const [transferRecipient, setTransferRecipient] = useState<string>();
 
   useEffect(() => {
-    setHeroAttributes(hero?.content);
-
-    const ticket = levelUpTickets?.find(
-      (ticket) => ticket.hero_id === hero?.content.id.id
-    );
-
-    if (hero && levelUpTickets && ticket) {
-      setHasLevelUpTicket(true);
-      setLevelUpPoints(ticket.attribute_points);
-    } else {
-      setHasLevelUpTicket(false);
+    if (!hero || !levelUpTickets) {
+      setChosenTicket(undefined);
+      setLevelUpPoints(0);
+      setEditAttributes(false);
+      return;
     }
-  }, [hero, levelUpTickets]);
+
+    setHeroAttributes(hero.content);
+
+    if (
+      !chosenTicket ||
+      !levelUpTickets.some((x) => x.id.id === chosenTicket.id.id)
+    ) {
+      const ticket = levelUpTickets.find(
+        (x) => x.hero_id === hero.content.id.id
+      );
+      setChosenTicket(ticket);
+      setLevelUpPoints(ticket ? ticket.attribute_points : 0);
+      if (!ticket) setEditAttributes(false);
+    }
+  }, [hero, levelUpTickets, chosenTicket]);
 
   const handleDelete = () => {
     onOpen();
-    burnHero.mutateAsync({ heroId: heroId });
+    burnHero({ heroId: heroId });
   };
 
   const handleLevelUp = () => {
     if (hero?.content.id) {
-      newLevelUpTicket.mutateAsync({ heroId: hero.content.id.id }).then(() => {
+      newLevelUpTicket({ heroId: hero.content.id.id }).then(() => {
         setLevelUpPoints(4);
       });
     }
   };
 
   const handleLevelUpSave = () => {
-    const ticket = levelUpTickets?.find(
+    if (!hero || !levelUpTickets || !heroAttributes) {
+      return;
+    }
+
+    const ticket = levelUpTickets.find(
       (ticket) => ticket.hero_id === hero?.content.id.id
     );
-    if (hero && ticket && heroAttributes) {
-      levelUpHero
-        .mutateAsync({
-          heroId: hero?.content.id.id,
-          damage: heroAttributes.damage - hero.content.damage,
-          speed: heroAttributes.speed - hero.content.speed,
-          defense: heroAttributes.defense - hero.content.defense,
-          ticketId: ticket.id.id,
-        })
-        .then(() => {
-          setLevelUpPoints(0);
-          setEditAttributes(false);
-        });
+    if (ticket) {
+      levelUpHero({
+        heroId: hero?.content.id.id,
+        damage: heroAttributes.damage - hero.content.damage,
+        speed: heroAttributes.speed - hero.content.speed,
+        defense: heroAttributes.defense - hero.content.defense,
+        ticketId: ticket.id.id,
+      }).then(() => {
+        setLevelUpPoints(0);
+        setEditAttributes(false);
+      });
     }
   };
 
   const handleTransfer = (e: any) => {
     e.preventDefault();
-
-    if (hero) {
-      sendHero.mutateAsync({
+    setShowSendWindow(false);
+    if (hero && transferRecipient) {
+      sendHero({
         heroId: hero.content.id.id,
-        recipient: walletTransfer,
+        recipient: transferRecipient,
       });
     }
   };
@@ -317,7 +341,7 @@ export default withUserWallet(({ user, wallet }) => {
                     }}
                     size="md"
                     variant="outline"
-                    isDisabled={levelUpHero.isLoading}
+                    isDisabled={levelUpHeroLoading}
                   >
                     <Box transform="skew(10deg)">Cancel</Box>
                   </Button>
@@ -325,7 +349,7 @@ export default withUserWallet(({ user, wallet }) => {
                     onClick={handleLevelUpSave}
                     size="md"
                     variant="plus"
-                    isLoading={levelUpHero.isLoading}
+                    isLoading={levelUpHeroLoading}
                     isDisabled={levelUpPoints > 0}
                   >
                     <Box transform="skew(10deg)">Level up!</Box>
@@ -337,7 +361,7 @@ export default withUserWallet(({ user, wallet }) => {
                   rightIcon={PlusIcon}
                   size="md"
                   variant="plus"
-                  isDisabled={!hasLevelUpTicket}
+                  isDisabled={!chosenTicket}
                 >
                   <Box transform="skew(10deg)">Spend points</Box>
                   <Box
@@ -351,7 +375,7 @@ export default withUserWallet(({ user, wallet }) => {
                     h="28px"
                     width="28px"
                     transform="skew(10deg)"
-                    display={hasLevelUpTicket ? "flex" : "none"}
+                    display={chosenTicket ? "flex" : "none"}
                   >
                     {levelUpPoints}
                   </Box>
@@ -372,7 +396,7 @@ export default withUserWallet(({ user, wallet }) => {
                 target="_blank"
               >
                 <Button size="md" variant="outline">
-                  <Box transform="skew(10deg)">SUI Explorer</Box>
+                  <Box transform="skew(10deg)">View on Sui</Box>
                 </Button>
               </Link>
 
@@ -392,8 +416,8 @@ export default withUserWallet(({ user, wallet }) => {
                 size="md"
                 variant="outline"
                 onClick={handleLevelUp}
-                isDisabled={hasLevelUpTicket}
-                isLoading={newLevelUpTicket.isLoading}
+                isDisabled={!!chosenTicket}
+                isLoading={newLevelUpTicketIsLoading}
               >
                 <Box transform="skew(10deg)">Level up</Box>
               </Button>
@@ -428,6 +452,8 @@ export default withUserWallet(({ user, wallet }) => {
           backgroundSize="cover"
           width="700px"
           height="600px"
+          border="1px solid #9b9b9b"
+          boxShadow="0px 0px 30px #ff880078"
         >
           <ModalBody
             width="432px"
@@ -437,7 +463,7 @@ export default withUserWallet(({ user, wallet }) => {
             alignItems="center"
             justifyContent="center"
           >
-            {burnHero.isLoading && (
+            {burnHeroIsLoading && (
               <>
                 <ScaleFade
                   initialScale={0.95}
@@ -453,7 +479,7 @@ export default withUserWallet(({ user, wallet }) => {
                 </ScaleFade>
               </>
             )}
-            {burnHero.isSuccess && (
+            {burnHeroIsSuccess && (
               <>
                 <ScaleFade
                   initialScale={0.95}
@@ -463,11 +489,13 @@ export default withUserWallet(({ user, wallet }) => {
                   <Heading mb="22px" textAlign="center" size="3xl">
                     So long comrade!
                   </Heading>
-                  <Button onClick={() => router.replace("/")}>Go home</Button>
+                  <Link href="/">
+                    <Button>Go home</Button>
+                  </Link>
                 </ScaleFade>
               </>
             )}
-            {burnHero.isError && (
+            {burnHeroIsError && (
               <>
                 <Heading textAlign="center" size="3xl">
                   Unable to burn hero
@@ -483,9 +511,9 @@ export default withUserWallet(({ user, wallet }) => {
                 <form action="" onSubmit={handleTransfer}>
                   <FormControl isRequired mb="22px">
                     <Textarea
-                      value={walletTransfer}
+                      value={transferRecipient}
                       autoComplete="off"
-                      onChange={(e) => setWalletTransfer(e.target.value)}
+                      onChange={(e) => setTransferRecipient(e.target.value)}
                       _hover={{
                         border: "2px #FFF solid",
                         boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.45)",
@@ -524,7 +552,7 @@ export default withUserWallet(({ user, wallet }) => {
                 </form>
               </>
             )}
-            {sendHero.isLoading && (
+            {sendHeroIsLoading && (
               <>
                 <Image src="/spinner.svg" alt="spinner" />
                 <Heading textAlign="center" size="3xl">
@@ -532,15 +560,17 @@ export default withUserWallet(({ user, wallet }) => {
                 </Heading>
               </>
             )}
-            {sendHero.isSuccess && (
+            {sendHeroIsSuccess && (
               <>
                 <Heading textAlign="center" size="3xl">
                   Hero sent!
                 </Heading>
-                <Button onClick={() => router.replace("/")}>Go home</Button>
+                <Link href="/">
+                  <Button>Go home</Button>
+                </Link>
               </>
             )}
-            {sendHero.isError && (
+            {sendHeroIsError && (
               <>
                 <Heading textAlign="center" size="3xl">
                   Unable to send hero

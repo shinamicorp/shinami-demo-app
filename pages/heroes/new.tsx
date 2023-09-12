@@ -15,13 +15,7 @@ import {
   getSuiExplorerAddressUrl,
   useParsedSuiOwnedObjects,
 } from "@/lib/hooks/sui";
-import {
-  HERO_MOVE_TYPE,
-  Hero,
-  MINT_TICKET_MOVE_TYPE,
-  MintHeroRequest,
-  MintTicket,
-} from "@/lib/shared/hero";
+import { MINT_TICKET_MOVE_TYPE, MintTicket } from "@/lib/shared/hero";
 import {
   Button,
   Flex,
@@ -31,41 +25,47 @@ import {
   HStack,
   Image,
   Link,
-  Text,
   Input,
   FormControl,
   FormErrorMessage,
   ScaleFade,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
-  ModalFooter,
-  ModalHeader,
   ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-const heroAtts = {
+const characterAttrs = {
   0: { damage: 3, speed: 4, defense: 3 },
   1: { damage: 2, speed: 7, defense: 1 },
   2: { damage: 5, speed: 1, defense: 4 },
 };
 
+enum Heroes {
+  FIGHTER = 0,
+  ROGUE = 1,
+  WARRIOR = 2,
+}
+
 export default withUserWallet(({ user, wallet }) => {
-  const [hero, setHero] = useState(0);
+  const [hero, setHero] = useState(Heroes.FIGHTER);
   const [heroName, setHeroName] = useState("");
-  const [mintStatus, setMintStatus] = useState(0);
   const [hasMintTicket, setHasMintTicket] = useState(false);
-  const { data: mintTickets, isLoading } = useParsedSuiOwnedObjects(
+  const { data: mintTickets } = useParsedSuiOwnedObjects(
     wallet.address,
     MINT_TICKET_MOVE_TYPE,
     MintTicket
   );
-  const newMintTicket = useNewMintTicket();
-  const mintHero = useMintHero();
+  const { mutateAsync: newMintTicket } = useNewMintTicket();
+  const {
+    mutateAsync: mintHero,
+    isLoading: mintHeroLoading,
+    isSuccess: mintHeroIsSuccess,
+    isError: mintHeroIsError,
+  } = useMintHero();
 
   useEffect(() => {
     if (
@@ -76,8 +76,7 @@ export default withUserWallet(({ user, wallet }) => {
     ) {
       setHasMintTicket(true);
     } else if (mintTickets && !hasMintTicket) {
-      newMintTicket
-        .mutateAsync({ character: hero })
+      newMintTicket({ character: hero })
         .then(() => {
           setHasMintTicket(true);
         })
@@ -85,11 +84,12 @@ export default withUserWallet(({ user, wallet }) => {
     } else {
       setHasMintTicket(false);
     }
-  }, [hero, mintTickets, hasMintTicket]); // including newMintTicket caused infinite loop
+  }, [hero, mintTickets, hasMintTicket, newMintTicket]);
 
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  //TODO use enums?
   const nextHero = () => {
     setHero((prev) => (prev + 1) % 3);
   };
@@ -105,16 +105,13 @@ export default withUserWallet(({ user, wallet }) => {
         (ticket) => ticket.character === hero && ticket.attribute_points === 10
       );
       if (ticket) {
-        mintHero
-          .mutateAsync({
-            name: heroName,
-            damage: heroAtts[hero as keyof typeof heroAtts].damage,
-            speed: heroAtts[hero as keyof typeof heroAtts].speed,
-            defense: heroAtts[hero as keyof typeof heroAtts].defense,
-            ticketId: ticket.id.id,
-          })
-          .then(() => setMintStatus(1))
-          .catch(() => setMintStatus(2));
+        mintHero({
+          name: heroName,
+          damage: characterAttrs[hero as keyof typeof characterAttrs].damage,
+          speed: characterAttrs[hero as keyof typeof characterAttrs].speed,
+          defense: characterAttrs[hero as keyof typeof characterAttrs].defense,
+          ticketId: ticket.id.id,
+        });
       }
       setHeroName("");
       onOpen();
@@ -123,10 +120,10 @@ export default withUserWallet(({ user, wallet }) => {
   return (
     <Canvas image="/home-bg.jpg">
       <Flex flexDir="column" align="center">
-        <VStack gap="50px">
+        <VStack gap="30px">
           <Heading size="3xl">Select your Hero</Heading>
 
-          <HStack gap="50px">
+          <HStack gap="30px">
             <Link onClick={prevHero}>
               <Image
                 style={{
@@ -150,24 +147,24 @@ export default withUserWallet(({ user, wallet }) => {
               transition={{ enter: { duration: 1 } }}
               in
             >
-              <Box width="700px" height="400px">
+              <Box width="700px" height="350px">
                 <Carousel
                   goToSlide={hero}
                   slides={[
                     {
                       key: 1,
                       content: <HeroCard name="Fighter" character={0} />,
-                      onClick: () => setHero(0),
+                      onClick: () => setHero(Heroes.FIGHTER),
                     },
                     {
                       key: 2,
                       content: <HeroCard name="Rogue" character={1} />,
-                      onClick: () => setHero(1),
+                      onClick: () => setHero(Heroes.ROGUE),
                     },
                     {
                       key: 3,
                       content: <HeroCard name="Warrior" character={2} />,
-                      onClick: () => setHero(2),
+                      onClick: () => setHero(Heroes.WARRIOR),
                     },
                   ]}
                   animationConfig={{ tension: 220, friction: 25 }}
@@ -194,29 +191,35 @@ export default withUserWallet(({ user, wallet }) => {
               />
             </Link>
           </HStack>
-          <HStack gap="50px">
+          <HStack gap="30px">
             <HStack>
               <Heading size="lg">Damage: </Heading>
               <HeroAttributes
-                count={heroAtts[hero as keyof typeof heroAtts].damage}
+                count={
+                  characterAttrs[hero as keyof typeof characterAttrs].damage
+                }
               />
             </HStack>
             <HStack>
               <Heading size="lg">Speed:</Heading>
               <HeroAttributes
-                count={heroAtts[hero as keyof typeof heroAtts].speed}
+                count={
+                  characterAttrs[hero as keyof typeof characterAttrs].speed
+                }
               />
             </HStack>
             <HStack>
               <Heading size="lg">Defense:</Heading>
               <HeroAttributes
-                count={heroAtts[hero as keyof typeof heroAtts].defense}
+                count={
+                  characterAttrs[hero as keyof typeof characterAttrs].defense
+                }
               />
             </HStack>
           </HStack>
         </VStack>
 
-        <VStack width="1028px" gap="50px" mt="70px">
+        <VStack width="1028px" gap="30px" mt="50px">
           <Divider />
           <VStack width="350px" gap="22px">
             <form action="" onSubmit={handleSubmit}>
@@ -274,6 +277,8 @@ export default withUserWallet(({ user, wallet }) => {
           backgroundSize="cover"
           width="700px"
           height="600px"
+          border="1px solid #9b9b9b"
+          boxShadow="0px 0px 30px #ff880078"
         >
           <ModalBody
             width="300px"
@@ -283,7 +288,7 @@ export default withUserWallet(({ user, wallet }) => {
             alignItems="center"
             justifyContent="center"
           >
-            {mintStatus === 0 && (
+            {mintHeroLoading && (
               <>
                 <Image src="/spinner.svg" alt="spinner" />
                 <Heading textAlign="center" size="3xl">
@@ -291,7 +296,7 @@ export default withUserWallet(({ user, wallet }) => {
                 </Heading>
               </>
             )}
-            {mintStatus == 1 && (
+            {mintHeroIsSuccess && (
               <>
                 <ScaleFade
                   initialScale={0.95}
@@ -301,13 +306,13 @@ export default withUserWallet(({ user, wallet }) => {
                   <Heading mb="22px" textAlign="center" size="3xl">
                     A hero is born!
                   </Heading>
-                  <Button onClick={() => router.replace("/")}>
-                    Let&apos;s make history
-                  </Button>
+                  <Link href="/">
+                    <Button>Let&apos;s make history</Button>
+                  </Link>
                 </ScaleFade>
               </>
             )}
-            {mintStatus == 2 && (
+            {mintHeroIsError && (
               <>
                 <Heading textAlign="center" size="3xl">
                   Error creating hero
