@@ -32,11 +32,12 @@ export const withUserWallet = (Component: FunctionComponent<UserWalletProps>) =>
     const { data: wallet, error, isLoading, isError } = useWallet();
     if (isLoading)
       return (
-        <VStack justify="center" w="100vw" h="100vh" background="black">
-          <Heading color="gray.700" size="sm">
-            Loading user wallet...
-          </Heading>
-        </VStack>
+        <VStack
+          justify="center"
+          w="100vw"
+          h="100vh"
+          background="black"
+        ></VStack>
       );
     if (isError) return <p>{error.message}</p>;
 

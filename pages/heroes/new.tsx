@@ -6,6 +6,7 @@
 // 3. Allocate attribute points
 // 4. Upon submit, useMintHero() and navigate to /
 
+import { key } from "@/lib/api/shinami";
 import { withUserWallet } from "@/lib/components/auth";
 import Canvas from "@/lib/components/Canvas";
 import { Carousel } from "@/lib/components/carousel";
@@ -36,6 +37,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useCallback } from "react";
 import { useEffect, useState } from "react";
 
 const characterAttrs = {
@@ -51,9 +53,11 @@ enum Heroes {
 }
 
 export default withUserWallet(({ user, wallet }) => {
-  const [hero, setHero] = useState(Heroes.FIGHTER);
+  const [hero, setHero] = useState<Heroes>(Heroes.FIGHTER);
   const [heroName, setHeroName] = useState("");
-  const [hasMintTicket, setHasMintTicket] = useState(false);
+  const [chosenTickets, setChosenTickets] = useState<{
+    [n: number]: MintTicket;
+  }>({});
   const { data: mintTickets } = useParsedSuiOwnedObjects(
     wallet.address,
     MINT_TICKET_MOVE_TYPE,
@@ -67,52 +71,68 @@ export default withUserWallet(({ user, wallet }) => {
     isError: mintHeroIsError,
   } = useMintHero();
 
-  useEffect(() => {
-    if (
-      mintTickets &&
-      mintTickets.find(
-        (ticket) => ticket.character === hero && ticket.attribute_points === 10
-      )
-    ) {
-      setHasMintTicket(true);
-    } else if (mintTickets && !hasMintTicket) {
-      newMintTicket({ character: hero })
-        .then(() => {
-          setHasMintTicket(true);
-        })
-        .catch(() => setHasMintTicket(false));
-    } else {
-      setHasMintTicket(false);
-    }
-  }, [hero, mintTickets, hasMintTicket, newMintTicket]);
+  const getTicket = useCallback(
+    (hero: Heroes) => {
+      if (!mintTickets) {
+        setChosenTickets({});
+        return;
+      }
+      if (
+        !chosenTickets[hero] ||
+        !mintTickets.some((x) => x.id.id === chosenTickets[hero].id.id)
+      ) {
+        const ticket = mintTickets.find(
+          (ticket) =>
+            ticket.character === hero && ticket.attribute_points === 10
+        );
 
-  const router = useRouter();
+        if (ticket) {
+          setChosenTickets((tickets) => ({ ...tickets, [hero]: ticket }));
+        } else {
+          // newMintTicket({ character: hero }).then((ticket) => {
+          //   setChosenTickets((tickets) => ({ ...tickets, [hero]: ticket }));
+          // });
+          console.log("no mo!");
+        }
+      }
+    },
+    [chosenTickets, mintTickets]
+  );
+
+  useEffect(() => {
+    if (!mintTickets) {
+      setChosenTickets({});
+      return;
+    }
+    console.log("useeffect");
+    getTicket(hero);
+  }, [mintTickets, hero, getTicket]);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  //TODO use enums?
   const nextHero = () => {
+    const next = (hero + 1) % 3;
     setHero((prev) => (prev + 1) % 3);
+    getTicket(next);
   };
   const prevHero = () => {
+    const previous = (((hero - 1) % 3) + 3) % 3;
     setHero((prev) => (((prev - 1) % 3) + 3) % 3);
+    getTicket(previous);
   };
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
 
-    if (mintTickets) {
-      const ticket = mintTickets.find(
-        (ticket) => ticket.character === hero && ticket.attribute_points === 10
-      );
-      if (ticket) {
-        mintHero({
-          name: heroName,
-          damage: characterAttrs[hero as keyof typeof characterAttrs].damage,
-          speed: characterAttrs[hero as keyof typeof characterAttrs].speed,
-          defense: characterAttrs[hero as keyof typeof characterAttrs].defense,
-          ticketId: ticket.id.id,
-        });
-      }
+    if (chosenTickets[hero]) {
+      mintHero({
+        name: heroName,
+        damage: characterAttrs[hero as keyof typeof characterAttrs].damage,
+        speed: characterAttrs[hero as keyof typeof characterAttrs].speed,
+        defense: characterAttrs[hero as keyof typeof characterAttrs].defense,
+        ticketId: chosenTickets[hero].id.id,
+      });
+
       setHeroName("");
       onOpen();
     }
@@ -248,7 +268,11 @@ export default withUserWallet(({ user, wallet }) => {
                 />
                 <FormErrorMessage>Hero name is required</FormErrorMessage>
               </FormControl>
-              <Button type="submit" variant="solid" isDisabled={!hasMintTicket}>
+              <Button
+                type="submit"
+                variant="solid"
+                isDisabled={!chosenTickets[hero]}
+              >
                 <Box transform="skew(10deg)">Let&apos;s go!</Box>
               </Button>
             </form>
