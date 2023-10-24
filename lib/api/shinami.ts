@@ -1,25 +1,21 @@
-import { getSession } from "@auth0/nextjs-auth0";
-import { NextApiRequest, NextApiResponse } from "next";
 import {
+  GasStationClient,
   KeyClient,
-  KeySession,
   ShinamiWalletSigner,
   WalletClient,
   createSuiClient,
 } from "shinami";
-import { ApiErrorBody, throwExpression } from "../shared/error";
+import { throwExpression } from "../shared/utils";
 
 const SUPER_ACCESS_KEY =
   process.env.SUPER_ACCESS_KEY ??
   throwExpression(new Error("SUPER_ACCESS_KEY not configured"));
 
-const PLAYER_WALLET_SECRET =
-  process.env.PLAYER_WALLET_SECRET ??
-  throwExpression(new Error("PLAYER_WALLET_SECRET not configured"));
-
 const ADMIN_WALLET_SECRET =
   process.env.ADMIN_WALLET_SECRET ??
   throwExpression(new Error("ADMIN_WALLET_SECRET not configured"));
+
+const ADMIN_WALLET_ID = process.env.ADMIN_WALLET_ID ?? "demo:admin";
 
 export const key = new KeyClient(
   SUPER_ACCESS_KEY,
@@ -31,6 +27,11 @@ export const wal = new WalletClient(
   process.env.WALLET_RPC_URL_OVERRIDE
 );
 
+export const gas = new GasStationClient(
+  SUPER_ACCESS_KEY,
+  process.env.GAS_RPC_URL_OVERRIDE
+);
+
 // A separate sui client for backend only, using the super key.
 // This is so we can enable different access controls on the node key and the super key.
 export const sui = createSuiClient(
@@ -40,27 +41,8 @@ export const sui = createSuiClient(
 );
 
 export const adminWallet = new ShinamiWalletSigner(
-  "demo:admin", // admin wallet id
+  ADMIN_WALLET_ID,
   wal,
   ADMIN_WALLET_SECRET,
   key
 );
-
-export const userWalletSession = new KeySession(PLAYER_WALLET_SECRET, key);
-
-export async function getUserWallet(
-  req: NextApiRequest,
-  res: NextApiResponse<ApiErrorBody>
-): Promise<ShinamiWalletSigner | null> {
-  const session = await getSession(req, res);
-  if (!session) return null;
-
-  const { user } = session;
-  if (!user.email_verified) return null;
-
-  return new ShinamiWalletSigner(
-    `demo:user:${user.email}`, // user wallet id
-    wal,
-    userWalletSession
-  );
-}

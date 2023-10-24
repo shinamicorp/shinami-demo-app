@@ -8,8 +8,8 @@ import {
   string,
   type,
 } from "superstruct";
-import { throwExpression } from "./error";
 import { ObjectId } from "./sui";
+import { throwExpression } from "./utils";
 
 export const PACKAGE_ID =
   process.env.NEXT_PUBLIC_PACKAGE_ID ??

@@ -1,24 +1,23 @@
 import { runWithAdminCap } from "@/lib/api/admin";
-import {
-  withMethodHandlers,
-  withVerifiedEmailRequired,
-} from "@/lib/api/handler";
-import { adminWallet, getUserWallet, sui } from "@/lib/api/shinami";
-import { ApiErrorBody } from "@/lib/shared/error";
+import { adminWallet, sui } from "@/lib/api/shinami";
 import { LevelUpTicket, PACKAGE_ID } from "@/lib/shared/hero";
 import {
   WithOwner,
   WithTxDigest,
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
-import { NextApiHandler } from "next";
+import { ApiErrorBody } from "@shinami/nextjs-zklogin";
+import { withZkLoginUserRequired } from "@shinami/nextjs-zklogin/server/pages";
+import {
+  methodDispatcher,
+  withInternalErrorHandler,
+} from "@shinami/nextjs-zklogin/server/pages/utils";
 import { buildGaslessTransactionBytes } from "shinami";
 
-const handler: NextApiHandler<
+const handler = withZkLoginUserRequired<
   (LevelUpTicket & WithOwner & WithTxDigest) | ApiErrorBody
-> = async (req, res) => {
+>(sui, async (req, res, { wallet }) => {
   const { id } = req.query;
-  const userWallet = (await getUserWallet(req, res))!;
 
   // To optimize tx throughput involving admin cap, it's better to pre-issue a batch of tickets
   // (with admin cap) and simply transer them to users' wallets upon request. The transfer tx
@@ -35,10 +34,7 @@ const handler: NextApiHandler<
             txb.pure(4), // 4 more atrribute points
           ],
         });
-        txb.transferObjects(
-          [ticket],
-          txb.pure(await userWallet.getAddress(true))
-        );
+        txb.transferObjects([ticket], txb.pure(wallet));
       },
     });
 
@@ -62,13 +58,6 @@ const handler: NextApiHandler<
     return res.status(500).json({ error: "Object not created" });
   }
 
-  // Workaround for routing inconsistency between this client and wallet service
-  await sui.waitForTransactionBlock({
-    digest: txResp.digest,
-    timeout: 30_000,
-    pollInterval: 1_000,
-  });
-
   const ticket = parseObjectWithOwner(
     await sui.getObject({
       id: ref.objectId,
@@ -77,6 +66,6 @@ const handler: NextApiHandler<
     LevelUpTicket
   );
   res.json({ ...ticket, txDigest: txResp.digest });
-};
+});
 
-export default withVerifiedEmailRequired(withMethodHandlers({ post: handler }));
+export default withInternalErrorHandler(methodDispatcher({ POST: handler }));
