@@ -19,7 +19,8 @@ export default withZkLoginSessionRequired(({ session }) => {
     <>
       <div>
         <h2>
-          {user.jwtClaims.email as string}({user.oidProvider})&apos;s wallet
+          {(user.jwtClaims as unknown as { email: string }).email}(
+          {user.oidProvider})&apos;s wallet
         </h2>
         <Link
           href={getSuiExplorerAccountUrl(user.wallet, true)}

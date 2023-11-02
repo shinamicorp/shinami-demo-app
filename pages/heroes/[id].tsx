@@ -94,7 +94,7 @@ function HeroControls({
           const { txDigest } = await send({
             heroId: hero.id.id,
             recipient,
-            keyPair: localSession.keyPair,
+            keyPair: localSession.ephemeralKeyPair,
           });
           console.log("Hero sent in tx", txDigest);
         }}

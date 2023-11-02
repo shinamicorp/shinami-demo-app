@@ -3,6 +3,7 @@ import {
   KeyClient,
   ShinamiWalletSigner,
   WalletClient,
+  ZkProverClient,
   createSuiClient,
 } from "shinami";
 import { throwExpression } from "../shared/utils";
@@ -38,6 +39,13 @@ export const sui = createSuiClient(
   SUPER_ACCESS_KEY,
   process.env.NEXT_PUBLIC_NODE_RPC_URL_OVERRIDE,
   process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE
+);
+
+export const zkp = new ZkProverClient(
+  // TODO - Use SUPER_ACCESS_KEY once deployed to prod.
+  process.env.ZKPROVER_ACCESS_KEY ??
+    throwExpression(new Error("ZKPROVER_ACCESS_KEY not configured")),
+  process.env.ZKPROVER_RPC_URL_OVERRIDE
 );
 
 export const adminWallet = new ShinamiWalletSigner(
