@@ -1,12 +1,12 @@
 import { gas, sui } from "@/lib/api/shinami";
 import { PACKAGE_ID } from "@/lib/shared/hero";
 import { WithOwner, WithTxDigest } from "@/lib/shared/sui";
+import { buildGaslessTransactionBytes } from "@shinami/clients";
 import {
   GaslessTransactionBytesBuilder,
   TransactionResponseParser,
   zkLoginSponsoredTxExecHandler,
 } from "@shinami/nextjs-zklogin/server/pages";
-import { buildGaslessTransactionBytes } from "shinami";
 
 const buildTx: GaslessTransactionBytesBuilder = async (req) => {
   const { id } = req.query;

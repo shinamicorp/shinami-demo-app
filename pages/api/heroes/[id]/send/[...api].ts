@@ -1,12 +1,12 @@
 import { gas, sui } from "@/lib/api/shinami";
 import { SendTarget, WithOwner, WithTxDigest } from "@/lib/shared/sui";
+import { buildGaslessTransactionBytes } from "@shinami/clients";
 import {
   GaslessTransactionBytesBuilder,
   InvalidRequest,
   TransactionResponseParser,
   zkLoginSponsoredTxExecHandler,
 } from "@shinami/nextjs-zklogin/server/pages";
-import { buildGaslessTransactionBytes } from "shinami";
 import { validate } from "superstruct";
 
 const buildTx: GaslessTransactionBytesBuilder = async (req) => {

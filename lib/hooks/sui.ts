@@ -1,10 +1,10 @@
 import { PaginatedObjectsResponse } from "@mysten/sui.js/client";
+import { createSuiClient } from "@shinami/clients";
 import {
   UseInfiniteQueryResult,
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
-import { createSuiClient } from "shinami";
 import { Struct } from "superstruct";
 import { getOwnedObjects, parseObject } from "../shared/sui";
 import { throwExpression } from "../shared/utils";

@@ -6,13 +6,13 @@ import {
   WithTxDigest,
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
+import { buildGaslessTransactionBytes } from "@shinami/clients";
 import { ApiErrorBody } from "@shinami/nextjs-zklogin";
 import { withZkLoginUserRequired } from "@shinami/nextjs-zklogin/server/pages";
 import {
   methodDispatcher,
   withInternalErrorHandler,
 } from "@shinami/nextjs-zklogin/server/pages/utils";
-import { buildGaslessTransactionBytes } from "shinami";
 
 const handler = withZkLoginUserRequired<
   (LevelUpTicket & WithOwner & WithTxDigest) | ApiErrorBody

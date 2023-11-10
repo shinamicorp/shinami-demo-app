@@ -6,7 +6,7 @@ import {
   ZkProverClient,
   ZkWalletClient,
   createSuiClient,
-} from "shinami";
+} from "@shinami/clients";
 import { throwExpression } from "../shared/utils";
 
 const SUPER_ACCESS_KEY =

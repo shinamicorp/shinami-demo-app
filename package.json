@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@shinami/nextjs-zklogin": "^0.1.0-alpha.12",
+    "@shinami/nextjs-zklogin": "^0.1.0",
     "@tanstack/react-query": "^5.0.5",
     "@types/node": "20.3.1",
     "@types/react": "18.2.12",
@@ -22,7 +22,6 @@
     "next": "13.4.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "shinami": "^0.6.0-alpha.6",
     "ts-node": "^10.9.1",
     "typescript": "5.1.3"
   },
