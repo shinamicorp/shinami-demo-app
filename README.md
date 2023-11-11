@@ -2,7 +2,7 @@
 
 An _imaginary_ game built on top of [Shinami](https://shinami.com) services and [Sui](https://sui.io/).
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [Next.js](https://nextjs.org/) project bootstrapped with the [nextjs-zklogin](https://github.com/shinamicorp/shinami-typescript-sdk/tree/main/examples/nextjs-zklogin) template.
 It uses [@shinami/nextjs-zklogin](https://www.npmjs.com/package/@shinami/nextjs-zklogin) to authenticate end users and sign transactions, and [@shinami/clients](https://www.npmjs.com/package/@shinami/clients) to read from and write to the Sui blockchain.
 
 ## Highlights
