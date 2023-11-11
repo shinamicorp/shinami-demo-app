@@ -9,18 +9,21 @@ import { Struct } from "superstruct";
 import { getOwnedObjects, parseObject } from "../shared/sui";
 import { throwExpression } from "../shared/utils";
 
+const SUI_NETWORK =
+  process.env.NEXT_PUBLIC_SUI_NETWORK ??
+  throwExpression(new Error("NEXT_PUBLIC_SUI_NETWORK not configured"));
 const SUI_EXPLORER_BASE_URL = "https://suiexplorer.com";
-const SUI_EXPLORER_NETWORK =
-  process.env.NEXT_PUBLIC_SUI_EXPLORER_NETWORK ?? "mainnet";
 const SUI_VISION_BASE_URL = `https://${
-  SUI_EXPLORER_NETWORK === "mainnet" ? "" : `${SUI_EXPLORER_NETWORK}.`
+  SUI_NETWORK === "mainnet" ? "" : `${SUI_NETWORK}.`
 }suivision.xyz`;
 
 // A separate sui client for frontend only, using the node key.
 // This is so we can enable different access controls on the node key and the super key.
 export const sui = createSuiClient(
-  process.env.NEXT_PUBLIC_NODE_ACCESS_KEY ??
-    throwExpression(new Error("NEXT_PUBLIC_NODE_ACCESS_KEY not configured")),
+  process.env.NEXT_PUBLIC_SHINAMI_NODE_ACCESS_KEY ??
+    throwExpression(
+      new Error("NEXT_PUBLIC_SHINAMI_NODE_ACCESS_KEY not configured")
+    ),
   process.env.NEXT_PUBLIC_NODE_RPC_URL_OVERRIDE,
   process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE
 );
@@ -31,7 +34,7 @@ export function getSuiExplorerAccountUrl(
 ) {
   return suiVision
     ? `${SUI_VISION_BASE_URL}/account/${address}`
-    : `${SUI_EXPLORER_BASE_URL}/address/${address}?network=${SUI_EXPLORER_NETWORK}`;
+    : `${SUI_EXPLORER_BASE_URL}/address/${address}?network=${SUI_NETWORK}`;
 }
 
 export function getSuiExplorerObjectUrl(
@@ -40,7 +43,7 @@ export function getSuiExplorerObjectUrl(
 ) {
   return suiVision
     ? `${SUI_VISION_BASE_URL}/object/${address}`
-    : `${SUI_EXPLORER_BASE_URL}/object/${address}?network=${SUI_EXPLORER_NETWORK}`;
+    : `${SUI_EXPLORER_BASE_URL}/object/${address}?network=${SUI_NETWORK}`;
 }
 
 export function getSuiExplorerTransactionUrl(
@@ -49,7 +52,7 @@ export function getSuiExplorerTransactionUrl(
 ) {
   return suiVision
     ? `${SUI_VISION_BASE_URL}/txblock/${digest}`
-    : `${SUI_EXPLORER_BASE_URL}/txblock/${digest}?network=${SUI_EXPLORER_NETWORK}`;
+    : `${SUI_EXPLORER_BASE_URL}/txblock/${digest}?network=${SUI_NETWORK}`;
 }
 
 export const suiOwnedObjectsQueryKey = ["sui", "getOwnedObjects"];
