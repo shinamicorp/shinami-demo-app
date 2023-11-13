@@ -1,5 +1,5 @@
 {
-  "name": "wallet-demo",
+  "name": "shinami-demo-app",
   "version": "0.1.0",
   "private": true,
   "sideEffects": false,
