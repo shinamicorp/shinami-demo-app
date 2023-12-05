@@ -1,6 +1,5 @@
 {
   "name": "shinami-demo-app",
-  "version": "0.1.0",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -10,7 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@shinami/nextjs-zklogin": "^0.2.0",
+    "@mysten/sui.js": "^0.47.0",
+    "@shinami/nextjs-zklogin": "^0.2.1",
     "@tanstack/react-query": "^5.0.5",
     "@types/node": "20.3.1",
     "@types/react": "18.2.12",
