@@ -1,14 +1,16 @@
-import { withUserWallet } from "@/lib/components/auth";
 import {
-  getSuiExplorerAddressUrl,
+  getSuiExplorerAccountUrl,
   useParsedSuiOwnedObjects,
 } from "@/lib/hooks/sui";
 import { HERO_MOVE_TYPE, Hero } from "@/lib/shared/hero";
+import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
+import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 
-export default withUserWallet(({ user, wallet }) => {
+export default withZkLoginSessionRequired(({ session }) => {
+  const { user } = session;
   const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
-    wallet.address,
+    user.wallet,
     HERO_MOVE_TYPE,
     Hero
   );
@@ -16,9 +18,14 @@ export default withUserWallet(({ user, wallet }) => {
   return (
     <>
       <div>
-        <h2>{user.name}&apos;s wallet</h2>
-        <Link href={getSuiExplorerAddressUrl(wallet.address)} target="_blank">
-          {wallet.address}
+        <h2>
+          {user.jwtClaims.email as string}({user.oidProvider})&apos;s wallet
+        </h2>
+        <Link
+          href={getSuiExplorerAccountUrl(user.wallet, true)}
+          target="_blank"
+        >
+          {user.wallet}
         </Link>
       </div>
       {isLoading && <div>Loading heroes...</div>}
@@ -42,9 +49,7 @@ export default withUserWallet(({ user, wallet }) => {
         </div>
       )}
       <div>
-        <Link href="/api/auth/logout">
-          Sign out
-        </Link>
+        <Link href={`${AUTH_API_BASE}/logout`}>Sign out</Link>
       </div>
     </>
   );

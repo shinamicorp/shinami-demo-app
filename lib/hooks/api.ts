@@ -1,13 +1,15 @@
 import {
-  QueryFunctionContext,
+  ApiError,
+  WithKeyPair,
+  apiMutationFn,
+  apiTxExecMutationFn,
+} from "@shinami/nextjs-zklogin/client";
+import {
   UseMutationResult,
-  UseQueryResult,
   useMutation,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Struct, create, intersection } from "superstruct";
-import { ApiErrorBody, WithApiErrorBody } from "../shared/error";
+import { intersection } from "superstruct";
 import {
   HERO_MOVE_TYPE,
   Hero,
@@ -29,62 +31,7 @@ import {
   WithTxDigest,
   ownerAddress,
 } from "../shared/sui";
-import { Wallet } from "../shared/wallet";
 import { suiObjectQueryKey, suiOwnedObjectsQueryKey } from "./sui";
-
-export class ApiError extends Error {
-  constructor(error: ApiErrorBody) {
-    super(error.error);
-  }
-}
-
-function apiQueryFn<T>(schema: Struct<T>) {
-  return async ({ queryKey }: QueryFunctionContext) => {
-    const uri = queryKey.at(-1) as string;
-    const resp = await fetch(uri, {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
-    const data = await resp.json();
-    if (!resp.ok) {
-      throw new ApiError(create(data, WithApiErrorBody));
-    }
-    return create(data, schema);
-  };
-}
-
-export function useWallet(): UseQueryResult<Wallet, ApiError> {
-  return useQuery({
-    queryKey: ["api", "/api/wallet"],
-    queryFn: apiQueryFn(Wallet),
-    staleTime: Infinity,
-  });
-}
-
-function apiMutationFn<T, P>(
-  uri: (params: P) => string,
-  resultSchema: Struct<T>,
-  body: (params: P) => any = (params) => params,
-  method: string = "POST"
-) {
-  return async (params: P) => {
-    const resp = await fetch(uri(params), {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(body(params)),
-    });
-    const data = await resp.json();
-    if (!resp.ok) {
-      throw new ApiError(create(data, WithApiErrorBody));
-    }
-    return create(data, resultSchema);
-  };
-}
 
 export function useNewMintTicket(): UseMutationResult<
   MintTicket & WithOwner & WithTxDigest,
@@ -93,18 +40,18 @@ export function useNewMintTicket(): UseMutationResult<
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: apiMutationFn(
-      () => "/api/heroes/new_mint_ticket",
-      intersection([WithMintTicket, WithOwner, WithTxDigest])
-    ),
+    mutationFn: apiMutationFn({
+      uri: () => "/api/heroes/new_mint_ticket",
+      resultSchema: intersection([WithMintTicket, WithOwner, WithTxDigest]),
+    }),
     onSuccess: (res) => {
       const owner = ownerAddress(res.owner);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        MINT_TICKET_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, MINT_TICKET_MOVE_TYPE],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, null],
+      });
     },
   });
 }
@@ -112,28 +59,28 @@ export function useNewMintTicket(): UseMutationResult<
 export function useMintHero(): UseMutationResult<
   Hero & WithOwner & WithTxDigest,
   ApiError,
-  MintHeroRequest
+  MintHeroRequest & WithKeyPair
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: apiMutationFn(
-      () => "/api/heroes/mint",
-      intersection([WithHero, WithOwner, WithTxDigest])
-    ),
+    mutationFn: apiTxExecMutationFn({
+      baseUri: () => "/api/heroes/mint",
+      resultSchema: intersection([WithHero, WithOwner, WithTxDigest]),
+    }),
     onSuccess: (res, { ticketId }) => {
       const owner = ownerAddress(res.owner);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        HERO_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        MINT_TICKET_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
-      queryClient.invalidateQueries([...suiObjectQueryKey, ticketId]);
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, HERO_MOVE_TYPE],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, MINT_TICKET_MOVE_TYPE],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, null],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiObjectQueryKey, ticketId],
+      });
     },
   });
 }
@@ -145,19 +92,23 @@ export function useNewLevelUpTicket(): UseMutationResult<
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: apiMutationFn(
-      ({ heroId }) => `/api/heroes/${heroId}/new_level_up_ticket`,
-      intersection([WithLevelUpTicket, WithOwner, WithTxDigest]),
-      () => undefined
-    ),
+    mutationFn: apiMutationFn({
+      uri: ({ heroId }) => `/api/heroes/${heroId}/new_level_up_ticket`,
+      body: () => undefined,
+      resultSchema: intersection([WithLevelUpTicket, WithOwner, WithTxDigest]),
+    }),
     onSuccess: (res) => {
       const owner = ownerAddress(res.owner);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        LEVEL_UP_TICKET_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
+      queryClient.invalidateQueries({
+        queryKey: [
+          ...suiOwnedObjectsQueryKey,
+          owner,
+          LEVEL_UP_TICKET_MOVE_TYPE,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, null],
+      });
     },
   });
 }
@@ -165,30 +116,36 @@ export function useNewLevelUpTicket(): UseMutationResult<
 export function useLevelUpHero(): UseMutationResult<
   Hero & WithOwner & WithTxDigest,
   ApiError,
-  { heroId: string } & LevelUpRequest
+  LevelUpRequest & { heroId: string } & WithKeyPair
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: apiMutationFn(
-      ({ heroId }) => `/api/heroes/${heroId}/level_up`,
-      intersection([WithHero, WithOwner, WithTxDigest]),
-      ({ heroId, ...req }) => req
-    ),
+    mutationFn: apiTxExecMutationFn({
+      baseUri: ({ heroId }) => `/api/heroes/${heroId}/level_up`,
+      body: ({ heroId, keyPair, ...req }) => req,
+      resultSchema: intersection([WithHero, WithOwner, WithTxDigest]),
+    }),
     onSuccess: (res, { ticketId }) => {
       const owner = ownerAddress(res.owner);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        HERO_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        LEVEL_UP_TICKET_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
-      queryClient.invalidateQueries([...suiObjectQueryKey, ticketId]);
-      queryClient.invalidateQueries([...suiObjectQueryKey, res.id.id]);
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, HERO_MOVE_TYPE],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          ...suiOwnedObjectsQueryKey,
+          owner,
+          LEVEL_UP_TICKET_MOVE_TYPE,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, null],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiObjectQueryKey, ticketId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiObjectQueryKey, res.id.id],
+      });
     },
   });
 }
@@ -196,25 +153,26 @@ export function useLevelUpHero(): UseMutationResult<
 export function useBurnHero(): UseMutationResult<
   WithOwner & WithTxDigest,
   ApiError,
-  { heroId: string }
+  { heroId: string } & WithKeyPair
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: apiMutationFn(
-      ({ heroId }) => `/api/heroes/${heroId}`,
-      intersection([WithOwner, WithTxDigest]),
-      () => undefined,
-      "DELETE"
-    ),
+    mutationFn: apiTxExecMutationFn({
+      baseUri: ({ heroId }) => `/api/heroes/${heroId}/burn`,
+      body: () => undefined,
+      resultSchema: intersection([WithOwner, WithTxDigest]),
+    }),
     onSuccess: (res, { heroId }) => {
       const owner = ownerAddress(res.owner);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        HERO_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
-      queryClient.invalidateQueries([...suiObjectQueryKey, heroId]);
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, HERO_MOVE_TYPE],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, null],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiObjectQueryKey, heroId],
+      });
     },
   });
 }
@@ -222,24 +180,26 @@ export function useBurnHero(): UseMutationResult<
 export function useSendHero(): UseMutationResult<
   WithOwner & WithTxDigest,
   ApiError,
-  { heroId: string } & SendTarget
+  SendTarget & { heroId: string } & WithKeyPair
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: apiMutationFn(
-      ({ heroId }) => `/api/heroes/${heroId}/send`,
-      intersection([WithOwner, WithTxDigest]),
-      ({ heroId, ...req }) => req
-    ),
+    mutationFn: apiTxExecMutationFn({
+      baseUri: ({ heroId }) => `/api/heroes/${heroId}/send`,
+      body: ({ heroId, keyPair, ...req }) => req,
+      resultSchema: intersection([WithOwner, WithTxDigest]),
+    }),
     onSuccess: (res, { heroId }) => {
       const owner = ownerAddress(res.owner);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        HERO_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
-      queryClient.invalidateQueries([...suiObjectQueryKey, heroId]);
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, HERO_MOVE_TYPE],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, null],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiObjectQueryKey, heroId],
+      });
     },
   });
 }
@@ -247,25 +207,26 @@ export function useSendHero(): UseMutationResult<
 export function useUpdateHero(): UseMutationResult<
   Hero & WithOwner & WithTxDigest,
   ApiError,
-  { heroId: string } & UpdateHeroRequest
+  UpdateHeroRequest & { heroId: string } & WithKeyPair
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: apiMutationFn(
-      ({ heroId }) => `/api/heroes/${heroId}`,
-      intersection([WithHero, WithOwner, WithTxDigest]),
-      ({ heroId, ...req }) => req,
-      "PATCH"
-    ),
+    mutationFn: apiTxExecMutationFn({
+      baseUri: ({ heroId }) => `/api/heroes/${heroId}/update`,
+      body: ({ heroId, keyPair, ...req }) => req,
+      resultSchema: intersection([WithHero, WithOwner, WithTxDigest]),
+    }),
     onSuccess: (res) => {
       const owner = ownerAddress(res.owner);
-      queryClient.invalidateQueries([
-        ...suiOwnedObjectsQueryKey,
-        owner,
-        HERO_MOVE_TYPE,
-      ]);
-      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
-      queryClient.invalidateQueries([...suiObjectQueryKey, res.id.id]);
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, HERO_MOVE_TYPE],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, null],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiObjectQueryKey, res.id.id],
+      });
     },
   });
 }

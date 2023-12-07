@@ -1,29 +1,25 @@
 import { runWithAdminCap } from "@/lib/api/admin";
-import {
-  withMethodHandlers,
-  withVerifiedEmailRequired,
-} from "@/lib/api/handler";
-import { adminWallet, getUserWallet, sui } from "@/lib/api/shinami";
-import { ApiErrorBody } from "@/lib/shared/error";
+import { adminWallet, sui } from "@/lib/api/shinami";
 import { MintTicket, MintTicketRequest, PACKAGE_ID } from "@/lib/shared/hero";
 import {
   WithOwner,
   WithTxDigest,
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
-import { NextApiHandler } from "next";
-import { buildGaslessTransactionBytes } from "shinami";
+import { buildGaslessTransactionBytes } from "@shinami/clients";
+import { ApiErrorBody } from "@shinami/nextjs-zklogin";
+import { withZkLoginUserRequired } from "@shinami/nextjs-zklogin/server/pages";
+import {
+  methodDispatcher,
+  withInternalErrorHandler,
+} from "@shinami/nextjs-zklogin/server/pages/utils";
 import { validate } from "superstruct";
 
-const handler: NextApiHandler<
+const handler = withZkLoginUserRequired<
   (MintTicket & WithOwner & WithTxDigest) | ApiErrorBody
-> = async (req, res) => {
+>(sui, async (req, res, { wallet }) => {
   const [error, body] = validate(req.body, MintTicketRequest);
-  if (error) {
-    return res.status(400).json({ error: error.message });
-  }
-
-  const userWallet = (await getUserWallet(req, res))!;
+  if (error) return res.status(400).json({ error: error.message });
 
   // To optimize tx throughput involving admin cap, it's better to pre-issue a batch of tickets
   // (with admin cap) and simply transer them to users' wallets upon request. The transfer tx
@@ -43,11 +39,7 @@ const handler: NextApiHandler<
         });
         txb.moveCall({
           target: `${PACKAGE_ID}::hero::transfer_mint_ticket`,
-          arguments: [
-            txb.object(cap),
-            ticket,
-            txb.pure(await userWallet.getAddress(true)),
-          ],
+          arguments: [txb.object(cap), ticket, txb.pure(wallet)],
         });
       },
     });
@@ -87,6 +79,6 @@ const handler: NextApiHandler<
     MintTicket
   );
   res.json({ ...ticket, txDigest: txResp.digest });
-};
+});
 
-export default withVerifiedEmailRequired(withMethodHandlers({ post: handler }));
+export default withInternalErrorHandler(methodDispatcher({ POST: handler }));
