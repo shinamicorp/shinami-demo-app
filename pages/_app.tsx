@@ -1,6 +1,4 @@
-import { theme } from "@/lib/components/theme";
-import { UserProvider } from "@auth0/nextjs-auth0/client";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ZkLoginSessionProvider } from "@shinami/nextjs-zklogin/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { AppProps } from "next/app";
 import { Irish_Grover, Metal_Mania } from "next/font/google";
@@ -13,7 +11,7 @@ const metalMania = Metal_Mania({ weight: "400", subsets: ["latin"] });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <UserProvider>
+  <>
       <Head>
         <link rel="shortcut icon" href="/favicon_32.png" />
       </Head>
@@ -26,11 +24,13 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         `}
       </style>
       <QueryClientProvider client={queryClient}>
+      <ZkLoginSessionProvider>
         <ChakraProvider theme={theme}>
           <Component {...pageProps} />
         </ChakraProvider>
         <ReactQueryDevtools initialIsOpen={false} />
+        </ZkLoginSessionProvider>
       </QueryClientProvider>
-    </UserProvider>
+      </>
   );
 }

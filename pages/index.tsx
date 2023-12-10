@@ -1,8 +1,7 @@
 import Canvas from "@/lib/components/Canvas";
 import { Divider, HeroCard, NewHeroCard } from "@/lib/components/Elements";
-import { withUserWallet } from "@/lib/components/auth";
 import {
-  getSuiExplorerAddressUrl,
+  getSuiExplorerAccountUrl,
   useParsedSuiOwnedObjects,
 } from "@/lib/hooks/sui";
 import {
@@ -20,11 +19,14 @@ import {
   ScaleFade,
   HStack,
 } from "@chakra-ui/react";
+import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
+import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 
-export default withUserWallet(({ user, wallet }) => {
+export default withZkLoginSessionRequired(({ session }) => {
+  const { user } = session;
   const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
-    wallet.address,
+    user.wallet,
     HERO_MOVE_TYPE,
     Hero
   );
@@ -38,6 +40,9 @@ export default withUserWallet(({ user, wallet }) => {
   return (
     <Canvas image="/hero-select-bg.jpg">
       <Flex flexDir="column" align="center">
+      <h2>
+          {user.jwtClaims.email as string}({user.oidProvider})&apos;s wallet
+        </h2>
         {isLoading && <div>Loading heroes...</div>}
         {!isLoading && !heroes && <div>Failed to load heroes</div>}
         {!isLoading && heroes && (
@@ -105,7 +110,7 @@ export default withUserWallet(({ user, wallet }) => {
                 <Box transform="skew(10deg)">View address</Box>
               </Button>
             </Link>
-            <Link href="/api/auth/logout">
+            <Link href={`${AUTH_API_BASE}>
               <Button variant="ghost">Logout</Button>
             </Link>
           </VStack>

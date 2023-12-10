@@ -1,5 +1,5 @@
 import { Mutex } from "async-mutex";
-import { throwExpression } from "../shared/error";
+import { throwExpression } from "../shared/utils";
 
 const ADMIN_CAP =
   process.env.ADMIN_CAP ??
