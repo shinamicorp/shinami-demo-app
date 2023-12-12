@@ -32,7 +32,7 @@ export default withZkLoginSessionRequired(({ session }) => {
   );
 
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
-    wallet.address,
+    user.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
     LevelUpTicket
   );
@@ -40,7 +40,7 @@ export default withZkLoginSessionRequired(({ session }) => {
   return (
     <Canvas image="/hero-select-bg.jpg">
       <Flex flexDir="column" align="center">
-      <h2>
+        <h2>
           {user.jwtClaims.email as string}({user.oidProvider})&apos;s wallet
         </h2>
         {isLoading && <div>Loading heroes...</div>}
@@ -102,15 +102,15 @@ export default withZkLoginSessionRequired(({ session }) => {
                 )}
               </Button>
             </Link>
-            <Link
+            {/* <Link
               href={getSuiExplorerAddressUrl(wallet.address)}
               target="_blank"
             >
               <Button variant="outline">
                 <Box transform="skew(10deg)">View address</Box>
               </Button>
-            </Link>
-            <Link href={`${AUTH_API_BASE}>
+            </Link> */}
+            <Link href={AUTH_API_BASE}>
               <Button variant="ghost">Logout</Button>
             </Link>
           </VStack>

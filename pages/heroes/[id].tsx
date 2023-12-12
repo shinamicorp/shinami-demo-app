@@ -14,13 +14,11 @@
 import Canvas from "@/lib/components/Canvas";
 import { Divider, HeroAttributes } from "@/lib/components/Elements";
 import { DeleteIcon, PlusIcon, TransferIcon } from "@/lib/components/Icons";
-import { withUserWallet } from "@/lib/components/auth";
 import {
   useBurnHero,
   useLevelUpHero,
   useNewLevelUpTicket,
   useSendHero,
-  useWallet,
 } from "@/lib/hooks/api";
 import {
   getSuiExplorerObjectUrl,
@@ -32,7 +30,8 @@ import {
   LEVEL_UP_TICKET_MOVE_TYPE,
   LevelUpTicket,
 } from "@/lib/shared/hero";
-import { ownerAddress } from "@/lib/shared/sui";
+import { ObjectOwner, ownerAddress } from "@/lib/shared/sui";
+import { first } from "@/lib/shared/utils";
 import {
   Box,
   Button,
@@ -50,9 +49,11 @@ import {
   FormErrorMessage,
   Textarea,
 } from "@chakra-ui/react";
+import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
+import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const heroImages = {
   0: "/fighter-bg.jpg",
@@ -60,36 +61,46 @@ const heroImages = {
   2: "/warrior-bg.jpg",
 };
 
-function HeroPage({ id, path }: { id: string; path: string }) {
+export default function HeroPage({
+  id,
+  path,
+  user,
+}: {
+  id: string;
+  path: string;
+  user: any;
+}) {
+  const { localSession, isLoading } = useZkLoginSession();
   const router = useRouter();
   const heroId = router.query.id as string;
-
-  //const { data: wallet, isLoading: isLoadingWallet } = useWallet();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { data: levelUpTickets, isFetched } = useParsedSuiOwnedObjects(
-    wallet.address,
+  const { data: levelUpTickets } = useParsedSuiOwnedObjects(
+    user?.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
     LevelUpTicket
   );
+
+  //const { data: wallet, isLoading: isLoadingWallet } = useWallet();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const { data: hero, isLoading: isLoadingHero } = useParsedSuiObject(
     heroId,
     Hero
   );
   const {
     mutateAsync: newLevelUpTicket,
-    isLoading: newLevelUpTicketIsLoading,
+    isPending: newLevelUpTicketIsLoading,
   } = useNewLevelUpTicket();
-  const { mutateAsync: levelUpHero, isLoading: levelUpHeroLoading } =
+  const { mutateAsync: levelUpHero, isPending: levelUpHeroLoading } =
     useLevelUpHero();
   const {
     mutateAsync: burnHero,
-    isLoading: burnHeroIsLoading,
+    isPending: burnHeroIsLoading,
     isSuccess: burnHeroIsSuccess,
     isError: burnHeroIsError,
   } = useBurnHero();
   const {
     mutateAsync: sendHero,
-    isLoading: sendHeroIsLoading,
+    isPending: sendHeroIsLoading,
     isSuccess: sendHeroIsSuccess,
     isError: sendHeroIsError,
   } = useSendHero();
@@ -126,7 +137,11 @@ function HeroPage({ id, path }: { id: string; path: string }) {
 
   const handleDelete = () => {
     onOpen();
-    burnHero({ heroId: heroId });
+    if (localSession)
+      burnHero({
+        heroId: heroId,
+        keyPair: localSession.ephemeralKeyPair,
+      });
   };
 
   const handleLevelUp = () => {
@@ -145,13 +160,14 @@ function HeroPage({ id, path }: { id: string; path: string }) {
     const ticket = levelUpTickets.find(
       (ticket) => ticket.hero_id === hero?.content.id.id
     );
-    if (ticket) {
+    if (ticket && localSession) {
       levelUpHero({
         heroId: hero?.content.id.id,
         damage: heroAttributes.damage - hero.content.damage,
         speed: heroAttributes.speed - hero.content.speed,
         defense: heroAttributes.defense - hero.content.defense,
         ticketId: ticket.id.id,
+        keyPair: localSession.ephemeralKeyPair,
       }).then(() => {
         setLevelUpPoints(0);
         setEditAttributes(false);
@@ -162,10 +178,11 @@ function HeroPage({ id, path }: { id: string; path: string }) {
   const handleTransfer = (e: any) => {
     e.preventDefault();
     setShowSendWindow(false);
-    if (hero && transferRecipient) {
+    if (hero && transferRecipient && localSession) {
       sendHero({
         heroId: hero.content.id.id,
         recipient: transferRecipient,
+        keyPair: localSession.ephemeralKeyPair,
       });
     }
   };
@@ -594,7 +611,7 @@ function HeroPage({ id, path }: { id: string; path: string }) {
       </Box> */}
     </Canvas>
   );
-});
+}
 
 function HeroControls({
   hero,
@@ -652,18 +669,18 @@ function HeroControls({
   );
 }
 
-export default function Page() {
-  const { isReady, query, asPath } = useRouter();
-  const [heroId, setHeroId] = useState<string>();
+// export default function Page() {
+//   const { isReady, query, asPath } = useRouter();
+//   const [heroId, setHeroId] = useState<string>();
 
-  useEffect(() => {
-    if (!isReady) return;
-    const id = first(query.id);
-    if (!id) throw new Error("Missing hero id");
-    setHeroId(id);
-  }, [isReady, query]);
+//   useEffect(() => {
+//     if (!isReady) return;
+//     const id = first(query.id);
+//     if (!id) throw new Error("Missing hero id");
+//     setHeroId(id);
+//   }, [isReady, query]);
 
-  if (!heroId) return <p>Loading hero id...</p>;
+//   if (!heroId) return <p>Loading hero id...</p>;
 
-  return <HeroPage id={heroId} path={asPath} />;
-}
+//   return <HeroPage id={heroId} path={asPath} />;
+// }

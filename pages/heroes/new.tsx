@@ -12,10 +12,7 @@ import Canvas from "@/lib/components/Canvas";
 import { Carousel } from "@/lib/components/carousel";
 import { HeroCard, Divider, HeroAttributes } from "@/lib/components/Elements";
 import { useMintHero, useNewMintTicket } from "@/lib/hooks/api";
-import {
-  getSuiExplorerAddressUrl,
-  useParsedSuiOwnedObjects,
-} from "@/lib/hooks/sui";
+import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
 import { MINT_TICKET_MOVE_TYPE, MintTicket } from "@/lib/shared/hero";
 import {
   Button,
@@ -36,9 +33,11 @@ import {
   ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
+import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { useEffect, useState } from "react";
+import wallet from "../api/admin/wallet";
 
 const characterAttrs = {
   0: { damage: 3, speed: 4, defense: 3 },
@@ -52,21 +51,24 @@ enum Heroes {
   WARRIOR = 2,
 }
 
-export default withUserWallet(({ user, wallet }) => {
+export default withZkLoginSessionRequired(({ session }) => {
+  const { user, localSession } = session;
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [hero, setHero] = useState<Heroes>(Heroes.FIGHTER);
   const [heroName, setHeroName] = useState("");
   const [chosenTickets, setChosenTickets] = useState<{
     [n: number]: MintTicket;
   }>({});
   const { data: mintTickets } = useParsedSuiOwnedObjects(
-    wallet.address,
+    user.wallet,
     MINT_TICKET_MOVE_TYPE,
     MintTicket
   );
-  const { mutateAsync: newMintTicket } = useNewMintTicket();
+  const { mutateAsync: newMintTicket, isPending: newMintTicketPending } =
+    useNewMintTicket();
   const {
     mutateAsync: mintHero,
-    isLoading: mintHeroLoading,
+    isPending: mintHeroLoading,
     isSuccess: mintHeroIsSuccess,
     isError: mintHeroIsError,
   } = useMintHero();
@@ -81,22 +83,19 @@ export default withUserWallet(({ user, wallet }) => {
         !chosenTickets[hero] ||
         !mintTickets.some((x) => x.id.id === chosenTickets[hero].id.id)
       ) {
-        const ticket = mintTickets.find(
-          (ticket) =>
-            ticket.character === hero && ticket.attribute_points === 10
-        );
+        const ticket = mintTickets.find((ticket) => ticket.character === hero);
 
         if (ticket) {
           setChosenTickets((tickets) => ({ ...tickets, [hero]: ticket }));
-        } else {
-          // newMintTicket({ character: hero }).then((ticket) => {
-          //   setChosenTickets((tickets) => ({ ...tickets, [hero]: ticket }));
-          // });
-          console.log("no mo!");
+        } else if (!newMintTicketPending && !isOpen) {
+          newMintTicket({ character: hero }).then((ticket) => {
+            setChosenTickets((tickets) => ({ ...tickets, [hero]: ticket }));
+          });
+          console.log(hero + " :needs a ticket");
         }
       }
     },
-    [chosenTickets, mintTickets]
+    [mintTickets, newMintTicket, chosenTickets, isOpen, newMintTicketPending]
   );
 
   useEffect(() => {
@@ -104,11 +103,8 @@ export default withUserWallet(({ user, wallet }) => {
       setChosenTickets({});
       return;
     }
-    console.log("useeffect");
     getTicket(hero);
   }, [mintTickets, hero, getTicket]);
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const nextHero = () => {
     const next = (hero + 1) % 3;
@@ -131,12 +127,15 @@ export default withUserWallet(({ user, wallet }) => {
         speed: characterAttrs[hero as keyof typeof characterAttrs].speed,
         defense: characterAttrs[hero as keyof typeof characterAttrs].defense,
         ticketId: chosenTickets[hero].id.id,
+        keyPair: localSession.ephemeralKeyPair,
       });
 
       setHeroName("");
       onOpen();
     }
   };
+
+  console.log(mintTickets);
   return (
     <Canvas image="/home-bg.jpg">
       <Flex flexDir="column" align="center">

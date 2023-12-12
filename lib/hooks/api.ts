@@ -168,8 +168,12 @@ export function useBurnHero(): UseMutationResult<
         queryKey: [...suiOwnedObjectsQueryKey, owner, HERO_MOVE_TYPE],
         refetchType: "all",
       });
-      queryClient.invalidateQueries([...suiOwnedObjectsQueryKey, owner, null]);
-      queryClient.invalidateQueries([...suiObjectQueryKey, heroId]);
+      queryClient.invalidateQueries({
+        queryKey: [...suiOwnedObjectsQueryKey, owner, null],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...suiObjectQueryKey, heroId],
+      });
     },
   });
 }
