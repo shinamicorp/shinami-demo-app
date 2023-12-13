@@ -6,8 +6,6 @@
 // 3. Allocate attribute points
 // 4. Upon submit, useMintHero() and navigate to /
 
-import { key } from "@/lib/api/shinami";
-import { withUserWallet } from "@/lib/components/auth";
 import Canvas from "@/lib/components/Canvas";
 import { Carousel } from "@/lib/components/carousel";
 import { HeroCard, Divider, HeroAttributes } from "@/lib/components/Elements";
@@ -22,7 +20,7 @@ import {
   Box,
   HStack,
   Image,
-  Link,
+  Link as ChakraLink,
   Input,
   FormControl,
   FormErrorMessage,
@@ -33,11 +31,10 @@ import {
   ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
-import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { useEffect, useState } from "react";
-import wallet from "../api/admin/wallet";
 
 const characterAttrs = {
   0: { damage: 3, speed: 4, defense: 3 },
@@ -106,36 +103,46 @@ export default withZkLoginSessionRequired(({ session }) => {
     getTicket(hero);
   }, [mintTickets, hero, getTicket]);
 
-  const nextHero = () => {
+  const nextHero = useCallback(() => {
     const next = (hero + 1) % 3;
     setHero((prev) => (prev + 1) % 3);
     getTicket(next);
-  };
-  const prevHero = () => {
+  }, [hero, getTicket]);
+
+  const prevHero = useCallback(() => {
     const previous = (((hero - 1) % 3) + 3) % 3;
     setHero((prev) => (((prev - 1) % 3) + 3) % 3);
     getTicket(previous);
-  };
+  }, [hero, getTicket]);
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    (e: any) => {
+      e.preventDefault();
 
-    if (chosenTickets[hero]) {
-      mintHero({
-        name: heroName,
-        damage: characterAttrs[hero as keyof typeof characterAttrs].damage,
-        speed: characterAttrs[hero as keyof typeof characterAttrs].speed,
-        defense: characterAttrs[hero as keyof typeof characterAttrs].defense,
-        ticketId: chosenTickets[hero].id.id,
-        keyPair: localSession.ephemeralKeyPair,
-      });
+      if (chosenTickets[hero]) {
+        mintHero({
+          name: heroName,
+          damage: characterAttrs[hero as keyof typeof characterAttrs].damage,
+          speed: characterAttrs[hero as keyof typeof characterAttrs].speed,
+          defense: characterAttrs[hero as keyof typeof characterAttrs].defense,
+          ticketId: chosenTickets[hero].id.id,
+          keyPair: localSession.ephemeralKeyPair,
+        });
 
-      setHeroName("");
-      onOpen();
-    }
-  };
+        setHeroName("");
+        onOpen();
+      }
+    },
+    [
+      mintHero,
+      onOpen,
+      chosenTickets,
+      hero,
+      heroName,
+      localSession.ephemeralKeyPair,
+    ]
+  );
 
-  console.log(mintTickets);
   return (
     <Canvas image="/home-bg.jpg">
       <Flex flexDir="column" align="center">
@@ -143,7 +150,7 @@ export default withZkLoginSessionRequired(({ session }) => {
           <Heading size="3xl">Select your Hero</Heading>
 
           <HStack gap="30px">
-            <Link onClick={prevHero}>
+            <ChakraLink onClick={prevHero}>
               <Image
                 style={{
                   transition: "all 0.2s ease",
@@ -160,7 +167,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                 opacity={0.7}
                 scale={0.95}
               />
-            </Link>
+            </ChakraLink>
             <ScaleFade
               initialScale={0.95}
               transition={{ enter: { duration: 1 } }}
@@ -191,7 +198,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                 />
               </Box>
             </ScaleFade>
-            <Link onClick={nextHero}>
+            <ChakraLink onClick={nextHero}>
               <Image
                 style={{
                   transition: "all 0.2s ease",
@@ -208,7 +215,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                 opacity={0.7}
                 scale={0.95}
               />
-            </Link>
+            </ChakraLink>
           </HStack>
           <HStack gap="30px">
             <HStack>
