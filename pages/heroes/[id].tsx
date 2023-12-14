@@ -53,7 +53,7 @@ import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
 import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const heroImages = {
   0: "/fighter-bg.jpg",
@@ -61,20 +61,10 @@ const heroImages = {
   2: "/warrior-bg.jpg",
 };
 
-export default function HeroPage({
-  id,
-  path,
-  user,
-}: {
-  id: string;
-  path: string;
-  user: any;
-}) {
-  const { localSession, isLoading } = useZkLoginSession();
-  const router = useRouter();
-  const heroId = router.query.id as string;
+function HeroPage({ heroId, path }: { heroId: string; path: string }) {
+  const { localSession, user } = useZkLoginSession();
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
-    user?.wallet,
+    user?.wallet ?? "",
     LEVEL_UP_TICKET_MOVE_TYPE,
     LevelUpTicket
   );
@@ -113,14 +103,15 @@ export default function HeroPage({
   const [transferRecipient, setTransferRecipient] = useState<string>();
 
   useEffect(() => {
-    if (!hero || !levelUpTickets) {
+    if (!hero) return;
+    setHeroAttributes(hero.content);
+
+    if (!levelUpTickets) {
       setChosenTicket(undefined);
       setLevelUpPoints(0);
       setEditAttributes(false);
       return;
     }
-
-    setHeroAttributes(hero.content);
 
     if (
       !chosenTicket ||
@@ -613,74 +604,126 @@ export default function HeroPage({
   );
 }
 
-function HeroControls({
-  hero,
-  owner,
-  path,
-}: {
-  hero: Hero;
-  owner: ObjectOwner;
-  path: string;
-}) {
-  const { user, localSession, isLoading } = useZkLoginSession();
-  const { mutateAsync: send, isPending: isSending } = useSendHero();
-  const sendTargetRef = useRef<HTMLInputElement>(null);
+// function HeroControls({
+//   hero,
+//   owner,
+//   path,
+// }: {
+//   hero: Hero;
+//   owner: ObjectOwner;
+//   path: string;
+// }) {
+//   const { isOpen, onOpen, onClose } = useDisclosure();
+//   const { user, localSession, isLoading } = useZkLoginSession();
+//   const { mutateAsync: send, isPending: isSending } = useSendHero();
+//   const sendTargetRef = useRef<HTMLInputElement>(null);
+//   const {
+//     mutateAsync: burnHero,
+//     isPending: burnHeroIsLoading,
+//     isSuccess: burnHeroIsSuccess,
+//     isError: burnHeroIsError,
+//   } = useBurnHero();
 
-  if (isLoading) return <p>Loading zkLogin session...</p>;
-  if (!user)
-    return (
-      <div>
-        <Link
-          href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
-            redirectTo: path,
-          })}`}
-        >
-          Please sign in
-        </Link>
-      </div>
-    );
-  if (user.wallet !== ownerAddress(owner))
-    return <p>You don&apos;t own this hero</p>;
+//   const {
+//     mutateAsync: newLevelUpTicket,
+//     isPending: newLevelUpTicketIsLoading,
+//   } = useNewLevelUpTicket();
 
-  return (
-    <div>
-      <input type="text" ref={sendTargetRef} disabled={isSending} />
-      <button
-        disabled={isSending}
-        onClick={async (e) => {
-          e.preventDefault();
-          if (isSending) return;
+//   const [showSendWindow, setShowSendWindow] = useState(false);
+//   const [levelUpPoints, setLevelUpPoints] = useState(0);
 
-          const recipient = sendTargetRef.current?.value?.trim();
-          if (!recipient) return;
+//   const handleDelete = useCallback(() => {
+//     onOpen();
+//     if (localSession)
+//       burnHero({
+//         heroId: hero.id.id,
+//         keyPair: localSession.ephemeralKeyPair,
+//       });
+//   },[burnHero, hero, localSession, onOpen]);
 
-          console.log("Sending hero to", recipient);
-          const { txDigest } = await send({
-            heroId: hero.id.id,
-            recipient,
-            keyPair: localSession.ephemeralKeyPair,
-          });
-          console.log("Hero sent in tx", txDigest);
-        }}
-      >
-        Send
-      </button>
-    </div>
-  );
-}
+//   const handleLevelUp = useCallback(() => {
+//     if (hero.id.id) {
+//       newLevelUpTicket({ heroId: hero.id.id }).then(() => {
+//         setLevelUpPoints(4);
+//       });
+//     }
+//   },[hero, newLevelUpTicket]);
 
-// export default function Page() {
-//   const { isReady, query, asPath } = useRouter();
-//   const [heroId, setHeroId] = useState<string>();
+//   if (isLoading) return <p>Loading zkLogin session...</p>;
+//   if (!user)
+//     return (
+//       <div>
+//         <Link
+//           href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
+//             redirectTo: path,
+//           })}`}
+//         >
+//           Please sign in
+//         </Link>
+//       </div>
+//     );
+//   if (user.wallet !== ownerAddress(owner))
+//     return <p>You don&apos;t own this hero</p>;
 
-//   useEffect(() => {
-//     if (!isReady) return;
-//     const id = first(query.id);
-//     if (!id) throw new Error("Missing hero id");
-//     setHeroId(id);
-//   }, [isReady, query]);
+//   return (
+//     <VStack width="646px" height="100%" align="center" justify="flex-end">
+//             <Divider />
+//             <HStack mt="22px" gap="20px">
+//               <Link
+//                 href={getSuiExplorerObjectUrl(hero.id.id)}
+//                 target="_blank"
+//               >
+//                 <Button size="md" variant="outline">
+//                   <Box transform="skew(10deg)">View on Sui</Box>
+//                 </Button>
+//               </Link>
 
-//   if (!heroId) return <p>Loading hero id...</p>;
-
-//   return <HeroPage id={heroId} path={asPath} />;
+//               <Button
+//                 onClick={() => {
+//                   setShowSendWindow(true);
+//                   onOpen();
+//                 }}
+//                 leftIcon={TransferIcon}
+//                 size="md"
+//                 variant="outline"
+//               >
+//                 <Box transform="skew(10deg)">Transfer</Box>
+//               </Button>
+//               <Button
+//                 leftIcon={PlusIcon}
+//                 size="md"
+//                 variant="outline"
+//                 onClick={handleLevelUp}
+//                 isDisabled={!!chosenTicket}
+//                 isLoading={newLevelUpTicketIsLoading}
+//               >
+//                 <Box transform="skew(10deg)">Level up</Box>
+//               </Button>
+//               <Button
+//                 onClick={handleDelete}
+//                 leftIcon={DeleteIcon}
+//                 size="md"
+//                 variant="danger"
+//               >
+//                 <Box transform="skew(10deg)">Burn hero</Box>
+//               </Button>
+//             </HStack>
+//           </VStack>
+//   );
 // }
+
+export default function Page() {
+  const { isReady, query, asPath } = useRouter();
+  const [heroId, setHeroId] = useState<string>();
+
+  useEffect(() => {
+    if (!isReady) return;
+    const id = first(query.id);
+    if (!id) throw new Error("Missing hero id");
+    setHeroId(id);
+  }, [isReady, query]);
+
+  if (!heroId) return <p>Loading hero id...</p>;
+
+  return <HeroPage heroId={heroId} path={asPath} />;
+}
