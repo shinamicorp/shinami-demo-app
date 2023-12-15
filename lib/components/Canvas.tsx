@@ -1,7 +1,9 @@
-import { Box, Fade, Flex, Image } from "@chakra-ui/react";
+import { Box, Fade, Flex, Image, Text } from "@chakra-ui/react";
 
 const Canvas = (props: {
   image: string | undefined;
+  username: string | undefined;
+  provider: string | undefined;
   children:
     | string
     | number
@@ -26,17 +28,26 @@ const Canvas = (props: {
           <Box
             height="924px"
             width="1360px"
+            position="relative"
             backgroundImage={props.image}
             backgroundSize="cover"
             borderRadius="18px"
             boxShadow="0 0 46px 21px #ff430045, inset 0 0 30px #000 "
           >
-            <Image
+            <Flex
+              width="100%"
+              justify="space-between"
               position="absolute"
               padding="40px"
-              src="/shinami-games.svg"
-              alt="Shinami games logo"
-            />
+            >
+              <Image src="/shinami-games.svg" alt="Shinami games logo" />
+              {props.username && (
+                <Text fontSize="20px">
+                  {props.username}&apos;s wallet ({props.provider})
+                </Text>
+              )}
+            </Flex>
+
             <Flex
               height="100%"
               width="100%"

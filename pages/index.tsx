@@ -18,6 +18,7 @@ import {
   VStack,
   ScaleFade,
   HStack,
+  Text,
 } from "@chakra-ui/react";
 import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
 import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
@@ -38,11 +39,12 @@ export default withZkLoginSessionRequired(({ session }) => {
   );
 
   return (
-    <Canvas image="/hero-select-bg.jpg">
-      <Flex flexDir="column" align="center">
-        <h2>
-          {user.jwtClaims.email as string}({user.oidProvider})&apos;s wallet
-        </h2>
+    <Canvas
+      image="/hero-select-bg.jpg"
+      username={user.jwtClaims.email as string}
+      provider={user.oidProvider}
+    >
+      <Flex flexDir="column" align="center" gap={2}>
         {isLoading && <div>Loading heroes...</div>}
         {!isLoading && !heroes && <div>Failed to load heroes</div>}
         {!isLoading && heroes && (

@@ -14,6 +14,7 @@
 import Canvas from "@/lib/components/Canvas";
 import { Divider, HeroAttributes } from "@/lib/components/Elements";
 import { DeleteIcon, PlusIcon, TransferIcon } from "@/lib/components/Icons";
+import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
 import {
   useBurnHero,
   useLevelUpHero,
@@ -30,7 +31,6 @@ import {
   LEVEL_UP_TICKET_MOVE_TYPE,
   LevelUpTicket,
 } from "@/lib/shared/hero";
-import { ObjectOwner, ownerAddress } from "@/lib/shared/sui";
 import { first } from "@/lib/shared/utils";
 import {
   Box,
@@ -49,7 +49,6 @@ import {
   FormErrorMessage,
   Textarea,
 } from "@chakra-ui/react";
-import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
 import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -69,7 +68,6 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
     LevelUpTicket
   );
 
-  //const { data: wallet, isLoading: isLoadingWallet } = useWallet();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { data: hero, isLoading: isLoadingHero } = useParsedSuiObject(
@@ -126,24 +124,23 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
     }
   }, [hero, levelUpTickets, chosenTicket]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     onOpen();
     if (localSession)
       burnHero({
         heroId: heroId,
         keyPair: localSession.ephemeralKeyPair,
       });
-  };
+  }, [onOpen, localSession, heroId, burnHero]);
 
-  const handleLevelUp = () => {
+  const handleLevelUp = useCallback(async () => {
     if (hero?.content.id) {
-      newLevelUpTicket({ heroId: hero.content.id.id }).then(() => {
-        setLevelUpPoints(4);
-      });
+      await newLevelUpTicket({ heroId: hero.content.id.id });
+      setLevelUpPoints(4);
     }
-  };
+  }, [hero, newLevelUpTicket]);
 
-  const handleLevelUpSave = () => {
+  const handleLevelUpSave = useCallback(async () => {
     if (!hero || !levelUpTickets || !heroAttributes) {
       return;
     }
@@ -152,33 +149,38 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
       (ticket) => ticket.hero_id === hero?.content.id.id
     );
     if (ticket && localSession) {
-      levelUpHero({
+      await levelUpHero({
         heroId: hero?.content.id.id,
         damage: heroAttributes.damage - hero.content.damage,
         speed: heroAttributes.speed - hero.content.speed,
         defense: heroAttributes.defense - hero.content.defense,
         ticketId: ticket.id.id,
         keyPair: localSession.ephemeralKeyPair,
-      }).then(() => {
-        setLevelUpPoints(0);
-        setEditAttributes(false);
       });
+      setLevelUpPoints(0);
+      setEditAttributes(false);
     }
-  };
+  }, [hero, levelUpTickets, heroAttributes, localSession, levelUpHero]);
 
-  const handleTransfer = (e: any) => {
-    e.preventDefault();
-    setShowSendWindow(false);
-    if (hero && transferRecipient && localSession) {
-      sendHero({
-        heroId: hero.content.id.id,
-        recipient: transferRecipient,
-        keyPair: localSession.ephemeralKeyPair,
-      });
-    }
-  };
+  const handleTransfer = useCallback(
+    (e: any) => {
+      e.preventDefault();
+      setShowSendWindow(false);
+      if (hero && transferRecipient && localSession) {
+        sendHero({
+          heroId: hero.content.id.id,
+          recipient: transferRecipient,
+          keyPair: localSession.ephemeralKeyPair,
+        });
+      }
+    },
+    [hero, transferRecipient, localSession, sendHero]
+  );
+
   return (
     <Canvas
+      username={user?.jwtClaims.email as string}
+      provider={user?.oidProvider}
       image={heroImages[hero?.content.character as keyof typeof heroImages]}
     >
       {isLoadingHero && <div>Loading hero...</div>}
@@ -339,62 +341,72 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                   </HStack>
                 )}
               </VStack>
-              {editAttributes ? (
-                <HStack>
+              {user &&
+                (editAttributes ? (
+                  <HStack>
+                    <Button
+                      onClick={() => {
+                        setEditAttributes(false);
+                        setHeroAttributes(hero?.content);
+                        setLevelUpPoints(4);
+                      }}
+                      size="md"
+                      variant="outline"
+                      isDisabled={levelUpHeroLoading}
+                    >
+                      <Box transform="skew(10deg)">Cancel</Box>
+                    </Button>
+                    <Button
+                      onClick={handleLevelUpSave}
+                      size="md"
+                      variant="plus"
+                      isLoading={levelUpHeroLoading}
+                      isDisabled={levelUpPoints > 0}
+                    >
+                      <Box transform="skew(10deg)">Level up!</Box>
+                    </Button>
+                  </HStack>
+                ) : (
                   <Button
-                    onClick={() => {
-                      setEditAttributes(false);
-                      setHeroAttributes(hero?.content);
-                      setLevelUpPoints(4);
-                    }}
-                    size="md"
-                    variant="outline"
-                    isDisabled={levelUpHeroLoading}
-                  >
-                    <Box transform="skew(10deg)">Cancel</Box>
-                  </Button>
-                  <Button
-                    onClick={handleLevelUpSave}
+                    onClick={() => setEditAttributes(true)}
+                    rightIcon={PlusIcon}
                     size="md"
                     variant="plus"
-                    isLoading={levelUpHeroLoading}
-                    isDisabled={levelUpPoints > 0}
+                    isDisabled={!chosenTicket}
                   >
-                    <Box transform="skew(10deg)">Level up!</Box>
+                    <Box transform="skew(10deg)">Spend points</Box>
+                    <Box
+                      position="absolute"
+                      alignItems="center"
+                      justifyContent="center"
+                      top="-10px"
+                      right="-10px"
+                      backgroundColor="red"
+                      borderRadius="100px"
+                      h="28px"
+                      width="28px"
+                      transform="skew(10deg)"
+                      display={chosenTicket ? "flex" : "none"}
+                    >
+                      {levelUpPoints}
+                    </Box>
                   </Button>
-                </HStack>
-              ) : (
-                <Button
-                  onClick={() => setEditAttributes(true)}
-                  rightIcon={PlusIcon}
-                  size="md"
-                  variant="plus"
-                  isDisabled={!chosenTicket}
-                >
-                  <Box transform="skew(10deg)">Spend points</Box>
-                  <Box
-                    position="absolute"
-                    alignItems="center"
-                    justifyContent="center"
-                    top="-10px"
-                    right="-10px"
-                    backgroundColor="red"
-                    borderRadius="100px"
-                    h="28px"
-                    width="28px"
-                    transform="skew(10deg)"
-                    display={chosenTicket ? "flex" : "none"}
-                  >
-                    {levelUpPoints}
-                  </Box>
-                </Button>
-              )}
+                ))}
             </Box>
-            <Link href="/">
-              <Button paddingInlineStart={0} minW="none" variant="ghost">
-                Go back
-              </Button>
-            </Link>
+            {user ? (
+              <Link href="/">
+                <Button paddingInlineStart={0} minW="none" variant="ghost">
+                  Go back
+                </Button>
+              </Link>
+            ) : (
+              // TODO
+              <Link href="/">
+                <Button paddingInlineStart={0} minW="none" variant="ghost">
+                  Sign in
+                </Button>
+              </Link>
+            )}
           </VStack>
           <VStack width="646px" height="100%" align="center" justify="flex-end">
             <Divider />
@@ -408,35 +420,39 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                 </Button>
               </Link>
 
-              <Button
-                onClick={() => {
-                  setShowSendWindow(true);
-                  onOpen();
-                }}
-                leftIcon={TransferIcon}
-                size="md"
-                variant="outline"
-              >
-                <Box transform="skew(10deg)">Transfer</Box>
-              </Button>
-              <Button
-                leftIcon={PlusIcon}
-                size="md"
-                variant="outline"
-                onClick={handleLevelUp}
-                isDisabled={!!chosenTicket}
-                isLoading={newLevelUpTicketIsLoading}
-              >
-                <Box transform="skew(10deg)">Level up</Box>
-              </Button>
-              <Button
-                onClick={handleDelete}
-                leftIcon={DeleteIcon}
-                size="md"
-                variant="danger"
-              >
-                <Box transform="skew(10deg)">Burn hero</Box>
-              </Button>
+              {user && (
+                <>
+                  <Button
+                    onClick={() => {
+                      setShowSendWindow(true);
+                      onOpen();
+                    }}
+                    leftIcon={TransferIcon}
+                    size="md"
+                    variant="outline"
+                  >
+                    <Box transform="skew(10deg)">Transfer</Box>
+                  </Button>
+                  <Button
+                    leftIcon={PlusIcon}
+                    size="md"
+                    variant="outline"
+                    onClick={handleLevelUp}
+                    isDisabled={!!chosenTicket}
+                    isLoading={newLevelUpTicketIsLoading}
+                  >
+                    <Box transform="skew(10deg)">Level up</Box>
+                  </Button>
+                  <Button
+                    onClick={handleDelete}
+                    leftIcon={DeleteIcon}
+                    size="md"
+                    variant="danger"
+                  >
+                    <Box transform="skew(10deg)">Burn hero</Box>
+                  </Button>
+                </>
+              )}
             </HStack>
           </VStack>
         </HStack>
@@ -589,128 +605,9 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
           </ModalBody>
         </ModalContent>
       </Modal>
-      {/* <Box>
-        {isLoadingWallet && <div>Loading wallet...</div>}
-        {!isLoadingWallet && !wallet && <div>Failed to load wallet</div>}
-        {hero && wallet && (
-          <div>
-            You{" "}
-            {wallet.address === ownerAddress(hero.owner) ? "own" : "don't own"}{" "}
-            this hero
-          </div>
-        )}
-      </Box> */}
     </Canvas>
   );
 }
-
-// function HeroControls({
-//   hero,
-//   owner,
-//   path,
-// }: {
-//   hero: Hero;
-//   owner: ObjectOwner;
-//   path: string;
-// }) {
-//   const { isOpen, onOpen, onClose } = useDisclosure();
-//   const { user, localSession, isLoading } = useZkLoginSession();
-//   const { mutateAsync: send, isPending: isSending } = useSendHero();
-//   const sendTargetRef = useRef<HTMLInputElement>(null);
-//   const {
-//     mutateAsync: burnHero,
-//     isPending: burnHeroIsLoading,
-//     isSuccess: burnHeroIsSuccess,
-//     isError: burnHeroIsError,
-//   } = useBurnHero();
-
-//   const {
-//     mutateAsync: newLevelUpTicket,
-//     isPending: newLevelUpTicketIsLoading,
-//   } = useNewLevelUpTicket();
-
-//   const [showSendWindow, setShowSendWindow] = useState(false);
-//   const [levelUpPoints, setLevelUpPoints] = useState(0);
-
-//   const handleDelete = useCallback(() => {
-//     onOpen();
-//     if (localSession)
-//       burnHero({
-//         heroId: hero.id.id,
-//         keyPair: localSession.ephemeralKeyPair,
-//       });
-//   },[burnHero, hero, localSession, onOpen]);
-
-//   const handleLevelUp = useCallback(() => {
-//     if (hero.id.id) {
-//       newLevelUpTicket({ heroId: hero.id.id }).then(() => {
-//         setLevelUpPoints(4);
-//       });
-//     }
-//   },[hero, newLevelUpTicket]);
-
-//   if (isLoading) return <p>Loading zkLogin session...</p>;
-//   if (!user)
-//     return (
-//       <div>
-//         <Link
-//           href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
-//             redirectTo: path,
-//           })}`}
-//         >
-//           Please sign in
-//         </Link>
-//       </div>
-//     );
-//   if (user.wallet !== ownerAddress(owner))
-//     return <p>You don&apos;t own this hero</p>;
-
-//   return (
-//     <VStack width="646px" height="100%" align="center" justify="flex-end">
-//             <Divider />
-//             <HStack mt="22px" gap="20px">
-//               <Link
-//                 href={getSuiExplorerObjectUrl(hero.id.id)}
-//                 target="_blank"
-//               >
-//                 <Button size="md" variant="outline">
-//                   <Box transform="skew(10deg)">View on Sui</Box>
-//                 </Button>
-//               </Link>
-
-//               <Button
-//                 onClick={() => {
-//                   setShowSendWindow(true);
-//                   onOpen();
-//                 }}
-//                 leftIcon={TransferIcon}
-//                 size="md"
-//                 variant="outline"
-//               >
-//                 <Box transform="skew(10deg)">Transfer</Box>
-//               </Button>
-//               <Button
-//                 leftIcon={PlusIcon}
-//                 size="md"
-//                 variant="outline"
-//                 onClick={handleLevelUp}
-//                 isDisabled={!!chosenTicket}
-//                 isLoading={newLevelUpTicketIsLoading}
-//               >
-//                 <Box transform="skew(10deg)">Level up</Box>
-//               </Button>
-//               <Button
-//                 onClick={handleDelete}
-//                 leftIcon={DeleteIcon}
-//                 size="md"
-//                 variant="danger"
-//               >
-//                 <Box transform="skew(10deg)">Burn hero</Box>
-//               </Button>
-//             </HStack>
-//           </VStack>
-//   );
-// }
 
 export default function Page() {
   const { isReady, query, asPath } = useRouter();

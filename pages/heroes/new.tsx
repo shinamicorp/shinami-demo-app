@@ -88,7 +88,6 @@ export default withZkLoginSessionRequired(({ session }) => {
           newMintTicket({ character: hero }).then((ticket) => {
             setChosenTickets((tickets) => ({ ...tickets, [hero]: ticket }));
           });
-          console.log(hero + " :needs a ticket");
         }
       }
     },
@@ -144,7 +143,11 @@ export default withZkLoginSessionRequired(({ session }) => {
   );
 
   return (
-    <Canvas image="/home-bg.jpg">
+    <Canvas
+      username={user.jwtClaims.email as string}
+      provider={user.oidProvider}
+      image="/home-bg.jpg"
+    >
       <Flex flexDir="column" align="center">
         <VStack gap="30px">
           <Heading size="3xl">Select your Hero</Heading>
@@ -278,6 +281,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                 type="submit"
                 variant="solid"
                 isDisabled={!chosenTickets[hero]}
+                isLoading={newMintTicketPending}
               >
                 <Box transform="skew(10deg)">Let&apos;s go!</Box>
               </Button>
