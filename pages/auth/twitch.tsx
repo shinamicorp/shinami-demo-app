@@ -1,12 +1,6 @@
 import { withTwitchCallback } from "@shinami/nextjs-zklogin/client";
+import { LoginState } from "./login";
 
 export default withTwitchCallback(({ status }) => {
-  switch (status) {
-    case "loggingIn":
-      return <p>Chugging along...</p>;
-    case "error":
-      return <p>Something went wrong</p>;
-    default:
-      return <p>Twitch callback</p>;
-  }
+  return <LoginState status={status} provider={"Twitch"} />;
 });

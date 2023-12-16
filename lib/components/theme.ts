@@ -46,6 +46,20 @@ export const theme = extendTheme({
             boxShadow: "0px 0px 10px #F00",
           },
         },
+        signIn: {
+          bg: "#fff",
+          fontFamily: "inter",
+          border: "1px white solid",
+          borderColor: "white",
+          color: "black",
+          width: "285px",
+          height: "54px",
+          fontSize: "16px",
+          transform: "skew(0deg)",
+          _hover: {
+            boxShadow: "0px 0px 10px #ffffff99",
+          },
+        },
         minus: {
           bgGradient: "linear-gradient(180deg, #8D3300 27.6%, #FF4D00 100%)",
           _active: {
