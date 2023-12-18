@@ -178,6 +178,7 @@ export const LoginState = ({
       return (
         <LoginBackground>
           <Box p="20px" opacity="0.5">
+            <Image src="/spinner.svg" alt="spinner" />
             <Text fontSize="30px">Chugging along...</Text>
           </Box>
         </LoginBackground>

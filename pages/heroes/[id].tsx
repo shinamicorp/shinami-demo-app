@@ -53,6 +53,7 @@ import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ownerAddress } from "@/lib/shared/sui";
 
 const heroImages = {
   0: "/fighter-bg.jpg",
@@ -342,6 +343,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                 )}
               </VStack>
               {user &&
+                user.wallet === ownerAddress(hero.owner) &&
                 (editAttributes ? (
                   <HStack>
                     <Button
@@ -409,6 +411,9 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
             )}
           </VStack>
           <VStack width="646px" height="100%" align="center" justify="flex-end">
+            {user && user.wallet !== ownerAddress(hero.owner) && (
+              <Heading>You don&apos;t own this hero</Heading>
+            )}
             <Divider />
             <HStack mt="22px" gap="20px">
               <Link
@@ -420,7 +425,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                 </Button>
               </Link>
 
-              {user && (
+              {user && user.wallet === ownerAddress(hero.owner) && (
                 <>
                   <Button
                     onClick={() => {

@@ -1,9 +1,6 @@
 import Canvas from "@/lib/components/Canvas";
 import { Divider, HeroCard, NewHeroCard } from "@/lib/components/Elements";
-import {
-  getSuiExplorerAccountUrl,
-  useParsedSuiOwnedObjects,
-} from "@/lib/hooks/sui";
+import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
 import {
   HERO_MOVE_TYPE,
   Hero,
@@ -20,7 +17,6 @@ import {
   HStack,
   Text,
 } from "@chakra-ui/react";
-import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
 import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 
@@ -104,15 +100,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                 )}
               </Button>
             </Link>
-            {/* <Link
-              href={getSuiExplorerAddressUrl(wallet.address)}
-              target="_blank"
-            >
-              <Button variant="outline">
-                <Box transform="skew(10deg)">View address</Box>
-              </Button>
-            </Link> */}
-            <Link href={AUTH_API_BASE}>
+            <Link href="/api/auth/logout">
               <Button variant="ghost">Logout</Button>
             </Link>
           </VStack>
