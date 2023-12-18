@@ -8,7 +8,6 @@ import {
   VStack,
   Text,
   HStack,
-  Fade,
   ScaleFade,
 } from "@chakra-ui/react";
 

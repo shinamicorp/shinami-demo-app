@@ -14,7 +14,6 @@
 import Canvas from "@/lib/components/Canvas";
 import { Divider, HeroAttributes } from "@/lib/components/Elements";
 import { DeleteIcon, PlusIcon, TransferIcon } from "@/lib/components/Icons";
-import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
 import {
   useBurnHero,
   useLevelUpHero,
@@ -61,7 +60,7 @@ const heroImages = {
   2: "/warrior-bg.jpg",
 };
 
-function HeroPage({ heroId, path }: { heroId: string; path: string }) {
+function HeroPage({ heroId }: { heroId: string }) {
   const { localSession, user } = useZkLoginSession();
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user?.wallet ?? "",
@@ -395,20 +394,12 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                   </Button>
                 ))}
             </Box>
-            {user ? (
-              <Link href="/">
-                <Button paddingInlineStart={0} minW="none" variant="ghost">
-                  Go back
-                </Button>
-              </Link>
-            ) : (
-              // TODO
-              <Link href="/">
-                <Button paddingInlineStart={0} minW="none" variant="ghost">
-                  Sign in
-                </Button>
-              </Link>
-            )}
+
+            <Link href="/">
+              <Button paddingInlineStart={0} minW="none" variant="ghost">
+                {user ? "Go back" : "Sign in"}
+              </Button>
+            </Link>
           </VStack>
           <VStack width="646px" height="100%" align="center" justify="flex-end">
             {user && user.wallet !== ownerAddress(hero.owner) && (
@@ -615,7 +606,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
 }
 
 export default function Page() {
-  const { isReady, query, asPath } = useRouter();
+  const { isReady, query } = useRouter();
   const [heroId, setHeroId] = useState<string>();
 
   useEffect(() => {
@@ -627,5 +618,5 @@ export default function Page() {
 
   if (!heroId) return <p>Loading hero id...</p>;
 
-  return <HeroPage heroId={heroId} path={asPath} />;
+  return <HeroPage heroId={heroId} />;
 }
