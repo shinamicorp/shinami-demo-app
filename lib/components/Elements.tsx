@@ -10,6 +10,9 @@ import {
   HStack,
   ScaleFade,
 } from "@chakra-ui/react";
+import { SetStateAction } from "react";
+import { Hero, HeroAttributes } from "../shared/hero";
+import { Artifika } from "next/font/google";
 
 export const Divider = () => (
   <Box
@@ -64,10 +67,14 @@ export const NewHeroCard = () => (
 interface HeroCardProps {
   name: string;
   character: number;
-  levelUpPoints?: boolean;
+  hasLevelUpPoints?: boolean;
 }
 
-export const HeroCard = ({ name, character, levelUpPoints }: HeroCardProps) => {
+export const HeroCard = ({
+  name,
+  character,
+  hasLevelUpPoints,
+}: HeroCardProps) => {
   const characters: { [index: number]: string } = {
     0: "/fighter-p.png",
     1: "/rogue-p.png",
@@ -130,7 +137,7 @@ export const HeroCard = ({ name, character, levelUpPoints }: HeroCardProps) => {
         w="40px"
         h="40px"
         transform="skew(10deg)"
-        display={levelUpPoints ? "flex" : "none"}
+        display={hasLevelUpPoints ? "flex" : "none"}
       >
         <Heading size="lg">+</Heading>
       </Box>
@@ -143,7 +150,7 @@ interface HeroAttributesProps {
   edit?: boolean;
 }
 
-export const HeroAttributes = ({
+export const HeroAttributePoints = ({
   count,
   edit = false,
 }: HeroAttributesProps) => {
@@ -185,6 +192,73 @@ export const HeroAttributes = ({
             />
           </ScaleFade>
         ))}
+    </HStack>
+  );
+};
+
+interface HeroAttributeProps {
+  hero: Hero;
+  isEditable: boolean;
+  heroAttributes: HeroAttributes;
+  attribute: keyof HeroAttributes;
+  setHeroAttributes: (value: SetStateAction<HeroAttributes>) => void;
+  levelUpPoints: number;
+  setLevelUpPoints: (value: SetStateAction<number>) => void;
+}
+
+export const HeroAttribute = ({
+  attribute,
+  hero,
+  isEditable,
+  heroAttributes,
+  setHeroAttributes,
+  levelUpPoints,
+  setLevelUpPoints,
+}: HeroAttributeProps) => {
+  return (
+    <HStack>
+      <Heading size="lg">
+        {attribute[0].toUpperCase() + attribute.slice(1).toLowerCase()}:{" "}
+      </Heading>
+      {isEditable && (
+        <ChakraButton
+          isDisabled={heroAttributes[attribute] === 0}
+          variant="minus"
+          size="sm"
+          onClick={() => {
+            setHeroAttributes((prev) => ({
+              ...prev,
+              [attribute]: prev[attribute] - 1,
+            }));
+            setLevelUpPoints((prev) => prev + 1);
+          }}
+        >
+          -
+        </ChakraButton>
+      )}
+      <HeroAttributePoints
+        edit={isEditable}
+        count={hero[attribute] + heroAttributes[attribute]}
+      />
+      {isEditable && (
+        <ChakraButton
+          isDisabled={
+            hero[attribute] + heroAttributes[attribute] === 10 ||
+            levelUpPoints === 0
+          }
+          variant="plus"
+          size="sm"
+          onClick={() => {
+            setHeroAttributes((prev) => ({
+              ...prev,
+              [attribute]: prev[attribute] + 1,
+            }));
+            setLevelUpPoints((prev) => prev - 1);
+          }}
+        >
+          +
+        </ChakraButton>
+      )}
     </HStack>
   );
 };

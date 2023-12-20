@@ -17,6 +17,7 @@ import {
   HStack,
   Text,
 } from "@chakra-ui/react";
+import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
 import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 
@@ -77,7 +78,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                           <HeroCard
                             name={hero.name}
                             character={hero.character}
-                            levelUpPoints={!!levelup}
+                            hasLevelUpPoints={!!levelup}
                           />
                         </Link>
                       );
@@ -100,7 +101,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                 )}
               </Button>
             </Link>
-            <Link href="/api/auth/logout">
+            <Link href={`${AUTH_API_BASE}/logout`}>
               <Button variant="ghost">Logout</Button>
             </Link>
           </VStack>

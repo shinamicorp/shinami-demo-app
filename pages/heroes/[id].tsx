@@ -12,7 +12,11 @@
 //             Submit with useNewLevelUpTicket()
 
 import Canvas from "@/lib/components/Canvas";
-import { Divider, HeroAttributes } from "@/lib/components/Elements";
+import {
+  Divider,
+  HeroAttribute,
+  HeroAttributePoints,
+} from "@/lib/components/Elements";
 import { DeleteIcon, PlusIcon, TransferIcon } from "@/lib/components/Icons";
 import {
   useBurnHero,
@@ -27,6 +31,7 @@ import {
 } from "@/lib/hooks/sui";
 import {
   Hero,
+  HeroAttributes,
   LEVEL_UP_TICKET_MOVE_TYPE,
   LevelUpTicket,
 } from "@/lib/shared/hero";
@@ -51,8 +56,9 @@ import {
 import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { ownerAddress } from "@/lib/shared/sui";
+import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
 
 const heroImages = {
   0: "/fighter-bg.jpg",
@@ -60,7 +66,7 @@ const heroImages = {
   2: "/warrior-bg.jpg",
 };
 
-function HeroPage({ heroId }: { heroId: string }) {
+function HeroPage({ heroId, path }: { heroId: string; path: string }) {
   const { localSession, user } = useZkLoginSession();
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user?.wallet ?? "",
@@ -94,7 +100,11 @@ function HeroPage({ heroId }: { heroId: string }) {
   } = useSendHero();
 
   const [editAttributes, setEditAttributes] = useState(false);
-  const [heroAttributes, setHeroAttributes] = useState<Hero>();
+  const [heroAttributes, setHeroAttributes] = useState<HeroAttributes>({
+    damage: 0,
+    speed: 0,
+    defense: 0,
+  });
   const [showSendWindow, setShowSendWindow] = useState(false);
   const [chosenTicket, setChosenTicket] = useState<LevelUpTicket>();
   const [levelUpPoints, setLevelUpPoints] = useState(0);
@@ -102,7 +112,6 @@ function HeroPage({ heroId }: { heroId: string }) {
 
   useEffect(() => {
     if (!hero) return;
-    setHeroAttributes(hero.content);
 
     if (!levelUpTickets) {
       setChosenTicket(undefined);
@@ -124,10 +133,10 @@ function HeroPage({ heroId }: { heroId: string }) {
     }
   }, [hero, levelUpTickets, chosenTicket]);
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
     onOpen();
     if (localSession)
-      burnHero({
+      await burnHero({
         heroId: heroId,
         keyPair: localSession.ephemeralKeyPair,
       });
@@ -135,35 +144,46 @@ function HeroPage({ heroId }: { heroId: string }) {
 
   const handleLevelUp = useCallback(async () => {
     if (hero?.content.id) {
-      await newLevelUpTicket({ heroId: hero.content.id.id });
-      setLevelUpPoints(4);
+      const { attribute_points } = await newLevelUpTicket({
+        heroId: hero.content.id.id,
+      });
+      setLevelUpPoints(attribute_points);
     }
   }, [hero, newLevelUpTicket]);
 
   const handleLevelUpSave = useCallback(async () => {
-    if (!hero || !levelUpTickets || !heroAttributes) {
+    if (
+      !hero ||
+      !levelUpTickets ||
+      !heroAttributes ||
+      !chosenTicket ||
+      !localSession
+    ) {
       return;
     }
 
-    const ticket = levelUpTickets.find(
-      (ticket) => ticket.hero_id === hero?.content.id.id
-    );
-    if (ticket && localSession) {
-      await levelUpHero({
-        heroId: hero?.content.id.id,
-        damage: heroAttributes.damage - hero.content.damage,
-        speed: heroAttributes.speed - hero.content.speed,
-        defense: heroAttributes.defense - hero.content.defense,
-        ticketId: ticket.id.id,
-        keyPair: localSession.ephemeralKeyPair,
-      });
-      setLevelUpPoints(0);
-      setEditAttributes(false);
-    }
-  }, [hero, levelUpTickets, heroAttributes, localSession, levelUpHero]);
+    await levelUpHero({
+      heroId: hero?.content.id.id,
+      damage: heroAttributes.damage,
+      speed: heroAttributes.speed,
+      defense: heroAttributes.defense,
+      ticketId: chosenTicket.id.id,
+      keyPair: localSession.ephemeralKeyPair,
+    });
+    setLevelUpPoints(0);
+    setHeroAttributes({ damage: 0, speed: 0, defense: 0 });
+    setEditAttributes(false);
+  }, [
+    hero,
+    levelUpTickets,
+    heroAttributes,
+    localSession,
+    levelUpHero,
+    chosenTicket,
+  ]);
 
   const handleTransfer = useCallback(
-    (e: any) => {
+    (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setShowSendWindow(false);
       if (hero && transferRecipient && localSession) {
@@ -176,7 +196,6 @@ function HeroPage({ heroId }: { heroId: string }) {
     },
     [hero, transferRecipient, localSession, sendHero]
   );
-
   return (
     <Canvas
       username={user?.jwtClaims.email as string}
@@ -197,133 +216,34 @@ function HeroPage({ heroId }: { heroId: string }) {
               <Heading size="4xl">{hero.content.name}</Heading>
               <Heading>Level: {hero.content.level}</Heading>
               <VStack mt="42px" mb="32px" align="start" gap="22px">
-                <HStack>
-                  <Heading size="lg">Damage: </Heading>
-                  {editAttributes && (
-                    <Button
-                      isDisabled={
-                        heroAttributes?.damage === hero.content.damage
-                      }
-                      variant="minus"
-                      size="sm"
-                      onClick={() => {
-                        setHeroAttributes((prev) => ({
-                          ...prev!!,
-                          damage: prev!!.damage - 1,
-                        }));
-                        setLevelUpPoints((prev) => prev + 1);
-                      }}
-                    >
-                      -
-                    </Button>
-                  )}
-                  <HeroAttributes
-                    edit={editAttributes}
-                    count={heroAttributes?.damage ?? 0}
-                  />
-                  {editAttributes && (
-                    <Button
-                      isDisabled={
-                        heroAttributes?.damage === 10 || levelUpPoints === 0
-                      }
-                      variant="plus"
-                      size="sm"
-                      onClick={() => {
-                        setHeroAttributes((prev) => ({
-                          ...prev!!,
-                          damage: prev!!.damage + 1,
-                        }));
-                        setLevelUpPoints((prev) => prev - 1);
-                      }}
-                    >
-                      +
-                    </Button>
-                  )}
-                </HStack>
-                <HStack>
-                  <Heading size="lg">Speed:</Heading>
-                  {editAttributes && (
-                    <Button
-                      isDisabled={heroAttributes?.speed === hero.content.speed}
-                      variant="minus"
-                      size="sm"
-                      onClick={() => {
-                        setHeroAttributes((prev) => ({
-                          ...prev!!,
-                          speed: prev!!.speed - 1,
-                        }));
-                        setLevelUpPoints((prev) => prev + 1);
-                      }}
-                    >
-                      -
-                    </Button>
-                  )}
-                  <HeroAttributes
-                    edit={editAttributes}
-                    count={heroAttributes?.speed ?? 0}
-                  />
-                  {editAttributes && (
-                    <Button
-                      isDisabled={
-                        heroAttributes?.speed === 10 || levelUpPoints === 0
-                      }
-                      variant="plus"
-                      size="sm"
-                      onClick={() => {
-                        setHeroAttributes((prev) => ({
-                          ...prev!!,
-                          speed: prev!!.speed + 1,
-                        }));
-                        setLevelUpPoints((prev) => prev - 1);
-                      }}
-                    >
-                      +
-                    </Button>
-                  )}
-                </HStack>
-                <HStack>
-                  <Heading size="lg">Defense:</Heading>
-                  {editAttributes && (
-                    <Button
-                      isDisabled={
-                        heroAttributes?.defense === hero.content.defense
-                      }
-                      variant="minus"
-                      size="sm"
-                      onClick={() => {
-                        setHeroAttributes((prev) => ({
-                          ...prev!!,
-                          defense: prev!!.defense - 1,
-                        }));
-                        setLevelUpPoints((prev) => prev + 1);
-                      }}
-                    >
-                      -
-                    </Button>
-                  )}
-                  <HeroAttributes
-                    edit={editAttributes}
-                    count={heroAttributes?.defense ?? 0}
-                  />
-                  {editAttributes && (
-                    <Button
-                      isDisabled={
-                        heroAttributes?.defense === 10 || levelUpPoints === 0
-                      }
-                      variant="plus"
-                      size="sm"
-                      onClick={() => {
-                        setHeroAttributes((prev) => ({
-                          ...prev!!,
-                          defense: prev!!.defense + 1,
-                        }));
-                        setLevelUpPoints((prev) => prev - 1);
-                      }}
-                    >
-                      +
-                    </Button>
-                  )}
-                </HStack>
+                <HeroAttribute
+                  attribute={"damage"}
+                  hero={hero.content}
+                  isEditable={editAttributes}
+                  heroAttributes={heroAttributes}
+                  setHeroAttributes={setHeroAttributes}
+                  levelUpPoints={levelUpPoints}
+                  setLevelUpPoints={setLevelUpPoints}
+                />
+                <HeroAttribute
+                  attribute={"speed"}
+                  hero={hero.content}
+                  isEditable={editAttributes}
+                  heroAttributes={heroAttributes}
+                  setHeroAttributes={setHeroAttributes}
+                  levelUpPoints={levelUpPoints}
+                  setLevelUpPoints={setLevelUpPoints}
+                />
+                <HeroAttribute
+                  attribute={"defense"}
+                  hero={hero.content}
+                  isEditable={editAttributes}
+                  heroAttributes={heroAttributes}
+                  setHeroAttributes={setHeroAttributes}
+                  levelUpPoints={levelUpPoints}
+                  setLevelUpPoints={setLevelUpPoints}
+                />
+
                 {editAttributes && (
                   <HStack>
                     <Heading size="lg">Level up points remaining:</Heading>
@@ -348,7 +268,7 @@ function HeroPage({ heroId }: { heroId: string }) {
                     <Button
                       onClick={() => {
                         setEditAttributes(false);
-                        setHeroAttributes(hero?.content);
+                        setHeroAttributes({ damage: 0, speed: 0, defense: 0 });
                         setLevelUpPoints(4);
                       }}
                       size="md"
@@ -395,11 +315,23 @@ function HeroPage({ heroId }: { heroId: string }) {
                 ))}
             </Box>
 
-            <Link href="/">
-              <Button paddingInlineStart={0} minW="none" variant="ghost">
-                {user ? "Go back" : "Sign in"}
-              </Button>
-            </Link>
+            {user ? (
+              <Link href="/">
+                <Button paddingInlineStart={0} minW="none" variant="ghost">
+                  Go back
+                </Button>
+              </Link>
+            ) : (
+              <Link
+                href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
+                  redirectTo: path,
+                })}`}
+              >
+                <Button paddingInlineStart={0} minW="none" variant="ghost">
+                  Sign in
+                </Button>
+              </Link>
+            )}
           </VStack>
           <VStack width="646px" height="100%" align="center" justify="flex-end">
             {user && user.wallet !== ownerAddress(hero.owner) && (
@@ -606,7 +538,7 @@ function HeroPage({ heroId }: { heroId: string }) {
 }
 
 export default function Page() {
-  const { isReady, query } = useRouter();
+  const { isReady, query, asPath } = useRouter();
   const [heroId, setHeroId] = useState<string>();
 
   useEffect(() => {
@@ -618,5 +550,5 @@ export default function Page() {
 
   if (!heroId) return <p>Loading hero id...</p>;
 
-  return <HeroPage heroId={heroId} />;
+  return <HeroPage heroId={heroId} path={asPath} />;
 }

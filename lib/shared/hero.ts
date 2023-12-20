@@ -59,6 +59,7 @@ export const Hero = object({
   defense: integer(),
 });
 export type Hero = Infer<typeof Hero>;
+export type HeroAttributes = Omit<Hero, "id" | "character" | "level" | "name">;
 export const WithHero = type(Hero.schema);
 export type WithHero = Hero;
 

@@ -8,7 +8,11 @@
 
 import Canvas from "@/lib/components/Canvas";
 import { Carousel } from "@/lib/components/carousel";
-import { HeroCard, Divider, HeroAttributes } from "@/lib/components/Elements";
+import {
+  HeroCard,
+  Divider,
+  HeroAttributePoints,
+} from "@/lib/components/Elements";
 import { useMintHero, useNewMintTicket } from "@/lib/hooks/api";
 import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
 import { MINT_TICKET_MOVE_TYPE, MintTicket } from "@/lib/shared/hero";
@@ -33,7 +37,7 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
-import { useCallback } from "react";
+import { FormEvent, useCallback } from "react";
 import { useEffect, useState } from "react";
 
 const characterAttrs = {
@@ -42,7 +46,7 @@ const characterAttrs = {
   2: { damage: 5, speed: 1, defense: 4 },
 };
 
-enum Heroes {
+enum Hero {
   FIGHTER = 0,
   ROGUE = 1,
   WARRIOR = 2,
@@ -51,8 +55,8 @@ enum Heroes {
 export default withZkLoginSessionRequired(({ session }) => {
   const { user, localSession } = session;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [hero, setHero] = useState<Heroes>(Heroes.FIGHTER);
-  const [heroName, setHeroName] = useState("");
+  const [hero, setHero] = useState<Hero>(Hero.FIGHTER);
+  const [heroName, setHeroName] = useState<string>();
   const [chosenTickets, setChosenTickets] = useState<{
     [n: number]: MintTicket;
   }>({});
@@ -71,7 +75,7 @@ export default withZkLoginSessionRequired(({ session }) => {
   } = useMintHero();
 
   const getTicket = useCallback(
-    (hero: Heroes) => {
+    (hero: Hero) => {
       if (!mintTickets) {
         setChosenTickets({});
         return;
@@ -115,10 +119,10 @@ export default withZkLoginSessionRequired(({ session }) => {
   }, [hero, getTicket]);
 
   const handleSubmit = useCallback(
-    (e: any) => {
+    (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      if (chosenTickets[hero]) {
+      if (chosenTickets[hero] && heroName) {
         mintHero({
           name: heroName,
           damage: characterAttrs[hero as keyof typeof characterAttrs].damage,
@@ -128,7 +132,7 @@ export default withZkLoginSessionRequired(({ session }) => {
           keyPair: localSession.ephemeralKeyPair,
         });
 
-        setHeroName("");
+        setHeroName(undefined);
         onOpen();
       }
     },
@@ -183,17 +187,17 @@ export default withZkLoginSessionRequired(({ session }) => {
                     {
                       key: 1,
                       content: <HeroCard name="Fighter" character={0} />,
-                      onClick: () => setHero(Heroes.FIGHTER),
+                      onClick: () => setHero(Hero.FIGHTER),
                     },
                     {
                       key: 2,
                       content: <HeroCard name="Rogue" character={1} />,
-                      onClick: () => setHero(Heroes.ROGUE),
+                      onClick: () => setHero(Hero.ROGUE),
                     },
                     {
                       key: 3,
                       content: <HeroCard name="Warrior" character={2} />,
-                      onClick: () => setHero(Heroes.WARRIOR),
+                      onClick: () => setHero(Hero.WARRIOR),
                     },
                   ]}
                   animationConfig={{ tension: 220, friction: 25 }}
@@ -223,7 +227,7 @@ export default withZkLoginSessionRequired(({ session }) => {
           <HStack gap="30px">
             <HStack>
               <Heading size="lg">Damage: </Heading>
-              <HeroAttributes
+              <HeroAttributePoints
                 count={
                   characterAttrs[hero as keyof typeof characterAttrs].damage
                 }
@@ -231,7 +235,7 @@ export default withZkLoginSessionRequired(({ session }) => {
             </HStack>
             <HStack>
               <Heading size="lg">Speed:</Heading>
-              <HeroAttributes
+              <HeroAttributePoints
                 count={
                   characterAttrs[hero as keyof typeof characterAttrs].speed
                 }
@@ -239,7 +243,7 @@ export default withZkLoginSessionRequired(({ session }) => {
             </HStack>
             <HStack>
               <Heading size="lg">Defense:</Heading>
-              <HeroAttributes
+              <HeroAttributePoints
                 count={
                   characterAttrs[hero as keyof typeof characterAttrs].defense
                 }
@@ -256,7 +260,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                 <Input
                   textAlign="center"
                   type="text"
-                  value={heroName}
+                  value={heroName || ""}
                   autoComplete="off"
                   onChange={(e) => setHeroName(e.target.value)}
                   _hover={{

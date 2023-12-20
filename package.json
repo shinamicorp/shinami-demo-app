@@ -11,7 +11,6 @@
     "format:fix": "prettier . --write"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^2.6.2",
     "@chakra-ui/next-js": "^2.1.5",
     "@chakra-ui/react": "^2.8.0",
     "@emotion/react": "^11.11.1",
