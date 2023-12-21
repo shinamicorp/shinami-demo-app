@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import { SetStateAction } from "react";
 import { Hero, HeroAttributes } from "../shared/hero";
-import { Artifika } from "next/font/google";
 
 export const Divider = () => (
   <Box
@@ -198,12 +197,12 @@ export const HeroAttributePoints = ({
 
 interface HeroAttributeProps {
   hero: Hero;
-  isEditable: boolean;
-  heroAttributes: HeroAttributes;
   attribute: keyof HeroAttributes;
-  setHeroAttributes: (value: SetStateAction<HeroAttributes>) => void;
-  levelUpPoints: number;
-  setLevelUpPoints: (value: SetStateAction<number>) => void;
+  isEditable: boolean;
+  heroAttributes?: HeroAttributes;
+  setHeroAttributes?: (value: SetStateAction<HeroAttributes>) => void;
+  levelUpPoints?: number;
+  setLevelUpPoints?: (value: SetStateAction<number>) => void;
 }
 
 export const HeroAttribute = ({
@@ -215,50 +214,63 @@ export const HeroAttribute = ({
   levelUpPoints,
   setLevelUpPoints,
 }: HeroAttributeProps) => {
-  return (
-    <HStack>
-      <Heading size="lg">
-        {attribute[0].toUpperCase() + attribute.slice(1).toLowerCase()}:{" "}
-      </Heading>
-      {isEditable && (
-        <ChakraButton
-          isDisabled={heroAttributes[attribute] === 0}
-          variant="minus"
-          size="sm"
-          onClick={() => {
-            setHeroAttributes((prev) => ({
-              ...prev,
-              [attribute]: prev[attribute] - 1,
-            }));
-            setLevelUpPoints((prev) => prev + 1);
-          }}
-        >
-          -
-        </ChakraButton>
-      )}
-      <HeroAttributePoints
-        edit={isEditable}
-        count={hero[attribute] + heroAttributes[attribute]}
-      />
-      {isEditable && (
-        <ChakraButton
-          isDisabled={
-            hero[attribute] + heroAttributes[attribute] === 10 ||
-            levelUpPoints === 0
-          }
-          variant="plus"
-          size="sm"
-          onClick={() => {
-            setHeroAttributes((prev) => ({
-              ...prev,
-              [attribute]: prev[attribute] + 1,
-            }));
-            setLevelUpPoints((prev) => prev - 1);
-          }}
-        >
-          +
-        </ChakraButton>
-      )}
-    </HStack>
-  );
+  if (heroAttributes && setHeroAttributes && levelUpPoints && setLevelUpPoints)
+    return (
+      <HStack>
+        <Heading size="lg">
+          {attribute[0].toUpperCase() + attribute.slice(1).toLowerCase()}:{" "}
+        </Heading>
+        {isEditable && (
+          <ChakraButton
+            isDisabled={heroAttributes[attribute] === 0}
+            variant="minus"
+            size="sm"
+            onClick={() => {
+              setHeroAttributes((prev) => ({
+                ...prev,
+                [attribute]: prev[attribute] - 1,
+              }));
+              setLevelUpPoints((prev) => prev + 1);
+            }}
+          >
+            -
+          </ChakraButton>
+        )}
+        <HeroAttributePoints
+          edit={isEditable}
+          count={hero[attribute] + heroAttributes[attribute]}
+        />
+        {isEditable && (
+          <ChakraButton
+            isDisabled={
+              hero[attribute] + heroAttributes[attribute] === 10 ||
+              levelUpPoints === 0
+            }
+            variant="plus"
+            size="sm"
+            onClick={() => {
+              setHeroAttributes((prev) => ({
+                ...prev,
+                [attribute]: prev[attribute] + 1,
+              }));
+              setLevelUpPoints((prev) => prev - 1);
+            }}
+          >
+            +
+          </ChakraButton>
+        )}
+      </HStack>
+    );
+
+  return <HeroAttributePoints edit={isEditable} count={hero[attribute]} />;
+};
+
+export const ZkLoginLoading = () => {
+  console.log("zk loading");
+  return <Heading size="xl">LOADING TESTTTTTTTT....</Heading>;
+};
+
+export const ZkLoginRedirecting = () => {
+  console.log("zk redirection");
+  return <Heading size="xl">REDIRECTINNNNNGG TESTTTTTTTT....</Heading>;
 };

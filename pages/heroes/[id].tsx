@@ -12,11 +12,7 @@
 //             Submit with useNewLevelUpTicket()
 
 import Canvas from "@/lib/components/Canvas";
-import {
-  Divider,
-  HeroAttribute,
-  HeroAttributePoints,
-} from "@/lib/components/Elements";
+import { Divider, HeroAttribute } from "@/lib/components/Elements";
 import { DeleteIcon, PlusIcon, TransferIcon } from "@/lib/components/Icons";
 import {
   useBurnHero,
@@ -53,12 +49,15 @@ import {
   FormErrorMessage,
   Textarea,
 } from "@chakra-ui/react";
-import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
+import {
+  useZkLoginSession,
+  ZkLoginLocalSession,
+} from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { ownerAddress } from "@/lib/shared/sui";
-import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
+import { LOGIN_PAGE_PATH, ZkLoginUser } from "@shinami/nextjs-zklogin";
 
 const heroImages = {
   0: "/fighter-bg.jpg",
@@ -66,19 +65,24 @@ const heroImages = {
   2: "/warrior-bg.jpg",
 };
 
-function HeroPage({ heroId, path }: { heroId: string; path: string }) {
-  const { localSession, user } = useZkLoginSession();
+interface UserOwnedHeroProps {
+  heroId: string;
+  user: ZkLoginUser;
+  localSession: ZkLoginLocalSession;
+}
+
+function UserOwnedHero({ heroId, user, localSession }: UserOwnedHeroProps) {
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
-    user?.wallet ?? "",
+    user.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
-    LevelUpTicket
+    LevelUpTicket,
   );
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { data: hero, isLoading: isLoadingHero } = useParsedSuiObject(
     heroId,
-    Hero
+    Hero,
   );
   const {
     mutateAsync: newLevelUpTicket,
@@ -125,7 +129,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
       !levelUpTickets.some((x) => x.id.id === chosenTicket.id.id)
     ) {
       const ticket = levelUpTickets.find(
-        (x) => x.hero_id === hero.content.id.id
+        (x) => x.hero_id === hero.content.id.id,
       );
       setChosenTicket(ticket);
       setLevelUpPoints(ticket ? ticket.attribute_points : 0);
@@ -194,7 +198,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
         });
       }
     },
-    [hero, transferRecipient, localSession, sendHero]
+    [hero, transferRecipient, localSession, sendHero],
   );
   return (
     <Canvas
@@ -315,23 +319,11 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                 ))}
             </Box>
 
-            {user ? (
-              <Link href="/">
-                <Button paddingInlineStart={0} minW="none" variant="ghost">
-                  Go back
-                </Button>
-              </Link>
-            ) : (
-              <Link
-                href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
-                  redirectTo: path,
-                })}`}
-              >
-                <Button paddingInlineStart={0} minW="none" variant="ghost">
-                  Sign in
-                </Button>
-              </Link>
-            )}
+            <Link href="/">
+              <Button paddingInlineStart={0} minW="none" variant="ghost">
+                Go back
+              </Button>
+            </Link>
           </VStack>
           <VStack width="646px" height="100%" align="center" justify="flex-end">
             {user && user.wallet !== ownerAddress(hero.owner) && (
@@ -537,9 +529,80 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
   );
 }
 
+const HeroPage = ({ heroId, path }: { heroId: string; path: string }) => {
+  const { data: hero, isLoading: isLoadingHero } = useParsedSuiObject(
+    heroId,
+    Hero,
+  );
+  return (
+    <Canvas
+      image={heroImages[hero?.content.character as keyof typeof heroImages]}
+    >
+      {isLoadingHero && <div>Loading hero...</div>}
+      {!isLoadingHero && !hero && <div>Failed to load hero</div>}
+      {hero && (
+        <HStack
+          mt="50px"
+          width="83%"
+          height="70%"
+          justifyContent="space-between"
+        >
+          <VStack height="100%" align="start" justify="space-between">
+            <Box>
+              <Heading size="4xl">{hero.content.name}</Heading>
+              <Heading>Level: {hero.content.level}</Heading>
+              <VStack mt="42px" mb="32px" align="start" gap="22px">
+                <HeroAttribute
+                  attribute={"damage"}
+                  hero={hero.content}
+                  isEditable={false}
+                />
+                <HeroAttribute
+                  attribute={"speed"}
+                  hero={hero.content}
+                  isEditable={false}
+                />
+                <HeroAttribute
+                  attribute={"defense"}
+                  hero={hero.content}
+                  isEditable={false}
+                />
+              </VStack>
+            </Box>
+
+            <Link
+              href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
+                redirectTo: path,
+              })}`}
+            >
+              <Button paddingInlineStart={0} minW="none" variant="ghost">
+                Sign in
+              </Button>
+            </Link>
+          </VStack>
+          <VStack width="646px" height="100%" align="center" justify="flex-end">
+            <Divider />
+            <HStack mt="22px" gap="20px">
+              <Link
+                href={getSuiExplorerObjectUrl(hero.content.id.id)}
+                target="_blank"
+              >
+                <Button size="md" variant="outline">
+                  <Box transform="skew(10deg)">View on Sui</Box>
+                </Button>
+              </Link>
+            </HStack>
+          </VStack>
+        </HStack>
+      )}
+    </Canvas>
+  );
+};
+
 export default function Page() {
   const { isReady, query, asPath } = useRouter();
   const [heroId, setHeroId] = useState<string>();
+  const { user, localSession } = useZkLoginSession();
 
   useEffect(() => {
     if (!isReady) return;
@@ -549,6 +612,11 @@ export default function Page() {
   }, [isReady, query]);
 
   if (!heroId) return <p>Loading hero id...</p>;
+
+  if (user && localSession)
+    return (
+      <UserOwnedHero user={user} localSession={localSession} heroId={heroId} />
+    );
 
   return <HeroPage heroId={heroId} path={asPath} />;
 }

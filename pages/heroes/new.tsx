@@ -12,6 +12,7 @@ import {
   HeroCard,
   Divider,
   HeroAttributePoints,
+  ZkLoginLoading,
 } from "@/lib/components/Elements";
 import { useMintHero, useNewMintTicket } from "@/lib/hooks/api";
 import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
@@ -36,7 +37,10 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
+import {
+  ZkLoginSessionActive,
+  withZkLoginSessionRequired,
+} from "@shinami/nextjs-zklogin/client";
 import { FormEvent, useCallback } from "react";
 import { useEffect, useState } from "react";
 
@@ -52,7 +56,7 @@ enum Hero {
   WARRIOR = 2,
 }
 
-export default withZkLoginSessionRequired(({ session }) => {
+const NewHero = ({ session }: { session: ZkLoginSessionActive }) => {
   const { user, localSession } = session;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [hero, setHero] = useState<Hero>(Hero.FIGHTER);
@@ -363,4 +367,6 @@ export default withZkLoginSessionRequired(({ session }) => {
       </Modal>
     </Canvas>
   );
-});
+};
+
+export default withZkLoginSessionRequired(NewHero, ZkLoginLoading);

@@ -2,8 +2,8 @@ import { Box, Fade, Flex, Image, Text } from "@chakra-ui/react";
 
 const Canvas = (props: {
   image: string | undefined;
-  username: string | undefined;
-  provider: string | undefined;
+  username?: string | undefined;
+  provider?: string | undefined;
   children:
     | string
     | number

@@ -26,13 +26,13 @@ export default withZkLoginSessionRequired(({ session }) => {
   const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
     user.wallet,
     HERO_MOVE_TYPE,
-    Hero
+    Hero,
   );
 
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
-    LevelUpTicket
+    LevelUpTicket,
   );
 
   return (
@@ -42,8 +42,10 @@ export default withZkLoginSessionRequired(({ session }) => {
       provider={user.oidProvider}
     >
       <Flex flexDir="column" align="center" gap={2}>
-        {isLoading && <div>Loading heroes...</div>}
-        {!isLoading && !heroes && <div>Failed to load heroes</div>}
+        {isLoading && <Text fontSize="30px">Loading heroes...</Text>}
+        {!isLoading && !heroes && (
+          <Text fontSize="30px">Failed to load heroes</Text>
+        )}
         {!isLoading && heroes && (
           <div>
             {heroes.length === 0 && (
@@ -71,7 +73,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                   <HStack gap="42px">
                     {heroes.map((hero) => {
                       const levelup = levelUpTickets?.find(
-                        (ticket) => ticket.hero_id === hero.id.id
+                        (ticket) => ticket.hero_id === hero.id.id,
                       );
                       return (
                         <Link key={hero.id.id} href={`/heroes/${hero.id.id}`}>
