@@ -197,3 +197,19 @@ export const LoginState = ({
       );
   }
 };
+
+export const ZkLoginLoading = () => {
+  return (
+    <LoginBackground>
+      <Text fontSize="30px">ZkLogin Loading...</Text>
+    </LoginBackground>
+  );
+};
+
+export const ZkLoginRedirecting = () => {
+  return (
+    <LoginBackground>
+      <Text fontSize="30px">ZkLogin redirecting...</Text>
+    </LoginBackground>
+  );
+};

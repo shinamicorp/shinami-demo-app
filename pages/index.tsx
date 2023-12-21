@@ -18,21 +18,25 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
-import { withZkLoginSessionRequired } from "@shinami/nextjs-zklogin/client";
+import {
+  withZkLoginSessionRequired,
+  ZkLoginSessionActive,
+} from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
+import { ZkLoginLoading, ZkLoginRedirecting } from "./auth/login";
 
-export default withZkLoginSessionRequired(({ session }) => {
+const Home = ({ session }: { session: ZkLoginSessionActive }) => {
   const { user } = session;
   const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
     user.wallet,
     HERO_MOVE_TYPE,
-    Hero,
+    Hero
   );
 
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
-    LevelUpTicket,
+    LevelUpTicket
   );
 
   return (
@@ -73,7 +77,7 @@ export default withZkLoginSessionRequired(({ session }) => {
                   <HStack gap="42px">
                     {heroes.map((hero) => {
                       const levelup = levelUpTickets?.find(
-                        (ticket) => ticket.hero_id === hero.id.id,
+                        (ticket) => ticket.hero_id === hero.id.id
                       );
                       return (
                         <Link key={hero.id.id} href={`/heroes/${hero.id.id}`}>
@@ -111,4 +115,10 @@ export default withZkLoginSessionRequired(({ session }) => {
       </Flex>
     </Canvas>
   );
-});
+};
+
+export default withZkLoginSessionRequired(
+  Home,
+  ZkLoginLoading,
+  ZkLoginRedirecting
+);

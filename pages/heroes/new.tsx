@@ -12,7 +12,6 @@ import {
   HeroCard,
   Divider,
   HeroAttributePoints,
-  ZkLoginLoading,
 } from "@/lib/components/Elements";
 import { useMintHero, useNewMintTicket } from "@/lib/hooks/api";
 import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
@@ -43,6 +42,7 @@ import {
 } from "@shinami/nextjs-zklogin/client";
 import { FormEvent, useCallback } from "react";
 import { useEffect, useState } from "react";
+import { ZkLoginLoading, ZkLoginRedirecting } from "../auth/login";
 
 const characterAttrs = {
   0: { damage: 3, speed: 4, defense: 3 },
@@ -369,4 +369,8 @@ const NewHero = ({ session }: { session: ZkLoginSessionActive }) => {
   );
 };
 
-export default withZkLoginSessionRequired(NewHero, ZkLoginLoading);
+export default withZkLoginSessionRequired(
+  NewHero,
+  ZkLoginLoading,
+  ZkLoginRedirecting
+);

@@ -264,13 +264,3 @@ export const HeroAttribute = ({
 
   return <HeroAttributePoints edit={isEditable} count={hero[attribute]} />;
 };
-
-export const ZkLoginLoading = () => {
-  console.log("zk loading");
-  return <Heading size="xl">LOADING TESTTTTTTTT....</Heading>;
-};
-
-export const ZkLoginRedirecting = () => {
-  console.log("zk redirection");
-  return <Heading size="xl">REDIRECTINNNNNGG TESTTTTTTTT....</Heading>;
-};
