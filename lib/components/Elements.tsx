@@ -214,7 +214,12 @@ export const HeroAttribute = ({
   levelUpPoints,
   setLevelUpPoints,
 }: HeroAttributePointsProps) => {
-  if (heroAttributes && setHeroAttributes && levelUpPoints && setLevelUpPoints)
+  if (
+    heroAttributes &&
+    setHeroAttributes &&
+    setLevelUpPoints &&
+    levelUpPoints !== undefined
+  )
     return (
       <HStack>
         <Heading size="lg">
