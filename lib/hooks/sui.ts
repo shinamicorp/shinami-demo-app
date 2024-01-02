@@ -58,11 +58,12 @@ export function getSuiExplorerTransactionUrl(
 export const suiOwnedObjectsQueryKey = ["sui", "getOwnedObjects"];
 
 export function usePaginatedSuiOwnedObject(
-  owner: string,
+  owner: string | undefined, // if undefined, the query will be disabled
   type?: string,
   pageSize: number = 10
 ): UseInfiniteQueryResult<PaginatedObjectsResponse> {
   return useInfiniteQuery({
+    enabled: !!owner,
     queryKey: [
       ...suiOwnedObjectsQueryKey,
       owner,
@@ -71,7 +72,7 @@ export function usePaginatedSuiOwnedObject(
     ],
     queryFn: async ({ pageParam }: { pageParam: string | null }) => {
       return await sui.getOwnedObjects({
-        owner,
+        owner: owner!,
         filter: type ? { MatchAll: [{ StructType: type }] } : undefined,
         options: { showContent: true },
         cursor: pageParam,
@@ -86,18 +87,19 @@ export function usePaginatedSuiOwnedObject(
 }
 
 export function useParsedSuiOwnedObjects<T>(
-  owner: string,
+  owner: string | undefined, // if undefined, the query will be disabled
   type: string,
   schema: Struct<T>,
   limit?: number
 ) {
   return useQuery({
+    enabled: !!owner,
     queryKey: [...suiOwnedObjectsQueryKey, owner, type, limit],
     queryFn: async () => {
       const result: T[] = [];
       if (limit !== undefined && limit <= 0) return result;
 
-      for await (const obj of getOwnedObjects(sui, owner, type)) {
+      for await (const obj of getOwnedObjects(sui, owner!, type)) {
         const parsed = parseObject(obj, schema);
         result.push(parsed);
         if (limit !== undefined && result.length >= limit) break;
@@ -109,12 +111,16 @@ export function useParsedSuiOwnedObjects<T>(
 
 export const suiObjectQueryKey = ["sui", "getObject"];
 
-export function useParsedSuiObject<T>(id: string, schema: Struct<T>) {
+export function useParsedSuiObject<T>(
+  id: string | undefined, // if undefined, the query will be disabled
+  schema: Struct<T>
+) {
   return useQuery({
+    enabled: !!id,
     queryKey: [...suiObjectQueryKey, id],
     queryFn: async () => {
       const obj = await sui.getObject({
-        id,
+        id: id!,
         options: { showContent: true, showOwner: true },
       });
       const parsed = parseObject(obj, schema);
