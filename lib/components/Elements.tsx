@@ -195,7 +195,7 @@ export const HeroAttributePoints = ({
   );
 };
 
-interface HeroAttributeProps {
+interface HeroAttributePointsProps {
   hero: Hero;
   attribute: keyof HeroAttributes;
   isEditable: boolean;
@@ -213,7 +213,7 @@ export const HeroAttribute = ({
   setHeroAttributes,
   levelUpPoints,
   setLevelUpPoints,
-}: HeroAttributeProps) => {
+}: HeroAttributePointsProps) => {
   if (heroAttributes && setHeroAttributes && levelUpPoints && setLevelUpPoints)
     return (
       <HStack>
