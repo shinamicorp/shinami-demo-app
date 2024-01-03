@@ -357,6 +357,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                     leftIcon={TransferIcon}
                     size="md"
                     variant="outline"
+                    isDisabled={newLevelUpTicketIsLoading || levelUpHeroLoading}
                   >
                     <Box transform="skew(10deg)">Transfer</Box>
                   </Button>
@@ -365,7 +366,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                     size="md"
                     variant="outline"
                     onClick={handleLevelUp}
-                    isDisabled={!!chosenTicket}
+                    isDisabled={!!chosenTicket || levelUpHeroLoading}
                     isLoading={newLevelUpTicketIsLoading}
                   >
                     <Box transform="skew(10deg)">Level up</Box>
@@ -375,6 +376,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                     leftIcon={DeleteIcon}
                     size="md"
                     variant="danger"
+                    isDisabled={levelUpHeroLoading || newLevelUpTicketIsLoading}
                   >
                     <Box transform="skew(10deg)">Burn hero</Box>
                   </Button>

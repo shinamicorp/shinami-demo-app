@@ -155,7 +155,7 @@ export const HeroAttributePoints = ({
 }: HeroAttributesProps) => {
   return (
     <HStack>
-      {[...Array(count)].map((e, i) => (
+      {[...Array(count)].map((_, i) => (
         <ScaleFade
           initialScale={0.8}
           key={i}
@@ -199,10 +199,10 @@ interface HeroAttributePointsProps {
   hero: Hero;
   attribute: keyof HeroAttributes;
   isEditable: boolean;
-  heroAttributes?: HeroAttributes;
-  setHeroAttributes?: (value: SetStateAction<HeroAttributes>) => void;
-  levelUpPoints?: number;
-  setLevelUpPoints?: (value: SetStateAction<number>) => void;
+  heroAttributes: HeroAttributes;
+  setHeroAttributes: (value: SetStateAction<HeroAttributes>) => void;
+  levelUpPoints: number;
+  setLevelUpPoints: (value: SetStateAction<number>) => void;
 }
 
 export const HeroAttribute = ({
