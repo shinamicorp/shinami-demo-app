@@ -8,11 +8,7 @@
 
 import Canvas from "@/lib/components/Canvas";
 import { Carousel } from "@/lib/components/carousel";
-import {
-  HeroCard,
-  Divider,
-  HeroAttributePoints,
-} from "@/lib/components/Elements";
+import { HeroCard, Divider, AttributePoints } from "@/lib/components/Elements";
 import { useMintHero, useNewMintTicket } from "@/lib/hooks/api";
 import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
 import { MINT_TICKET_MOVE_TYPE, MintTicket } from "@/lib/shared/hero";
@@ -231,7 +227,7 @@ const NewHero = ({ session }: { session: ZkLoginSessionActive }) => {
           <HStack gap="30px">
             <HStack>
               <Heading size="lg">Damage: </Heading>
-              <HeroAttributePoints
+              <AttributePoints
                 count={
                   characterAttrs[hero as keyof typeof characterAttrs].damage
                 }
@@ -239,7 +235,7 @@ const NewHero = ({ session }: { session: ZkLoginSessionActive }) => {
             </HStack>
             <HStack>
               <Heading size="lg">Speed:</Heading>
-              <HeroAttributePoints
+              <AttributePoints
                 count={
                   characterAttrs[hero as keyof typeof characterAttrs].speed
                 }
@@ -247,7 +243,7 @@ const NewHero = ({ session }: { session: ZkLoginSessionActive }) => {
             </HStack>
             <HStack>
               <Heading size="lg">Defense:</Heading>
-              <HeroAttributePoints
+              <AttributePoints
                 count={
                   characterAttrs[hero as keyof typeof characterAttrs].defense
                 }

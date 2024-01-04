@@ -144,15 +144,15 @@ export const HeroCard = ({
   );
 };
 
-interface HeroAttributesProps {
+interface AttributePointsProps {
   count: number;
   edit?: boolean;
 }
 
-export const HeroAttributePoints = ({
+export const AttributePoints = ({
   count,
   edit = false,
-}: HeroAttributesProps) => {
+}: AttributePointsProps) => {
   return (
     <HStack>
       {[...Array(count)].map((_, i) => (
@@ -195,7 +195,7 @@ export const HeroAttributePoints = ({
   );
 };
 
-interface HeroAttributePointsProps {
+interface HeroAttributeProps {
   hero: Hero;
   attribute: keyof HeroAttributes;
   isEditable: boolean;
@@ -213,7 +213,7 @@ export const HeroAttribute = ({
   setHeroAttributes,
   levelUpPoints,
   setLevelUpPoints,
-}: HeroAttributePointsProps) => {
+}: HeroAttributeProps) => {
   if (
     heroAttributes &&
     setHeroAttributes &&
@@ -241,7 +241,7 @@ export const HeroAttribute = ({
             -
           </ChakraButton>
         )}
-        <HeroAttributePoints
+        <AttributePoints
           edit={isEditable}
           count={hero[attribute] + heroAttributes[attribute]}
         />
@@ -267,5 +267,5 @@ export const HeroAttribute = ({
       </HStack>
     );
 
-  return <HeroAttributePoints edit={isEditable} count={hero[attribute]} />;
+  return <AttributePoints edit={isEditable} count={hero[attribute]} />;
 };
