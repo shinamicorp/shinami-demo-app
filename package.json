@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.11.0",
     "@shinami/nextjs-zklogin": "^0.2.3-alpha.0",
     "@tanstack/react-query": "^5.13.4",
+    "@tanstack/react-query-devtools": "^5.17.1",
     "@types/node": "20.3.1",
     "@types/react": "18.2.12",
     "@types/react-dom": "18.2.5",
@@ -33,7 +34,6 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^13.5.5",
-    "@tanstack/react-query-devtools": "^5.17.1",
     "eslint-config-prettier": "^9.0.0",
     "prettier": "3.0.3"
   }
