@@ -34,7 +34,7 @@ const handler = withZkLoginUserRequired<
             txb.object(cap),
             txb.pure(body.character),
             txb.pure(0),
-            txb.pure(4),
+            txb.pure(10),
           ],
         });
         txb.moveCall({

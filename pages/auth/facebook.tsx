@@ -1,12 +1,6 @@
 import { withFacebookCallback } from "@shinami/nextjs-zklogin/client";
+import { LoginState } from "./login";
 
 export default withFacebookCallback(({ status }) => {
-  switch (status) {
-    case "loggingIn":
-      return <p>Chugging along...</p>;
-    case "error":
-      return <p>Something went wrong</p>;
-    default:
-      return <p>Facebook callback</p>;
-  }
+  return <LoginState status={status} provider={"Facebook"} />;
 });

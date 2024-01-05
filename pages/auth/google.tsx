@@ -1,12 +1,6 @@
 import { withGoogleCallback } from "@shinami/nextjs-zklogin/client";
+import { LoginState } from "./login";
 
 export default withGoogleCallback(({ status }) => {
-  switch (status) {
-    case "loggingIn":
-      return <p>Chugging along...</p>;
-    case "error":
-      return <p>Something went wrong</p>;
-    default:
-      return <p>Google callback</p>;
-  }
+  return <LoginState status={status} provider={"Google"} />;
 });
