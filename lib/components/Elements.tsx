@@ -199,10 +199,10 @@ interface HeroAttributeProps {
   hero: Hero;
   attribute: keyof HeroAttributes;
   isEditable: boolean;
-  heroAttributes: HeroAttributes;
-  setHeroAttributes: (value: SetStateAction<HeroAttributes>) => void;
-  levelUpPoints: number;
-  setLevelUpPoints: (value: SetStateAction<number>) => void;
+  heroAttributes?: HeroAttributes;
+  setHeroAttributes?: (value: SetStateAction<HeroAttributes>) => void;
+  levelUpPoints?: number;
+  setLevelUpPoints?: (value: SetStateAction<number>) => void;
 }
 
 export const HeroAttribute = ({
@@ -267,5 +267,12 @@ export const HeroAttribute = ({
       </HStack>
     );
 
-  return <AttributePoints edit={isEditable} count={hero[attribute]} />;
+  return (
+    <HStack>
+      <Heading size="lg">
+        {attribute[0].toUpperCase() + attribute.slice(1).toLowerCase()}:{" "}
+      </Heading>
+      <AttributePoints edit={isEditable} count={hero[attribute]} />
+    </HStack>
+  );
 };

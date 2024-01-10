@@ -17,24 +17,20 @@ import {
   HStack,
   Text,
 } from "@chakra-ui/react";
-import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
-import {
-  withZkLoginSessionRequired,
-  ZkLoginSessionActive,
-} from "@shinami/nextjs-zklogin/client";
+import { AUTH_API_BASE, LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
+import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
-import { ZkLoginLoading, ZkLoginRedirecting } from "./auth/login";
 
-const Home = ({ session }: { session: ZkLoginSessionActive }) => {
-  const { user } = session;
-  const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
-    user.wallet,
-    HERO_MOVE_TYPE,
-    Hero
-  );
+export default function Home() {
+  const { user, isLoading: zkLoginLoading } = useZkLoginSession();
+  const {
+    data: heroes,
+    isLoading,
+    isError,
+  } = useParsedSuiOwnedObjects(user?.wallet, HERO_MOVE_TYPE, Hero);
 
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
-    user.wallet,
+    user?.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
     LevelUpTicket
   );
@@ -42,16 +38,14 @@ const Home = ({ session }: { session: ZkLoginSessionActive }) => {
   return (
     <Canvas
       image="/hero-select-bg.jpg"
-      username={user.jwtClaims.email as string}
-      provider={user.oidProvider}
+      username={user?.jwtClaims.email as string}
+      provider={user?.oidProvider}
     >
       <Flex flexDir="column" align="center" gap={2}>
         {isLoading && <Text fontSize="30px">Loading heroes...</Text>}
-        {!isLoading && !heroes && (
-          <Text fontSize="30px">Failed to load heroes</Text>
-        )}
+
         {!isLoading && heroes && (
-          <div>
+          <>
             {heroes.length === 0 && (
               <VStack gap="50px">
                 <Heading size="3xl">No Heroes yet</Heading>
@@ -74,7 +68,7 @@ const Home = ({ session }: { session: ZkLoginSessionActive }) => {
                   transition={{ enter: { duration: 1 } }}
                   in
                 >
-                  <HStack gap="42px">
+                  <HStack gap="82px">
                     {heroes.map((hero) => {
                       const levelup = levelUpTickets?.find(
                         (ticket) => ticket.hero_id === hero.id.id
@@ -93,32 +87,66 @@ const Home = ({ session }: { session: ZkLoginSessionActive }) => {
                 </ScaleFade>
               </VStack>
             )}
-          </div>
+          </>
+        )}
+        {!user && !zkLoginLoading && (
+          <VStack gap="50px">
+            <Heading size="3xl">Latest Heroes</Heading>
+            <ScaleFade
+              initialScale={0.95}
+              transition={{ enter: { duration: 1 } }}
+              in
+            >
+              <HStack gap="82px">
+                <Link href={`/heroes/fighter`}>
+                  <HeroCard name="Shilo" character={0} />
+                </Link>
+                <Link href={`/heroes/rogue`}>
+                  <HeroCard name="Aria" character={1} />
+                </Link>
+                <Link href={`/heroes/warrior`}>
+                  <HeroCard name="Ragnar" character={2} />
+                </Link>
+              </HStack>
+            </ScaleFade>
+          </VStack>
         )}
         <VStack width="1028px" gap="50px" mt="70px">
           <Divider />
           <VStack gap="22px">
-            <Link href="/heroes/new">
-              <Button isDisabled={heroes?.length === 3} variant="solid">
-                {heroes?.length === 3 ? (
-                  <Box transform="skew(10deg)">Hero limit reached</Box>
-                ) : (
-                  <Box transform="skew(10deg)">Create new hero</Box>
-                )}
-              </Button>
-            </Link>
-            <Link href={`${AUTH_API_BASE}/logout`}>
-              <Button variant="ghost">Logout</Button>
-            </Link>
+            {!user && !zkLoginLoading ? (
+              <Link href={LOGIN_PAGE_PATH}>
+                <Button variant="solid">
+                  <Box transform="skew(10deg)">Create your own!</Box>
+                </Button>
+              </Link>
+            ) : (
+              <>
+                {" "}
+                <Link href="/heroes/new">
+                  <Button isDisabled={heroes?.length === 3} variant="solid">
+                    {heroes?.length === 3 ? (
+                      <Box transform="skew(10deg)">Hero limit reached</Box>
+                    ) : (
+                      <Box transform="skew(10deg)">Create new hero</Box>
+                    )}
+                  </Button>
+                </Link>
+                <Link href={`${AUTH_API_BASE}/logout`}>
+                  <Button variant="ghost">Logout</Button>
+                </Link>
+              </>
+            )}
           </VStack>
         </VStack>
       </Flex>
+      {!user && !zkLoginLoading && (
+        <Text position="absolute" bottom={6}>
+          This demo utilizes SUI’s zkLogin and sponsored transaction
+          capabilities, using Shinami’s industry-leading infrastructure. For
+          more information on how the app is built, visit our website.
+        </Text>
+      )}
     </Canvas>
   );
-};
-
-export default withZkLoginSessionRequired(
-  Home,
-  ZkLoginLoading,
-  ZkLoginRedirecting
-);
+}

@@ -31,7 +31,7 @@ export default withNewZkLoginSession(
     const router = useRouter();
     const redirectTo = first(router.query.redirectTo);
     const callbackBaseUrl = new URL("auth/", window.location.origin);
-
+    console.log(router.query.redirectTo);
     return (
       <LoginBackground>
         <Flex
@@ -46,6 +46,7 @@ export default withNewZkLoginSession(
             <Divider />
             {GOOGLE_CLIENT_ID && (
               <Button
+                fontFamily="sans-serif"
                 variant="signIn"
                 leftIcon={<Image src="/google.svg" alt="Google icon" />}
                 color="black"
@@ -68,6 +69,7 @@ export default withNewZkLoginSession(
             )}
             {FACEBOOK_CLIENT_ID && (
               <Button
+                fontFamily="sans-serif"
                 variant="signIn"
                 leftIcon={<Image src="/facebook.svg" alt="Facebook icon" />}
                 color="white"
@@ -89,6 +91,7 @@ export default withNewZkLoginSession(
             )}
             {TWITCH_CLIENT_ID && (
               <Button
+                fontFamily="sans-serif"
                 variant="signIn"
                 leftIcon={<Image src="/twitch.svg" alt="Twitch icon" />}
                 color="white"
