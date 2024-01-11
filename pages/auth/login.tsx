@@ -32,7 +32,6 @@ export default withNewZkLoginSession(
     const router = useRouter();
     const redirectTo = first(router.query.redirectTo);
     const callbackBaseUrl = new URL("auth/", window.location.origin);
-    console.log(router.query.redirectTo);
     return (
       <Canvas image="/login-bg.jpg">
         <Flex
@@ -122,7 +121,8 @@ export default withNewZkLoginSession(
         </Flex>
       </Canvas>
     );
-  }
+  },
+  () => <ZkLoginLoading />
 );
 
 export const LoginState = ({

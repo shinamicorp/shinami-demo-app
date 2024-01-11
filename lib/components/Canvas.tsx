@@ -17,51 +17,52 @@ const Canvas = (props: {
     | undefined;
 }) => {
   return (
-    //<Fade transition={{ enter: { duration: 2 } }} in>
-    <Flex flexDir="column" minWidth="1080px" padding="3rem">
-      <Flex
-        flexDir="column"
-        backgroundImage={props.image}
-        backgroundSize="cover"
-        borderRadius="18px"
-        boxShadow="0 0 46px 21px #ff430045, inset 0 0 30px #000"
-        padding="3rem"
-        minHeight="916px"
-        position="relative"
-      >
-        <Flex width="100%" justify="space-between">
-          <Image src="/shinami-games.svg" alt="Shinami games logo" />
-          {props.user && (
-            <Text fontSize="20px">
-              <Link
-                href={getSuiExplorerAccountUrl(props.user.wallet)}
-                target="_blank"
-              >
-                {props.user?.jwtClaims.email as string}&apos;s wallet
-              </Link>{" "}
-              ({props.user?.oidProvider})
-            </Text>
-          )}
-        </Flex>
+    <Fade transition={{ enter: { duration: 2 } }} in>
+      <Flex flexDir="column" padding="3rem">
         <Flex
-          flex={1}
-          height="100%"
-          width="100%"
-          align="center"
-          justify="center"
-          direction="column"
+          flexDir="column"
+          backgroundImage={props.image}
+          backgroundSize="cover"
+          borderRadius="18px"
+          boxShadow="0 0 46px 21px #ff430045, inset 0 0 30px #000"
+          padding="3rem"
+          minHeight="916px"
+          position="relative"
+          minWidth="990px"
         >
-          {props.children}
+          <Flex width="100%" justify="space-between">
+            <Image src="/shinami-games.svg" alt="Shinami games logo" />
+            {props.user && (
+              <Text fontSize="20px">
+                <Link
+                  href={getSuiExplorerAccountUrl(props.user.wallet)}
+                  target="_blank"
+                >
+                  {props.user?.jwtClaims.email as string}&apos;s wallet
+                </Link>{" "}
+                ({props.user?.oidProvider})
+              </Text>
+            )}
+          </Flex>
+          <Flex
+            flex={1}
+            height="100%"
+            width="100%"
+            align="center"
+            justify="center"
+            direction="column"
+          >
+            {props.children}
+          </Flex>
+        </Flex>
+
+        <Flex minWidth="990px" justify="center" p={6}>
+          <Link href="https://sui.io/" target="_blank">
+            <Image src="/powered-by-sui.svg" alt="Sui logo" />
+          </Link>
         </Flex>
       </Flex>
-
-      <Flex justify="center" p={6}>
-        <Link href="https://sui.io/" target="_blank">
-          <Image src="/powered-by-sui.svg" alt="Sui logo" />
-        </Link>
-      </Flex>
-    </Flex>
-    //</Fade>
+    </Fade>
   );
 };
 
