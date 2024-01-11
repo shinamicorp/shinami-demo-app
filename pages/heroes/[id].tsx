@@ -49,6 +49,7 @@ import {
   FormErrorMessage,
   Textarea,
   Text,
+  Flex,
 } from "@chakra-ui/react";
 import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
@@ -195,8 +196,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
   );
   return (
     <Canvas
-      username={user?.jwtClaims.email as string}
-      provider={user?.oidProvider}
+      user={user}
       image={heroImages[hero?.content.character as keyof typeof heroImages]}
     >
       {isLoadingHero && <Text fontSize="30px">Loading hero...</Text>}
@@ -204,13 +204,8 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
         <Text fontSize="30px">Failed to load hero</Text>
       )}
       {hero && (
-        <HStack
-          mt="50px"
-          width="83%"
-          height="70%"
-          justifyContent="space-between"
-        >
-          <VStack height="100%" align="start" justify="space-between">
+        <Flex justifyContent="space-between" width="90%">
+          <VStack flex={1} mb={20} align="start" justify="space-between">
             <Box>
               <Heading size="4xl">{hero.content.name}</Heading>
               <Heading>Level: {hero.content.level}</Heading>
@@ -313,26 +308,8 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                   </Button>
                 ))}
             </Box>
-
-            {user ? (
-              <Link href="/">
-                <Button paddingInlineStart={0} minW="none" variant="ghost">
-                  Go back
-                </Button>
-              </Link>
-            ) : (
-              <Link
-                href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
-                  redirectTo: path,
-                })}`}
-              >
-                <Button paddingInlineStart={0} minW="none" variant="ghost">
-                  Sign in
-                </Button>
-              </Link>
-            )}
           </VStack>
-          <VStack width="646px" height="100%" align="center" justify="flex-end">
+          <VStack flex={1} align="center" justify="flex-end">
             {user && user.wallet !== ownerAddress(hero.owner) && (
               <Heading>You don&apos;t own this hero</Heading>
             )}
@@ -384,7 +361,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
               )}
             </HStack>
           </VStack>
-        </HStack>
+        </Flex>
       )}
       <Modal
         isOpen={isOpen}
@@ -534,6 +511,25 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
           </ModalBody>
         </ModalContent>
       </Modal>
+      <Box pos="absolute" bottom="3rem" left="3rem">
+        {user ? (
+          <Link href="/">
+            <Button paddingInlineStart={0} minW="none" variant="ghost">
+              Go back
+            </Button>
+          </Link>
+        ) : (
+          <Link
+            href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
+              redirectTo: path,
+            })}`}
+          >
+            <Button paddingInlineStart={0} minW="none" variant="ghost">
+              Sign in
+            </Button>
+          </Link>
+        )}
+      </Box>
     </Canvas>
   );
 }

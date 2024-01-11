@@ -24,6 +24,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { Divider } from "@/lib/components/Elements";
+import Canvas from "@/lib/components/Canvas";
 
 export default withNewZkLoginSession(
   () => relativeToCurrentEpoch(sui),
@@ -33,7 +34,7 @@ export default withNewZkLoginSession(
     const callbackBaseUrl = new URL("auth/", window.location.origin);
     console.log(router.query.redirectTo);
     return (
-      <LoginBackground>
+      <Canvas image="/login-bg.jpg">
         <Flex
           height="100%"
           width="100%"
@@ -119,55 +120,10 @@ export default withNewZkLoginSession(
             alt="Shinami games logo"
           />
         </Flex>
-      </LoginBackground>
+      </Canvas>
     );
   }
 );
-
-export const LoginBackground = (props: {
-  children:
-    | string
-    | number
-    | boolean
-    | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-    | Iterable<React.ReactNode>
-    | React.ReactPortal
-    | React.PromiseLikeOfReactNode
-    | null
-    | undefined;
-}) => {
-  return (
-    <Flex
-      height="100vh"
-      width="100vw"
-      align="center"
-      justify="center"
-      backgroundColor="black"
-    >
-      <Fade transition={{ enter: { duration: 2 } }} in>
-        <Box
-          height="924px"
-          width="1360px"
-          position="relative"
-          backgroundImage={"/login-bg.jpg"}
-          backgroundSize="cover"
-          borderRadius="18px"
-          boxShadow="0 0 46px 21px #ff430045, inset 0 0 30px #000 "
-        >
-          <Flex
-            height="100%"
-            width="100%"
-            align="center"
-            justify="center"
-            direction="column"
-          >
-            {props.children}
-          </Flex>
-        </Box>
-      </Fade>
-    </Flex>
-  );
-};
 
 export const LoginState = ({
   status,
@@ -179,40 +135,40 @@ export const LoginState = ({
   switch (status) {
     case "loggingIn":
       return (
-        <LoginBackground>
+        <Canvas image="/login-bg.jpg">
           <Box p="20px" opacity="0.5">
             <Image src="/spinner.svg" alt="spinner" />
             <Text fontSize="30px">Chugging along...</Text>
           </Box>
-        </LoginBackground>
+        </Canvas>
       );
     case "error":
       return (
-        <LoginBackground>
+        <Canvas image="/login-bg.jpg">
           <Text fontSize="30px">Something went wrong</Text>
-        </LoginBackground>
+        </Canvas>
       );
     default:
       return (
-        <LoginBackground>
+        <Canvas image="/login-bg.jpg">
           <Text fontSize="30px">{provider} callback</Text>
-        </LoginBackground>
+        </Canvas>
       );
   }
 };
 
 export const ZkLoginLoading = () => {
   return (
-    <LoginBackground>
+    <Canvas image="/login-bg.jpg">
       <Text fontSize="30px">ZkLogin Loading...</Text>
-    </LoginBackground>
+    </Canvas>
   );
 };
 
 export const ZkLoginRedirecting = () => {
   return (
-    <LoginBackground>
+    <Canvas image="/login-bg.jpg">
       <Text fontSize="30px">ZkLogin redirecting...</Text>
-    </LoginBackground>
+    </Canvas>
   );
 };

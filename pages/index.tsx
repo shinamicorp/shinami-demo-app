@@ -23,11 +23,11 @@ import Link from "next/link";
 
 export default function Home() {
   const { user, isLoading: zkLoginLoading } = useZkLoginSession();
-  const {
-    data: heroes,
-    isLoading,
-    isError,
-  } = useParsedSuiOwnedObjects(user?.wallet, HERO_MOVE_TYPE, Hero);
+  const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
+    user?.wallet,
+    HERO_MOVE_TYPE,
+    Hero
+  );
 
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user?.wallet,
@@ -36,11 +36,7 @@ export default function Home() {
   );
 
   return (
-    <Canvas
-      image="/hero-select-bg.jpg"
-      username={user?.jwtClaims.email as string}
-      provider={user?.oidProvider}
-    >
+    <Canvas image="/hero-select-bg.jpg" user={user}>
       <Flex flexDir="column" align="center" gap={2}>
         {isLoading && <Text fontSize="30px">Loading heroes...</Text>}
 
@@ -141,7 +137,7 @@ export default function Home() {
         </VStack>
       </Flex>
       {!user && !zkLoginLoading && (
-        <Text position="absolute" bottom={6}>
+        <Text position="absolute" bottom={6} px={4} textAlign="center">
           This demo utilizes SUI’s zkLogin and sponsored transaction
           capabilities, using Shinami’s industry-leading infrastructure. For
           more information on how the app is built, visit our website.

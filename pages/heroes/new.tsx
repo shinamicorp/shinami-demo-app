@@ -8,7 +8,6 @@
 
 import Canvas from "@/lib/components/Canvas";
 import { Carousel } from "@/lib/components/carousel";
-import { HeroCard, Divider, AttributePoints } from "@/lib/components/Elements";
 import { useMintHero, useNewMintTicket } from "@/lib/hooks/api";
 import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
 import { MINT_TICKET_MOVE_TYPE, MintTicket } from "@/lib/shared/hero";
@@ -30,6 +29,7 @@ import {
   ModalContent,
   ModalOverlay,
   useDisclosure,
+  Divider,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import {
@@ -39,6 +39,7 @@ import {
 import { FormEvent, useCallback } from "react";
 import { useEffect, useState } from "react";
 import { ZkLoginLoading, ZkLoginRedirecting } from "../auth/login";
+import { HeroCard, AttributePoints } from "@/lib/components/Elements";
 
 const characterAttrs = {
   0: { damage: 3, speed: 4, defense: 3 },
@@ -147,11 +148,7 @@ const NewHero = ({ session }: { session: ZkLoginSessionActive }) => {
   );
 
   return (
-    <Canvas
-      username={user.jwtClaims.email as string}
-      provider={user.oidProvider}
-      image="/home-bg.jpg"
-    >
+    <Canvas user={user} image="/home-bg.jpg">
       <Flex flexDir="column" align="center">
         <VStack gap="30px">
           <Heading size="3xl">Select your Hero</Heading>
@@ -290,12 +287,16 @@ const NewHero = ({ session }: { session: ZkLoginSessionActive }) => {
                 <Box transform="skew(10deg)">Let&apos;s go!</Box>
               </Button>
             </form>
-            <Link href="/">
-              <Button variant="ghost">Go back</Button>
-            </Link>
           </VStack>
         </VStack>
       </Flex>
+      <Box pos="absolute" bottom="3rem" left="3rem">
+        <Link href="/">
+          <Button paddingInlineStart={0} minW="none" variant="ghost">
+            Go back
+          </Button>
+        </Link>
+      </Box>
       <Modal
         isOpen={isOpen}
         onClose={onClose}
