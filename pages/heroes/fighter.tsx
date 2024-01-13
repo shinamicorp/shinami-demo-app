@@ -1,5 +1,6 @@
 /*
  Temporary hard coded public fighter character page
+ Update: this page may now be redundant
 */
 
 import PublicHero from "./PublicHero";

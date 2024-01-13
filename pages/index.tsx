@@ -94,13 +94,19 @@ export default function Home() {
               in
             >
               <HStack gap="82px">
-                <Link href={`/heroes/fighter`}>
+                <Link
+                  href={`/heroes/0x2fa4e8cac7dc7cc35a443ab30f426cb2dabe8b85c0dbda73a6b102e05caee58a`}
+                >
                   <HeroCard name="Shilo" character={0} />
                 </Link>
-                <Link href={`/heroes/rogue`}>
+                <Link
+                  href={`/heroes/0x8c9c200ed5b12aebe2c745d003059225191914bb3b7eabc3bc099cb1c0075ca7`}
+                >
                   <HeroCard name="Aria" character={1} />
                 </Link>
-                <Link href={`/heroes/warrior`}>
+                <Link
+                  href={`/heroes/0xcde3b989bcafc8756dc64fae238cd64ada7853b2d3af6157dbb0c2a66d0d211e`}
+                >
                   <HeroCard name="Ragnar" character={2} />
                 </Link>
               </HStack>
@@ -138,9 +144,8 @@ export default function Home() {
       </Flex>
       {!user && !zkLoginLoading && (
         <Text position="absolute" bottom={6} px={4} textAlign="center">
-          This demo utilizes SUI’s zkLogin and sponsored transaction
-          capabilities, using Shinami’s industry-leading infrastructure. For
-          more information on how the app is built, visit our website.
+          This demo is powered by Shinami’s developer platform on Sui. For more
+          information on how it works, visit our website.
         </Text>
       )}
     </Canvas>

@@ -1,5 +1,6 @@
 /*
  Temporary hard coded public hero component page
+ Update: this page may now be redundant
 */
 
 import Canvas from "@/lib/components/Canvas";
