@@ -324,7 +324,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                 </Button>
               </Link>
 
-              {user && user.wallet === ownerAddress(hero.owner) && (
+              {user && user.wallet === ownerAddress(hero.owner) ? (
                 <>
                   <Button
                     onClick={() => {
@@ -358,6 +358,16 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                     <Box transform="skew(10deg)">Burn hero</Box>
                   </Button>
                 </>
+              ) : (
+                <Link
+                  href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
+                    redirectTo: path,
+                  })}`}
+                >
+                  <Button size="md" variant="outline">
+                    <Box transform="skew(10deg)">Sign in</Box>
+                  </Button>
+                </Link>
               )}
             </HStack>
           </VStack>
@@ -519,13 +529,9 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
             </Button>
           </Link>
         ) : (
-          <Link
-            href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
-              redirectTo: path,
-            })}`}
-          >
+          <Link href="/">
             <Button paddingInlineStart={0} minW="none" variant="ghost">
-              Sign in
+              Home
             </Button>
           </Link>
         )}

@@ -31,7 +31,9 @@ const Canvas = (props: {
           minWidth="990px"
         >
           <Flex width="100%" justify="space-between">
-            <Image src="/shinami-games.svg" alt="Shinami games logo" />
+            <Link href="/">
+              <Image src="/shinami-games.svg" alt="Shinami games logo" />
+            </Link>
             {props.user && (
               <Text fontSize="20px">
                 <Link
