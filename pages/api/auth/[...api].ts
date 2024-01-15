@@ -26,6 +26,10 @@ async function authorizeUser(
   // Facebook JWT doesn't include email_verified for some reason.
   if (!email || (provider !== "facebook" && !email_verified)) return undefined;
 
+  const context: AuthContext = {
+    email: email as string,
+  };
+
   if (!allowAllUsers) {
     if (!userRpc) {
       console.warn(
@@ -37,18 +41,16 @@ async function authorizeUser(
 
     const isActive = await userRpc.request({
       method: "isActiveUser",
-      params: [email],
+      params: context,
     });
     if (!isActive) {
-      console.debug("Unauthorized %s user %s", provider, email);
+      console.debug("Unauthorized %s user %s", provider, context.email);
       return undefined;
     }
   }
 
-  console.debug("Authorized %s user %s", provider, email);
-  return {
-    email: email as string,
-  };
+  console.debug("Authorized %s user %s", provider, context.email);
+  return context;
 }
 
 export default authHandler(
