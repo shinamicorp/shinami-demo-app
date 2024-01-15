@@ -7,25 +7,26 @@ import {
   LEVEL_UP_TICKET_MOVE_TYPE,
   LevelUpTicket,
 } from "@/lib/shared/hero";
+import { AuthContext } from "@/lib/shared/zklogin";
 import {
   Box,
-  Flex,
   Button,
-  Heading,
-  VStack,
-  ScaleFade,
+  Flex,
   HStack,
+  Heading,
+  ScaleFade,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
 import {
-  withZkLoginSessionRequired,
   ZkLoginSessionActive,
+  withZkLoginSessionRequired,
 } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { ZkLoginLoading, ZkLoginRedirecting } from "./auth/login";
 
-const Home = ({ session }: { session: ZkLoginSessionActive }) => {
+const Home = ({ session }: { session: ZkLoginSessionActive<AuthContext> }) => {
   const { user } = session;
   const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
     user.wallet,
@@ -42,7 +43,7 @@ const Home = ({ session }: { session: ZkLoginSessionActive }) => {
   return (
     <Canvas
       image="/hero-select-bg.jpg"
-      username={user.jwtClaims.email as string}
+      username={user.authContext.email}
       provider={user.oidProvider}
     >
       <Flex flexDir="column" align="center" gap={2}>
