@@ -1,6 +1,7 @@
 import { Box, Fade, Flex, Image, Link, Text, VStack } from "@chakra-ui/react";
 import { ZkLoginUser } from "@shinami/nextjs-zklogin";
 import { getSuiExplorerAccountUrl } from "../hooks/sui";
+import { SocialIcon } from "./Elements";
 
 const Canvas = (props: {
   image: string | undefined;
@@ -35,15 +36,17 @@ const Canvas = (props: {
               <Image src="/shinami-games.svg" alt="Shinami games logo" />
             </Link>
             {props.user && (
-              <Text fontSize="20px">
-                <Link
-                  href={getSuiExplorerAccountUrl(props.user.wallet)}
-                  target="_blank"
-                >
-                  {props.user?.jwtClaims.email as string}&apos;s wallet
-                </Link>{" "}
-                ({props.user?.oidProvider})
-              </Text>
+              <Flex alignItems="center" gap={2}>
+                <SocialIcon provider={props.user?.oidProvider} />
+                <Text fontSize="20px">
+                  <Link
+                    href={getSuiExplorerAccountUrl(props.user.wallet)}
+                    target="_blank"
+                  >
+                    {props.user?.jwtClaims.email as string}&apos;s wallet
+                  </Link>{" "}
+                </Text>
+              </Flex>
             )}
           </Flex>
           <Flex

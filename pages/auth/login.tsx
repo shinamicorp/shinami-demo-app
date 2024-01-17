@@ -23,7 +23,7 @@ import {
   VStack,
   Text,
 } from "@chakra-ui/react";
-import { Divider } from "@/lib/components/Elements";
+import { Divider, SocialIcon } from "@/lib/components/Elements";
 import Canvas from "@/lib/components/Canvas";
 
 export default withNewZkLoginSession(
@@ -48,7 +48,7 @@ export default withNewZkLoginSession(
               <Button
                 fontFamily="sans-serif"
                 variant="signIn"
-                leftIcon={<Image src="/google.svg" alt="Google icon" />}
+                leftIcon={<SocialIcon provider="google" />}
                 color="black"
                 bg="white"
                 borderColor="black"
@@ -71,7 +71,7 @@ export default withNewZkLoginSession(
               <Button
                 fontFamily="sans-serif"
                 variant="signIn"
-                leftIcon={<Image src="/facebook.svg" alt="Facebook icon" />}
+                leftIcon={<SocialIcon provider="facebook" />}
                 color="white"
                 bg="#0866FF"
                 onClick={() => {
@@ -93,7 +93,7 @@ export default withNewZkLoginSession(
               <Button
                 fontFamily="sans-serif"
                 variant="signIn"
-                leftIcon={<Image src="/twitch.svg" alt="Twitch icon" />}
+                leftIcon={<SocialIcon provider="twitch" />}
                 color="white"
                 bg="#6441A5"
                 onClick={() => {

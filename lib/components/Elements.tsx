@@ -276,3 +276,14 @@ export const HeroAttribute = ({
     </HStack>
   );
 };
+
+export const SocialIcon = ({ provider }: { provider: string }) => {
+  switch (provider) {
+    case "google":
+      return <Image src="/google.svg" alt="Google icon" />;
+    case "facebook":
+      return <Image src="/facebook.svg" alt="Facebook icon" />;
+    case "twitch":
+      <Image src="/twitch.svg" alt="Twitch icon" />;
+  }
+};
