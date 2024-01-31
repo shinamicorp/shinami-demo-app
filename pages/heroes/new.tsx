@@ -31,7 +31,6 @@ import {
   ScaleFade,
   VStack,
   useDisclosure,
-  Divider,
 } from "@chakra-ui/react";
 import {
   ZkLoginSessionActive,
@@ -40,7 +39,6 @@ import {
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { ZkLoginLoading, ZkLoginRedirecting } from "../auth/login";
-import { HeroCard, AttributePoints } from "@/lib/components/Elements";
 
 const characterAttrs = {
   0: { damage: 3, speed: 4, defense: 3 },

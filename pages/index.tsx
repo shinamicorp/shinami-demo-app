@@ -18,16 +18,12 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { AUTH_API_BASE } from "@shinami/nextjs-zklogin";
-import {
-  ZkLoginSessionActive,
-  withZkLoginSessionRequired,
-} from "@shinami/nextjs-zklogin/client";
+import { AUTH_API_BASE, LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
+import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
-import { ZkLoginLoading, ZkLoginRedirecting } from "./auth/login";
 
-const Home = ({ session }: { session: ZkLoginSessionActive<AuthContext> }) => {
-  const { user } = session;
+export default function Home() {
+  const { user, isLoading: zkLoginLoading } = useZkLoginSession();
   const { data: heroes, isLoading } = useParsedSuiOwnedObjects(
     user?.wallet,
     HERO_MOVE_TYPE,
