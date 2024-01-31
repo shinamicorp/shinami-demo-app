@@ -83,7 +83,7 @@ sui client call \
 ```
 
 You can grab the admin cap object id from the output and set `ADMIN_CAP` in your `.env.local` file.
-Note that this must be a different instance on every development or deployment server you run the backend on, to avoid [equivocation](https://docs.sui.io/learn/sui-glossary#equivocation).
+Note that this must be a different instance on every development or deployment server you run the backend on, to avoid [equivocation](https://docs.sui.io/sui-glossary#equivocation).
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 You can start editing the page by modifying [pages/index.tsx](pages/index.tsx).

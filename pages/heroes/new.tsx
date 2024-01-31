@@ -7,37 +7,38 @@
 // 4. Upon submit, useMintHero() and navigate to /
 
 import Canvas from "@/lib/components/Canvas";
+import { AttributePoints, Divider, HeroCard } from "@/lib/components/Elements";
 import { Carousel } from "@/lib/components/carousel";
 import { useMintHero, useNewMintTicket } from "@/lib/hooks/api";
 import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
 import { MINT_TICKET_MOVE_TYPE, MintTicket } from "@/lib/shared/hero";
+import { AuthContext } from "@/lib/shared/zklogin";
 import {
-  Button,
-  Flex,
-  VStack,
-  Heading,
   Box,
-  HStack,
-  Image,
+  Button,
   Link as ChakraLink,
-  Input,
+  Flex,
   FormControl,
   FormErrorMessage,
-  ScaleFade,
+  HStack,
+  Heading,
+  Image,
+  Input,
   Modal,
   ModalBody,
   ModalContent,
   ModalOverlay,
+  ScaleFade,
+  VStack,
   useDisclosure,
   Divider,
 } from "@chakra-ui/react";
-import Link from "next/link";
 import {
   ZkLoginSessionActive,
   withZkLoginSessionRequired,
 } from "@shinami/nextjs-zklogin/client";
-import { FormEvent, useCallback } from "react";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { ZkLoginLoading, ZkLoginRedirecting } from "../auth/login";
 import { HeroCard, AttributePoints } from "@/lib/components/Elements";
 
@@ -53,7 +54,11 @@ enum Hero {
   WARRIOR = 2,
 }
 
-const NewHero = ({ session }: { session: ZkLoginSessionActive }) => {
+const NewHero = ({
+  session,
+}: {
+  session: ZkLoginSessionActive<AuthContext>;
+}) => {
   const { user, localSession } = session;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [hero, setHero] = useState<Hero>(Hero.FIGHTER);

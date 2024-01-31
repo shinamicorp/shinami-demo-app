@@ -21,9 +21,6 @@ const handler = withZkLoginUserRequired<
   const [error, body] = validate(req.body, MintTicketRequest);
   if (error) return res.status(400).json({ error: error.message });
 
-  // To optimize tx throughput involving admin cap, it's better to pre-issue a batch of tickets
-  // (with admin cap) and simply transer them to users' wallets upon request. The transfer tx
-  // doesn't require admin cap. We didn't implement this optimization in this demo.
   const txResp = await runWithAdminCap(async (cap) => {
     const txBytes = await buildGaslessTransactionBytes({
       sui,
@@ -63,13 +60,6 @@ const handler = withZkLoginUserRequired<
     console.error("Object not created", txResp);
     return res.status(500).json({ error: "Object not created" });
   }
-
-  // Workaround for routing inconsistency between this client and wallet service
-  await sui.waitForTransactionBlock({
-    digest: txResp.digest,
-    timeout: 30_000,
-    pollInterval: 1_000,
-  });
 
   const ticket = parseObjectWithOwner(
     await sui.getObject({

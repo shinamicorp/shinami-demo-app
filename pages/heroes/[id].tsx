@@ -31,32 +31,33 @@ import {
   LEVEL_UP_TICKET_MOVE_TYPE,
   LevelUpTicket,
 } from "@/lib/shared/hero";
+import { ownerAddress } from "@/lib/shared/sui";
 import { first } from "@/lib/shared/utils";
+import { AuthContext } from "@/lib/shared/zklogin";
 import {
   Box,
   Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
   HStack,
   Heading,
+  Image,
   Modal,
   ModalBody,
   ModalContent,
   ModalOverlay,
+  ScaleFade,
+  Text,
+  Textarea,
   VStack,
   useDisclosure,
-  Image,
-  ScaleFade,
-  FormControl,
-  FormErrorMessage,
-  Textarea,
-  Text,
-  Flex,
 } from "@chakra-ui/react";
+import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
 import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { ownerAddress } from "@/lib/shared/sui";
-import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
 
 const heroImages = {
   0: "/fighter-bg.jpg",
@@ -65,7 +66,7 @@ const heroImages = {
 };
 
 function HeroPage({ heroId, path }: { heroId: string; path: string }) {
-  const { user, localSession } = useZkLoginSession();
+  const { user, localSession } = useZkLoginSession<AuthContext>();
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user?.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
