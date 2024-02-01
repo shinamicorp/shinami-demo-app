@@ -6,6 +6,7 @@ import {
   WithTxDigest,
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
+import { AuthContext } from "@/lib/shared/zklogin";
 import { buildGaslessTransactionBytes } from "@shinami/clients";
 import { ApiErrorBody } from "@shinami/nextjs-zklogin";
 import { withZkLoginUserRequired } from "@shinami/nextjs-zklogin/server/pages";
@@ -16,8 +17,14 @@ import {
 
 const handler = withZkLoginUserRequired<
   (LevelUpTicket & WithOwner & WithTxDigest) | ApiErrorBody
->(sui, async (req, res, { wallet }) => {
+>(sui, async (req, res, { wallet, oidProvider, authContext }) => {
   const { id } = req.query;
+
+  console.debug(
+    "Creating new level up ticket for %s user %s",
+    oidProvider,
+    (authContext as AuthContext).email
+  );
 
   // To optimize tx throughput involving admin cap, it's better to pre-issue a batch of tickets
   // (with admin cap) and simply transer them to users' wallets upon request. The transfer tx
@@ -40,7 +47,7 @@ const handler = withZkLoginUserRequired<
 
     return await adminWallet.executeGaslessTransactionBlock(
       txBytes,
-      5_000_000,
+      undefined,
       { showEffects: true }
     );
   });

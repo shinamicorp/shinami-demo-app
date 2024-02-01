@@ -6,6 +6,7 @@ import {
   WithTxDigest,
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
+import { AuthContext } from "@/lib/shared/zklogin";
 import { buildGaslessTransactionBytes } from "@shinami/clients";
 import { ApiErrorBody } from "@shinami/nextjs-zklogin";
 import { withZkLoginUserRequired } from "@shinami/nextjs-zklogin/server/pages";
@@ -17,9 +18,15 @@ import { validate } from "superstruct";
 
 const handler = withZkLoginUserRequired<
   (MintTicket & WithOwner & WithTxDigest) | ApiErrorBody
->(sui, async (req, res, { wallet }) => {
+>(sui, async (req, res, { wallet, oidProvider, authContext }) => {
   const [error, body] = validate(req.body, MintTicketRequest);
   if (error) return res.status(400).json({ error: error.message });
+
+  console.debug(
+    "Creating new mint ticket for %s user %s",
+    oidProvider,
+    (authContext as AuthContext).email
+  );
 
   const txResp = await runWithAdminCap(async (cap) => {
     const txBytes = await buildGaslessTransactionBytes({
@@ -43,7 +50,7 @@ const handler = withZkLoginUserRequired<
 
     return await adminWallet.executeGaslessTransactionBlock(
       txBytes,
-      5_000_000,
+      undefined,
       { showEffects: true }
     );
   });

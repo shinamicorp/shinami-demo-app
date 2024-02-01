@@ -5,6 +5,7 @@ import {
   WithTxDigest,
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
+import { AuthContext } from "@/lib/shared/zklogin";
 import { buildGaslessTransactionBytes } from "@shinami/clients";
 import {
   GaslessTransactionBytesBuilder,
@@ -14,9 +15,18 @@ import {
 } from "@shinami/nextjs-zklogin/server/pages";
 import { validate } from "superstruct";
 
-const buildTx: GaslessTransactionBytesBuilder = async (req, { wallet }) => {
+const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
+  req,
+  { wallet, oidProvider, authContext }
+) => {
   const [error, body] = validate(req.body, MintHeroRequest);
   if (error) throw new InvalidRequest(error.message);
+
+  console.debug(
+    "Minting new hero for %s user %s",
+    oidProvider,
+    authContext.email
+  );
 
   const gaslessTxBytes = await buildGaslessTransactionBytes({
     sui,
@@ -35,10 +45,11 @@ const buildTx: GaslessTransactionBytesBuilder = async (req, { wallet }) => {
     },
   });
 
-  return { gaslessTxBytes, gasBudget: 5_000_000 };
+  return { gaslessTxBytes };
 };
 
 const parseTxRes: TransactionResponseParser<
+  AuthContext,
   Hero & WithOwner & WithTxDigest
 > = async (_, txRes) => {
   const ref = txRes.effects?.created?.at(0)?.reference;

@@ -1,6 +1,7 @@
 import { gas, sui } from "@/lib/api/shinami";
 import { PACKAGE_ID } from "@/lib/shared/hero";
 import { WithOwner, WithTxDigest } from "@/lib/shared/sui";
+import { AuthContext } from "@/lib/shared/zklogin";
 import { buildGaslessTransactionBytes } from "@shinami/clients";
 import {
   GaslessTransactionBytesBuilder,
@@ -8,8 +9,19 @@ import {
   zkLoginSponsoredTxExecHandler,
 } from "@shinami/nextjs-zklogin/server/pages";
 
-const buildTx: GaslessTransactionBytesBuilder = async (req) => {
+const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
+  req,
+  { oidProvider, authContext }
+) => {
   const { id } = req.query;
+
+  console.debug(
+    "Burning hero %s for %s user %s",
+    id,
+    oidProvider,
+    authContext.email
+  );
+
   const gaslessTxBytes = await buildGaslessTransactionBytes({
     sui,
     build: async (txb) => {
@@ -19,14 +31,13 @@ const buildTx: GaslessTransactionBytesBuilder = async (req) => {
       });
     },
   });
-  return { gaslessTxBytes, gasBudget: 5_000_000 };
+  return { gaslessTxBytes };
 };
 
-const parseTxRes: TransactionResponseParser<WithOwner & WithTxDigest> = async (
-  _,
-  { digest },
-  { wallet }
-) => ({
+const parseTxRes: TransactionResponseParser<
+  AuthContext,
+  WithOwner & WithTxDigest
+> = async (_, { digest }, { wallet }) => ({
   owner: { AddressOwner: wallet },
   txDigest: digest,
 });

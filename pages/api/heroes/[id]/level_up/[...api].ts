@@ -5,6 +5,7 @@ import {
   WithTxDigest,
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
+import { AuthContext } from "@/lib/shared/zklogin";
 import { buildGaslessTransactionBytes } from "@shinami/clients";
 import {
   GaslessTransactionBytesBuilder,
@@ -14,10 +15,20 @@ import {
 } from "@shinami/nextjs-zklogin/server/pages";
 import { validate } from "superstruct";
 
-const buildTx: GaslessTransactionBytesBuilder = async (req) => {
+const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
+  req,
+  { oidProvider, authContext }
+) => {
   const { id } = req.query;
   const [error, body] = validate(req.body, LevelUpRequest);
   if (error) throw new InvalidRequest(error.message);
+
+  console.debug(
+    "Leveling up hero %s for %s user %s",
+    id,
+    oidProvider,
+    authContext.email
+  );
 
   const gaslessTxBytes = await buildGaslessTransactionBytes({
     sui,
@@ -34,10 +45,11 @@ const buildTx: GaslessTransactionBytesBuilder = async (req) => {
       });
     },
   });
-  return { gaslessTxBytes, gasBudget: 5_000_000 };
+  return { gaslessTxBytes };
 };
 
 const parseTxRes: TransactionResponseParser<
+  AuthContext,
   Hero & WithOwner & WithTxDigest
 > = async (req, { digest }) => {
   const { id } = req.query;
