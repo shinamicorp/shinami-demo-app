@@ -16,12 +16,12 @@ import { useRouter } from "next/router";
 import {
   Box,
   Button,
-  Fade,
   Flex,
   Heading,
   Image,
   VStack,
   Text,
+  Link,
 } from "@chakra-ui/react";
 import { Divider, SocialIcon } from "@/lib/components/Elements";
 import Canvas from "@/lib/components/Canvas";
@@ -145,7 +145,12 @@ export const LoginState = ({
     case "error":
       return (
         <Canvas image="/login-bg.jpg">
-          <Text fontSize="30px">Something went wrong</Text>
+          <Text fontSize="30px">Unauthorized user / Auth error</Text>
+          <Link href="/">
+            <Button paddingInlineStart={0} minW="none" variant="ghost">
+              Go home
+            </Button>
+          </Link>
         </Canvas>
       );
     default:
