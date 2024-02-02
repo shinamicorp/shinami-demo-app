@@ -2,10 +2,11 @@ import { Box, Fade, Flex, Image, Link, Text, VStack } from "@chakra-ui/react";
 import { ZkLoginUser } from "@shinami/nextjs-zklogin";
 import { getSuiExplorerAccountUrl } from "../hooks/sui";
 import { SocialIcon } from "./Elements";
+import { AuthContext } from "../shared/zklogin";
 
 const Canvas = (props: {
   image: string | undefined;
-  user?: ZkLoginUser | undefined;
+  user?: ZkLoginUser<AuthContext> | undefined;
   children:
     | string
     | number
@@ -43,7 +44,7 @@ const Canvas = (props: {
                     href={getSuiExplorerAccountUrl(props.user.wallet)}
                     target="_blank"
                   >
-                    {props.user?.jwtClaims.email as string}&apos;s wallet
+                    {props.user.authContext.email}&apos;s wallet
                   </Link>{" "}
                 </Text>
               </Flex>
