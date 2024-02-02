@@ -5,11 +5,15 @@ import {
   apiTxExecMutationFn,
 } from "@shinami/nextjs-zklogin/client";
 import {
+  QueryFunction,
+  QueryFunctionContext,
   UseMutationResult,
+  UseQueryResult,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { intersection } from "superstruct";
+import { Struct, array, intersection, mask } from "superstruct";
 import {
   HERO_MOVE_TYPE,
   Hero,
@@ -32,6 +36,30 @@ import {
   ownerAddress,
 } from "../shared/sui";
 import { sui, suiObjectQueryKey, suiOwnedObjectsQueryKey } from "./sui";
+
+// TODO - Export from nextjs-zklogin SDK.
+function apiQueryFn<T = unknown>(schema?: Struct<T>): QueryFunction<T> {
+  return async ({ queryKey }: QueryFunctionContext) => {
+    const uri = queryKey.at(-1) as string;
+    const resp = await fetch(uri, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new ApiError(resp.status, data);
+
+    return schema ? mask(data, schema) : data;
+  };
+}
+
+export function useHeroesSample(): UseQueryResult<Hero[], ApiError> {
+  return useQuery({
+    queryKey: ["api", "/api/heroes/sample"],
+    queryFn: apiQueryFn(array(Hero)),
+  });
+}
 
 export function useNewMintTicket(): UseMutationResult<
   MintTicket & WithOwner & WithTxDigest,
