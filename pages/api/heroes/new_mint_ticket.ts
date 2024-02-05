@@ -17,7 +17,8 @@ import {
 import { validate } from "superstruct";
 
 const handler = withZkLoginUserRequired<
-  (MintTicket & WithOwner & WithTxDigest) | ApiErrorBody
+  (MintTicket & WithOwner & WithTxDigest) | ApiErrorBody,
+  AuthContext
 >(sui, async (req, res, { wallet, oidProvider, authContext }) => {
   const [error, body] = validate(req.body, MintTicketRequest);
   if (error) return res.status(400).json({ error: error.message });
@@ -25,7 +26,7 @@ const handler = withZkLoginUserRequired<
   console.debug(
     "Creating new mint ticket for %s user %s",
     oidProvider,
-    (authContext as AuthContext).email
+    authContext.email
   );
 
   const txResp = await runWithAdminCap(async (cap) => {

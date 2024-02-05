@@ -3,6 +3,7 @@ import {
   WithKeyPair,
   apiMutationFn,
   apiTxExecMutationFn,
+  callJsonApi,
 } from "@shinami/nextjs-zklogin/client";
 import {
   QueryFunction,
@@ -37,21 +38,12 @@ import {
 } from "../shared/sui";
 import { sui, suiObjectQueryKey, suiOwnedObjectsQueryKey } from "./sui";
 
-// TODO - Export from nextjs-zklogin SDK.
 function apiQueryFn<T = unknown>(schema?: Struct<T>): QueryFunction<T> {
-  return async ({ queryKey }: QueryFunctionContext) => {
-    const uri = queryKey.at(-1) as string;
-    const resp = await fetch(uri, {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+  return ({ queryKey }: QueryFunctionContext) =>
+    callJsonApi({
+      uri: queryKey.at(-1) as string,
+      resultSchema: schema,
     });
-    const data = await resp.json();
-    if (!resp.ok) throw new ApiError(resp.status, data);
-
-    return schema ? mask(data, schema) : data;
-  };
 }
 
 export function useHeroesSample(): UseQueryResult<Hero[], ApiError> {
