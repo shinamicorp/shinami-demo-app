@@ -33,7 +33,7 @@ export default withNewZkLoginSession(
     const redirectTo = first(router.query.redirectTo);
     const callbackBaseUrl = new URL("auth/", window.location.origin);
     return (
-      <Canvas image="/login-bg.jpg">
+      <Canvas image="/login-bg.jpg" hasLogo={false}>
         <Flex
           height="100%"
           width="100%"
@@ -113,11 +113,13 @@ export default withNewZkLoginSession(
               </Button>
             )}
           </VStack>
-          <Image
-            width="400px"
-            src="/shinami-games.svg"
-            alt="Shinami games logo"
-          />
+          <Link href="/">
+            <Image
+              width="400px"
+              src="/shinami-games.svg"
+              alt="Shinami games logo"
+            />
+          </Link>
         </Flex>
       </Canvas>
     );

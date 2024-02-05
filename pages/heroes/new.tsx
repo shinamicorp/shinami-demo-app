@@ -254,8 +254,9 @@ const NewHero = ({
 
         <VStack width="1028px" gap="30px" mt="50px">
           <Divider />
-          <VStack width="350px" gap="22px">
-            <form action="" onSubmit={handleSubmit}>
+
+          <form action="" onSubmit={handleSubmit}>
+            <Flex gap={4}>
               <FormControl isRequired mb="22px">
                 <Input
                   textAlign="center"
@@ -273,7 +274,7 @@ const NewHero = ({
                   }}
                   _placeholder={{ color: "#aaa" }}
                   border={"2px #FFF solid"}
-                  py="30px"
+                  py="26px"
                   placeholder="Enter hero name"
                   fontFamily="var(--font-irishGrover)"
                   fontSize="3xl"
@@ -286,11 +287,12 @@ const NewHero = ({
                 variant="solid"
                 isDisabled={!chosenTickets[hero]}
                 isLoading={newMintTicketPending}
+                minW="200px"
               >
                 <Box transform="skew(10deg)">Let&apos;s go!</Box>
               </Button>
-            </form>
-          </VStack>
+            </Flex>
+          </form>
         </VStack>
       </Flex>
       <Box pos="absolute" bottom="3rem" left="3rem">

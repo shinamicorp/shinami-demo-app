@@ -59,6 +59,9 @@ export const theme = extendTheme({
           _hover: {
             boxShadow: "0px 0px 10px #ffffff99",
           },
+          _active: {
+            transform: "scale(0.98)",
+          },
         },
         minus: {
           bgGradient: "linear-gradient(180deg, #8D3300 27.6%, #FF4D00 100%)",
