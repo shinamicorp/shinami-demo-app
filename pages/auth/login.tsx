@@ -16,14 +16,15 @@ import { useRouter } from "next/router";
 import {
   Box,
   Button,
-  Fade,
   Flex,
   Heading,
   Image,
   VStack,
   Text,
+  Link,
 } from "@chakra-ui/react";
-import { Divider } from "@/lib/components/Elements";
+import { Divider, SocialIcon } from "@/lib/components/Elements";
+import Canvas from "@/lib/components/Canvas";
 
 export default withNewZkLoginSession(
   () => relativeToCurrentEpoch(sui),
@@ -31,9 +32,8 @@ export default withNewZkLoginSession(
     const router = useRouter();
     const redirectTo = first(router.query.redirectTo);
     const callbackBaseUrl = new URL("auth/", window.location.origin);
-
     return (
-      <LoginBackground>
+      <Canvas image="/login-bg.jpg">
         <Flex
           height="100%"
           width="100%"
@@ -46,8 +46,9 @@ export default withNewZkLoginSession(
             <Divider />
             {GOOGLE_CLIENT_ID && (
               <Button
+                fontFamily="sans-serif"
                 variant="signIn"
-                leftIcon={<Image src="/google.svg" alt="Google icon" />}
+                leftIcon={<SocialIcon provider="google" />}
                 color="black"
                 bg="white"
                 borderColor="black"
@@ -68,8 +69,9 @@ export default withNewZkLoginSession(
             )}
             {FACEBOOK_CLIENT_ID && (
               <Button
+                fontFamily="sans-serif"
                 variant="signIn"
-                leftIcon={<Image src="/facebook.svg" alt="Facebook icon" />}
+                leftIcon={<SocialIcon provider="facebook" />}
                 color="white"
                 bg="#0866FF"
                 onClick={() => {
@@ -89,8 +91,9 @@ export default withNewZkLoginSession(
             )}
             {TWITCH_CLIENT_ID && (
               <Button
+                fontFamily="sans-serif"
                 variant="signIn"
-                leftIcon={<Image src="/twitch.svg" alt="Twitch icon" />}
+                leftIcon={<SocialIcon provider="twitch" />}
                 color="white"
                 bg="#6441A5"
                 onClick={() => {
@@ -116,55 +119,11 @@ export default withNewZkLoginSession(
             alt="Shinami games logo"
           />
         </Flex>
-      </LoginBackground>
+      </Canvas>
     );
-  }
+  },
+  () => <ZkLoginLoading />
 );
-
-export const LoginBackground = (props: {
-  children:
-    | string
-    | number
-    | boolean
-    | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-    | Iterable<React.ReactNode>
-    | React.ReactPortal
-    | React.PromiseLikeOfReactNode
-    | null
-    | undefined;
-}) => {
-  return (
-    <Flex
-      height="100vh"
-      width="100vw"
-      align="center"
-      justify="center"
-      backgroundColor="black"
-    >
-      <Fade transition={{ enter: { duration: 2 } }} in>
-        <Box
-          height="924px"
-          width="1360px"
-          position="relative"
-          backgroundImage={"/login-bg.jpg"}
-          backgroundSize="cover"
-          borderRadius="18px"
-          boxShadow="0 0 46px 21px #ff430045, inset 0 0 30px #000 "
-        >
-          <Flex
-            height="100%"
-            width="100%"
-            align="center"
-            justify="center"
-            direction="column"
-          >
-            {props.children}
-          </Flex>
-        </Box>
-      </Fade>
-    </Flex>
-  );
-};
 
 export const LoginState = ({
   status,
@@ -176,40 +135,45 @@ export const LoginState = ({
   switch (status) {
     case "loggingIn":
       return (
-        <LoginBackground>
+        <Canvas image="/login-bg.jpg">
           <Box p="20px" opacity="0.5">
             <Image src="/spinner.svg" alt="spinner" />
             <Text fontSize="30px">Chugging along...</Text>
           </Box>
-        </LoginBackground>
+        </Canvas>
       );
     case "error":
       return (
-        <LoginBackground>
-          <Text fontSize="30px">Something went wrong</Text>
-        </LoginBackground>
+        <Canvas image="/login-bg.jpg">
+          <Text fontSize="30px">Unauthorized user / Auth error</Text>
+          <Link href="/">
+            <Button paddingInlineStart={0} minW="none" variant="ghost">
+              Go home
+            </Button>
+          </Link>
+        </Canvas>
       );
     default:
       return (
-        <LoginBackground>
+        <Canvas image="/login-bg.jpg">
           <Text fontSize="30px">{provider} callback</Text>
-        </LoginBackground>
+        </Canvas>
       );
   }
 };
 
 export const ZkLoginLoading = () => {
   return (
-    <LoginBackground>
+    <Canvas image="/login-bg.jpg">
       <Text fontSize="30px">ZkLogin Loading...</Text>
-    </LoginBackground>
+    </Canvas>
   );
 };
 
 export const ZkLoginRedirecting = () => {
   return (
-    <LoginBackground>
+    <Canvas image="/login-bg.jpg">
       <Text fontSize="30px">ZkLogin redirecting...</Text>
-    </LoginBackground>
+    </Canvas>
   );
 };

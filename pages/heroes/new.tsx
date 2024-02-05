@@ -151,11 +151,7 @@ const NewHero = ({
   );
 
   return (
-    <Canvas
-      username={user.authContext.email}
-      provider={user.oidProvider}
-      image="/home-bg.jpg"
-    >
+    <Canvas user={user} image="/home-bg.jpg">
       <Flex flexDir="column" align="center">
         <VStack gap="30px">
           <Heading size="3xl">Select your Hero</Heading>
@@ -294,12 +290,16 @@ const NewHero = ({
                 <Box transform="skew(10deg)">Let&apos;s go!</Box>
               </Button>
             </form>
-            <Link href="/">
-              <Button variant="ghost">Go back</Button>
-            </Link>
           </VStack>
         </VStack>
       </Flex>
+      <Box pos="absolute" bottom="3rem" left="3rem">
+        <Link href="/">
+          <Button paddingInlineStart={0} minW="none" variant="ghost">
+            Go back
+          </Button>
+        </Link>
+      </Box>
       <Modal
         isOpen={isOpen}
         onClose={onClose}
