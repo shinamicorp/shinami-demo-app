@@ -16,14 +16,15 @@ import {
 } from "@shinami/nextjs-zklogin/server/pages/utils";
 
 const handler = withZkLoginUserRequired<
-  (LevelUpTicket & WithOwner & WithTxDigest) | ApiErrorBody
+  (LevelUpTicket & WithOwner & WithTxDigest) | ApiErrorBody,
+  AuthContext
 >(sui, async (req, res, { wallet, oidProvider, authContext }) => {
   const { id } = req.query;
 
   console.debug(
     "Creating new level up ticket for %s user %s",
     oidProvider,
-    (authContext as AuthContext).email
+    authContext.email
   );
 
   // To optimize tx throughput involving admin cap, it's better to pre-issue a batch of tickets
