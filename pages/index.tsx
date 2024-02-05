@@ -17,6 +17,7 @@ import {
   ScaleFade,
   Text,
   VStack,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import {
   AUTH_API_BASE,
@@ -38,8 +39,18 @@ export default function Home() {
       </Flex>
 
       <Text position="absolute" bottom={6} px={4} textAlign="center">
-        This demo is powered by Shinami’s developer platform on Sui. For more
-        information on how it works, visit our website.
+        This demo is powered by{" "}
+        <ChakraLink isExternal href="https://www.shinami.com/">
+          Shinami’s
+        </ChakraLink>{" "}
+        developer platform on Sui. View{" "}
+        <ChakraLink isExternal href="https://www.shinami.com/privacy-policy">
+          Privacy policy
+        </ChakraLink>{" "}
+        |{" "}
+        <ChakraLink isExternal href="https://www.shinami.com/terms">
+          Terms
+        </ChakraLink>
       </Text>
     </Canvas>
   );
