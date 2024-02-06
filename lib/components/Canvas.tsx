@@ -41,6 +41,7 @@ const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
           minHeight="916px"
           position="relative"
           minWidth="990px"
+          aspectRatio="16/9"
         >
           <Flex width="100%" justify="space-between">
             {hasLogo && (
