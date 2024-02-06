@@ -1,5 +1,6 @@
 import Canvas from "@/lib/components/Canvas";
 import { Divider, HeroCard, NewHeroCard } from "@/lib/components/Elements";
+import { useHeroesSample } from "@/lib/hooks/api";
 import { useParsedSuiOwnedObjects } from "@/lib/hooks/sui";
 import {
   HERO_MOVE_TYPE,
@@ -34,29 +35,14 @@ export default function Home() {
     <Canvas image="/hero-select-bg.jpg" user={user}>
       <Flex flexDir="column" align="center" gap={2}>
         {user && <UserHome user={user} />}
-
         {!user && !isLoadingUser && <AnonymousHome />}
       </Flex>
-
-      <Text position="absolute" bottom={6} px={4} textAlign="center">
-        This demo is powered by{" "}
-        <ChakraLink isExternal href="https://www.shinami.com/">
-          Shinami’s
-        </ChakraLink>{" "}
-        developer platform on Sui. View{" "}
-        <ChakraLink isExternal href="https://www.shinami.com/privacy-policy">
-          Privacy policy
-        </ChakraLink>{" "}
-        |{" "}
-        <ChakraLink isExternal href="https://www.shinami.com/terms">
-          Terms
-        </ChakraLink>
-      </Text>
     </Canvas>
   );
 }
 
 const AnonymousHome = () => {
+  const { data: heroSamples } = useHeroesSample();
   return (
     <>
       <VStack gap="50px">
@@ -66,23 +52,12 @@ const AnonymousHome = () => {
           transition={{ enter: { duration: 1 } }}
           in
         >
-          {/* TODO - fetch these from api once available */}
           <HStack gap="82px">
-            <Link
-              href={`/heroes/0x2fa4e8cac7dc7cc35a443ab30f426cb2dabe8b85c0dbda73a6b102e05caee58a`}
-            >
-              <HeroCard name="Shilo" character={0} />
-            </Link>
-            <Link
-              href={`/heroes/0x8c9c200ed5b12aebe2c745d003059225191914bb3b7eabc3bc099cb1c0075ca7`}
-            >
-              <HeroCard name="Aria" character={1} />
-            </Link>
-            <Link
-              href={`/heroes/0xcde3b989bcafc8756dc64fae238cd64ada7853b2d3af6157dbb0c2a66d0d211e`}
-            >
-              <HeroCard name="Ragnar" character={2} />
-            </Link>
+            {heroSamples?.map((hero) => (
+              <Link key={hero.id.id} href={`/heroes/${hero.id.id}`}>
+                <HeroCard name={hero.name} character={hero.character} />
+              </Link>
+            ))}
           </HStack>
         </ScaleFade>
       </VStack>

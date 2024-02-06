@@ -1,12 +1,20 @@
-import { Box, Fade, Flex, Image, Link, Text, VStack } from "@chakra-ui/react";
+import {
+  Fade,
+  Flex,
+  Image,
+  Link,
+  Text,
+  Link as ChakraLink,
+} from "@chakra-ui/react";
 import { ZkLoginUser } from "@shinami/nextjs-zklogin";
 import { getSuiExplorerAccountUrl } from "../hooks/sui";
 import { SocialIcon } from "./Elements";
 import { AuthContext } from "../shared/zklogin";
 
-const Canvas = (props: {
+interface CanvasProps {
   image: string | undefined;
   user?: ZkLoginUser<AuthContext> | undefined;
+  hasLogo?: boolean;
   children:
     | string
     | number
@@ -17,13 +25,20 @@ const Canvas = (props: {
     | React.PromiseLikeOfReactNode
     | null
     | undefined;
-}) => {
+}
+
+const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
   return (
     <Fade transition={{ enter: { duration: 2 } }} in>
-      <Flex flexDir="column" padding="3rem">
+      <Flex
+        flexDir="column"
+        alignItems="stretch"
+        padding="3rem"
+        maxHeight="100vh"
+      >
         <Flex
           flexDir="column"
-          backgroundImage={props.image}
+          backgroundImage={image}
           backgroundSize="cover"
           borderRadius="18px"
           boxShadow="0 0 46px 21px #ff430045, inset 0 0 30px #000"
@@ -31,20 +46,24 @@ const Canvas = (props: {
           minHeight="916px"
           position="relative"
           minWidth="990px"
+          aspectRatio="16/9"
+          maxHeight="100%"
         >
           <Flex width="100%" justify="space-between">
-            <Link href="/">
-              <Image src="/shinami-games.svg" alt="Shinami games logo" />
-            </Link>
-            {props.user && (
+            {hasLogo && (
+              <Link href="/">
+                <Image src="/shinami-games.svg" alt="Shinami games logo" />
+              </Link>
+            )}
+            {user && (
               <Flex alignItems="center" gap={2}>
-                <SocialIcon provider={props.user?.oidProvider} />
+                <SocialIcon provider={user?.oidProvider} />
                 <Text fontSize="20px">
                   <Link
-                    href={getSuiExplorerAccountUrl(props.user.wallet)}
+                    href={getSuiExplorerAccountUrl(user.wallet)}
                     target="_blank"
                   >
-                    {props.user.authContext.email}&apos;s wallet
+                    {user.authContext.email}&apos;s wallet
                   </Link>{" "}
                 </Text>
               </Flex>
@@ -58,7 +77,24 @@ const Canvas = (props: {
             justify="center"
             direction="column"
           >
-            {props.children}
+            {children}
+            <Text position="absolute" bottom={6} px={4} textAlign="center">
+              This demo is powered by{" "}
+              <ChakraLink isExternal href="https://www.shinami.com/">
+                Shinami’s
+              </ChakraLink>{" "}
+              developer platform on Sui. View{" "}
+              <ChakraLink
+                isExternal
+                href="https://www.shinami.com/privacy-policy"
+              >
+                Privacy policy
+              </ChakraLink>{" "}
+              |{" "}
+              <ChakraLink isExternal href="https://www.shinami.com/terms">
+                Terms
+              </ChakraLink>
+            </Text>
           </Flex>
         </Flex>
 
