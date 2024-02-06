@@ -30,7 +30,12 @@ interface CanvasProps {
 const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
   return (
     <Fade transition={{ enter: { duration: 2 } }} in>
-      <Flex flexDir="column" padding="3rem">
+      <Flex
+        flexDir="column"
+        alignItems="stretch"
+        padding="3rem"
+        maxHeight="100vh"
+      >
         <Flex
           flexDir="column"
           backgroundImage={image}
@@ -42,6 +47,7 @@ const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
           position="relative"
           minWidth="990px"
           aspectRatio="16/9"
+          maxHeight="100%"
         >
           <Flex width="100%" justify="space-between">
             {hasLogo && (
