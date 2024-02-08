@@ -5,6 +5,9 @@ import {
   Link,
   Text,
   Link as ChakraLink,
+  Grid,
+  Box,
+  GridItem,
 } from "@chakra-ui/react";
 import { ZkLoginUser } from "@shinami/nextjs-zklogin";
 import { getSuiExplorerAccountUrl } from "../hooks/sui";
@@ -83,26 +86,38 @@ const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
               <ChakraLink isExternal href="https://www.shinami.com/">
                 Shinami’s
               </ChakraLink>{" "}
-              developer platform on Sui. View{" "}
-              <ChakraLink
-                isExternal
-                href="https://www.shinami.com/privacy-policy"
-              >
-                Privacy policy
-              </ChakraLink>{" "}
-              |{" "}
-              <ChakraLink isExternal href="https://www.shinami.com/terms">
-                Terms
-              </ChakraLink>
+              {/* TODO - Add links to code bade and overview */}
+              developer platform on Sui. See our overview or codebase to learn
+              more.
             </Text>
           </Flex>
         </Flex>
 
-        <Flex minWidth="990px" justify="center" p={6}>
-          <Link href="https://sui.io/" target="_blank">
+        <Grid
+          justifyItems="center"
+          templateColumns="repeat(3, 1fr)"
+          minWidth="990px"
+          p={6}
+          gap={4}
+        >
+          <Box></Box>
+          <ChakraLink href="https://sui.io/" target="_blank">
             <Image src="/powered-by-sui.svg" alt="Sui logo" />
-          </Link>
-        </Flex>
+          </ChakraLink>
+
+          <Flex width="100%" gap={2} justifyContent="end">
+            <ChakraLink
+              isExternal
+              href="https://www.shinami.com/privacy-policy"
+            >
+              Privacy policy
+            </ChakraLink>
+            |
+            <ChakraLink isExternal href="https://www.shinami.com/terms">
+              Terms
+            </ChakraLink>
+          </Flex>
+        </Grid>
       </Flex>
     </Fade>
   );

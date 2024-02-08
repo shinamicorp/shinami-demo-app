@@ -112,7 +112,9 @@ export default withNewZkLoginSession(
                 Sign in with Twitch
               </Button>
             )}
+            <Text>* Shinami account required</Text>
           </VStack>
+
           <Link href="/">
             <Image
               width="400px"
