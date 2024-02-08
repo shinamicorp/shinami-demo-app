@@ -3,6 +3,7 @@ import { Hero, LevelUpRequest, PACKAGE_ID } from "@/lib/shared/hero";
 import {
   WithOwner,
   WithTxDigest,
+  parseObject,
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
 import { AuthContext } from "@/lib/shared/zklogin";
@@ -22,6 +23,20 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
   const { id } = req.query;
   const [error, body] = validate(req.body, LevelUpRequest);
   if (error) throw new InvalidRequest(error.message);
+
+  const hero = parseObject(
+    await sui.getObject({
+      id: id as string,
+      options: { showContent: true },
+    }),
+    Hero
+  );
+  if (
+    hero.damage + body.damage > 10 ||
+    hero.speed + body.speed > 10 ||
+    hero.defense + body.defense > 10
+  )
+    throw new InvalidRequest("Attribute points out of range");
 
   console.debug(
     "Leveling up hero %s for %s user %s",
