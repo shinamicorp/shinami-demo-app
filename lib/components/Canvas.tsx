@@ -86,9 +86,21 @@ const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
               <ChakraLink isExternal href="https://www.shinami.com/">
                 Shinami’s
               </ChakraLink>{" "}
-              {/* TODO - Add links to code bade and overview */}
-              developer platform on Sui. See our overview or codebase to learn
-              more.
+              developer platform on Sui. See our{" "}
+              <ChakraLink
+                isExternal
+                href="https://docs.shinami.com/docs/zklogin-game-demo-high-level-guide"
+              >
+                overview
+              </ChakraLink>{" "}
+              or{" "}
+              <ChakraLink
+                isExternal
+                href="https://github.com/shinamicorp/shinami-demo-app"
+              >
+                codebase
+              </ChakraLink>{" "}
+              to learn more.
             </Text>
           </Flex>
         </Flex>
