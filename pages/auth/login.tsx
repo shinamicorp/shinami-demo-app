@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { sui } from "@/lib/hooks/sui";
 import { first } from "@/lib/shared/utils";
 import {

@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { StyleFunctionProps, extendTheme } from "@chakra-ui/react";
 
 export const theme = extendTheme({

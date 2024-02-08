@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { PaginatedObjectsResponse } from "@mysten/sui.js/client";
 import { createSuiClient } from "@shinami/clients";
 import {

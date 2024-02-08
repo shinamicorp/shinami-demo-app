@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Flow:
 // 1. Choose a character
 // 2. Retrieve a mint ticket for the character
