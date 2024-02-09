@@ -1,0 +1,42 @@
+# Copyright 2023 Shinami Corp.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SHINAMI_NODE_ACCESS_KEY: fake_key
+
+  check_copyright_header:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: stable
+      - run: go install github.com/google/addlicense@v1.1.1
+      - run: |-
+          addlicense \
+            -c "Shinami Corp." \
+            -s=only \
+            -check \
+            -ignore 'lib/components/carousel/**' \
+            .

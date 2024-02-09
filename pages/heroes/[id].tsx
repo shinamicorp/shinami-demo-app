@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // This is a public page, with special treatment if user is logged in and owns the hero.
 //
 // Flow:

@@ -1,5 +1,7 @@
 # Shinami demo app
 
+[![Continuous Integration](https://github.com/shinamicorp/shinami-demo-app/actions/workflows/ci.yaml/badge.svg)](https://github.com/shinamicorp/shinami-demo-app/actions/workflows/ci.yaml)
+
 An _imaginary_ game built on top of [Shinami](https://shinami.com) services and [Sui](https://sui.io/).
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with the [nextjs-zklogin](https://github.com/shinamicorp/shinami-typescript-sdk/tree/main/examples/nextjs-zklogin) template.

@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { gas, sui } from "@/lib/api/shinami";
 import { Hero, PACKAGE_ID, UpdateHeroRequest } from "@/lib/shared/hero";
 import {
