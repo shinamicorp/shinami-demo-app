@@ -349,10 +349,18 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
                     size="md"
                     variant="outline"
                     onClick={handleLevelUp}
-                    isDisabled={!!chosenTicket || levelUpHeroLoading}
+                    isDisabled={
+                      !!chosenTicket ||
+                      levelUpHeroLoading ||
+                      hero.content.level >= 5
+                    }
                     isLoading={newLevelUpTicketIsLoading}
                   >
-                    <Box transform="skew(10deg)">Level up</Box>
+                    <Box transform="skew(10deg)">
+                      {hero.content.level >= 5
+                        ? "Highest level attained"
+                        : "Level up"}
+                    </Box>
                   </Button>
                   <Button
                     onClick={handleDelete}
