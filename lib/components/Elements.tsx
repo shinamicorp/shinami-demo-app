@@ -289,6 +289,6 @@ export const SocialIcon = ({ provider }: { provider: string }) => {
     case "facebook":
       return <Image src="/facebook.svg" alt="Facebook icon" />;
     case "twitch":
-      <Image src="/twitch.svg" alt="Twitch icon" />;
+      return <Image src="/twitch.svg" alt="Twitch icon" />;
   }
 };
