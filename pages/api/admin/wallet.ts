@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { adminWallet } from "@/lib/api/shinami";
 import { Wallet } from "@/lib/shared/wallet";
 import { ApiErrorBody } from "@shinami/nextjs-zklogin";

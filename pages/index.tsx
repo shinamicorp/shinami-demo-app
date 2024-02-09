@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import Canvas from "@/lib/components/Canvas";
 import { Divider, HeroCard, NewHeroCard } from "@/lib/components/Elements";
 import { useHeroesSample } from "@/lib/hooks/api";

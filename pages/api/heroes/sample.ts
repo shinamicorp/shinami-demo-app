@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { sui } from "@/lib/api/shinami";
 import { Hero } from "@/lib/shared/hero";
 import { parseObject } from "@/lib/shared/sui";

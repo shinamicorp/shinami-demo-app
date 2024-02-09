@@ -1,3 +1,8 @@
+/**
+ * Copyright 2024 Shinami Corp.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { runWithAdminCap } from "@/lib/api/admin";
 import { adminWallet, sui } from "@/lib/api/shinami";
 import { MintTicket, MintTicketRequest, PACKAGE_ID } from "@/lib/shared/hero";
