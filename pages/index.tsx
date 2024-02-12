@@ -142,8 +142,8 @@ const UserHome = ({ user }: { user: ZkLoginUser<AuthContext> }) => {
           <Divider />
           <VStack gap="22px">
             <Link href="/heroes/new">
-              <Button isDisabled={heroes?.length === 3} variant="solid">
-                {heroes?.length === 3 ? (
+              <Button isDisabled={heroes?.length >= 3} variant="solid">
+                {heroes?.length >= 3 ? (
                   <Box transform="skew(10deg)">Hero limit reached</Box>
                 ) : (
                   <Box transform="skew(10deg)">Create new hero</Box>

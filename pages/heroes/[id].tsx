@@ -207,184 +207,187 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
     >
       {isLoadingHero && <Text fontSize="30px">Loading hero...</Text>}
       {!isLoadingHero && !hero && (
-        <Text fontSize="30px">Failed to load hero</Text>
+        <Text fontSize="30px">Hero does not exist</Text>
       )}
       {hero && (
-        <Flex justifyContent="space-between" width="90%">
-          <VStack flex={1} mb={20} align="start" justify="space-between">
-            <Box>
-              <Heading size="4xl">{hero.content.name}</Heading>
-              <Heading>Level: {hero.content.level}</Heading>
-              <VStack mt="42px" mb="32px" align="start" gap="22px">
-                <HeroAttribute
-                  attribute={"damage"}
-                  hero={hero.content}
-                  isEditable={editAttributes}
-                  heroAttributes={heroAttributes}
-                  setHeroAttributes={setHeroAttributes}
-                  levelUpPoints={levelUpPoints}
-                  setLevelUpPoints={setLevelUpPoints}
-                />
-                <HeroAttribute
-                  attribute={"speed"}
-                  hero={hero.content}
-                  isEditable={editAttributes}
-                  heroAttributes={heroAttributes}
-                  setHeroAttributes={setHeroAttributes}
-                  levelUpPoints={levelUpPoints}
-                  setLevelUpPoints={setLevelUpPoints}
-                />
-                <HeroAttribute
-                  attribute={"defense"}
-                  hero={hero.content}
-                  isEditable={editAttributes}
-                  heroAttributes={heroAttributes}
-                  setHeroAttributes={setHeroAttributes}
-                  levelUpPoints={levelUpPoints}
-                  setLevelUpPoints={setLevelUpPoints}
-                />
-
-                {editAttributes && (
-                  <HStack>
-                    <Heading size="lg">Level up points remaining:</Heading>
-                    <Box
-                      alignItems="center"
-                      justifyContent="center"
-                      backgroundColor="red"
-                      borderRadius="100px"
-                      w="40px"
-                      h="40px"
-                      display="flex"
-                    >
-                      <Heading size="lg">{levelUpPoints}</Heading>
-                    </Box>
-                  </HStack>
-                )}
-              </VStack>
-              {user &&
-                user.wallet === ownerAddress(hero.owner) &&
-                (editAttributes ? (
-                  <HStack>
+        <Flex flexDir="column" width="90%">
+          <Heading size="4xl">
+            {" "}
+            {hero.content.name.length > 17
+              ? hero.content.name.substring(0, 17) + "..."
+              : hero.content.name}
+          </Heading>
+          <Flex justifyContent="space-between">
+            <VStack flex={1} mb={20} align="start" justify="space-between">
+              <Box>
+                <Heading>Level: {hero.content.level}</Heading>
+                <VStack mt="42px" mb="32px" align="start" gap="22px">
+                  <HeroAttribute
+                    attribute={"damage"}
+                    hero={hero.content}
+                    isEditable={editAttributes}
+                    heroAttributes={heroAttributes}
+                    setHeroAttributes={setHeroAttributes}
+                    levelUpPoints={levelUpPoints}
+                    setLevelUpPoints={setLevelUpPoints}
+                  />
+                  <HeroAttribute
+                    attribute={"speed"}
+                    hero={hero.content}
+                    isEditable={editAttributes}
+                    heroAttributes={heroAttributes}
+                    setHeroAttributes={setHeroAttributes}
+                    levelUpPoints={levelUpPoints}
+                    setLevelUpPoints={setLevelUpPoints}
+                  />
+                  <HeroAttribute
+                    attribute={"defense"}
+                    hero={hero.content}
+                    isEditable={editAttributes}
+                    heroAttributes={heroAttributes}
+                    setHeroAttributes={setHeroAttributes}
+                    levelUpPoints={levelUpPoints}
+                    setLevelUpPoints={setLevelUpPoints}
+                  />
+                  {editAttributes && (
+                    <HStack>
+                      <Heading size="lg">Level up points remaining:</Heading>
+                      <Box
+                        alignItems="center"
+                        justifyContent="center"
+                        backgroundColor="red"
+                        borderRadius="100px"
+                        w="40px"
+                        h="40px"
+                        display="flex"
+                      >
+                        <Heading size="lg">{levelUpPoints}</Heading>
+                      </Box>
+                    </HStack>
+                  )}
+                </VStack>
+                {user &&
+                  user.wallet === ownerAddress(hero.owner) &&
+                  (editAttributes ? (
+                    <HStack>
+                      <Button
+                        onClick={() => {
+                          setEditAttributes(false);
+                          setHeroAttributes({
+                            damage: 0,
+                            speed: 0,
+                            defense: 0,
+                          });
+                          setLevelUpPoints(4);
+                        }}
+                        size="md"
+                        variant="outline"
+                        isDisabled={levelUpHeroLoading}
+                      >
+                        <Box transform="skew(10deg)">Cancel</Box>
+                      </Button>
+                      <Button
+                        onClick={handleLevelUpSave}
+                        size="md"
+                        variant="plus"
+                        isLoading={levelUpHeroLoading}
+                        isDisabled={levelUpPoints > 0}
+                      >
+                        <Box transform="skew(10deg)">Level up!</Box>
+                      </Button>
+                    </HStack>
+                  ) : (
                     <Button
-                      onClick={() => {
-                        setEditAttributes(false);
-                        setHeroAttributes({ damage: 0, speed: 0, defense: 0 });
-                        setLevelUpPoints(4);
-                      }}
-                      size="md"
-                      variant="outline"
-                      isDisabled={levelUpHeroLoading}
-                    >
-                      <Box transform="skew(10deg)">Cancel</Box>
-                    </Button>
-                    <Button
-                      onClick={handleLevelUpSave}
+                      onClick={() => setEditAttributes(true)}
+                      rightIcon={PlusIcon}
                       size="md"
                       variant="plus"
-                      isLoading={levelUpHeroLoading}
-                      isDisabled={levelUpPoints > 0}
+                      isDisabled={!chosenTicket}
                     >
-                      <Box transform="skew(10deg)">Level up!</Box>
+                      <Box transform="skew(10deg)">Spend points</Box>
+                      <Box
+                        position="absolute"
+                        alignItems="center"
+                        justifyContent="center"
+                        top="-10px"
+                        right="-10px"
+                        backgroundColor="red"
+                        borderRadius="100px"
+                        h="28px"
+                        width="28px"
+                        transform="skew(10deg)"
+                        display={chosenTicket ? "flex" : "none"}
+                      >
+                        {levelUpPoints}
+                      </Box>
                     </Button>
-                  </HStack>
-                ) : (
-                  <Button
-                    onClick={() => setEditAttributes(true)}
-                    rightIcon={PlusIcon}
-                    size="md"
-                    variant="plus"
-                    isDisabled={!chosenTicket}
-                  >
-                    <Box transform="skew(10deg)">Spend points</Box>
-                    <Box
-                      position="absolute"
-                      alignItems="center"
-                      justifyContent="center"
-                      top="-10px"
-                      right="-10px"
-                      backgroundColor="red"
-                      borderRadius="100px"
-                      h="28px"
-                      width="28px"
-                      transform="skew(10deg)"
-                      display={chosenTicket ? "flex" : "none"}
-                    >
-                      {levelUpPoints}
-                    </Box>
-                  </Button>
-                ))}
-            </Box>
-          </VStack>
-          <VStack flex={1} align="center" justify="flex-end">
-            {user && user.wallet !== ownerAddress(hero.owner) && (
-              <Heading>You don&apos;t own this hero</Heading>
-            )}
-            <Divider />
-            <HStack mt="22px" gap="20px">
-              <Link
-                href={getSuiExplorerObjectUrl(hero.content.id.id)}
-                target="_blank"
-              >
-                <Button size="md" variant="outline">
-                  <Box transform="skew(10deg)">View on Sui</Box>
-                </Button>
-              </Link>
-
-              {user && user.wallet === ownerAddress(hero.owner) ? (
-                <>
-                  <Button
-                    onClick={() => {
-                      setShowSendWindow(true);
-                      onOpen();
-                    }}
-                    leftIcon={TransferIcon}
-                    size="md"
-                    variant="outline"
-                    isDisabled={newLevelUpTicketIsLoading || levelUpHeroLoading}
-                  >
-                    <Box transform="skew(10deg)">Transfer</Box>
-                  </Button>
-                  <Button
-                    leftIcon={PlusIcon}
-                    size="md"
-                    variant="outline"
-                    onClick={handleLevelUp}
-                    isDisabled={
-                      !!chosenTicket ||
-                      levelUpHeroLoading ||
-                      hero.content.level >= 5
-                    }
-                    isLoading={newLevelUpTicketIsLoading}
-                  >
-                    <Box transform="skew(10deg)">
-                      {hero.content.level >= 5
-                        ? "Highest level attained"
-                        : "Level up"}
-                    </Box>
-                  </Button>
-                  <Button
-                    onClick={handleDelete}
-                    leftIcon={DeleteIcon}
-                    size="md"
-                    variant="danger"
-                    isDisabled={levelUpHeroLoading || newLevelUpTicketIsLoading}
-                  >
-                    <Box transform="skew(10deg)">Burn hero</Box>
-                  </Button>
-                </>
-              ) : (
+                  ))}
+              </Box>
+            </VStack>
+            <VStack flex={1} align="center" justify="flex-end">
+              {user && user.wallet !== ownerAddress(hero.owner) && (
+                <Heading>You don&apos;t own this hero</Heading>
+              )}
+              <Divider />
+              <HStack mt="22px" gap="20px">
                 <Link
-                  href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
-                    redirectTo: path,
-                  })}`}
+                  href={getSuiExplorerObjectUrl(hero.content.id.id)}
+                  target="_blank"
                 >
                   <Button size="md" variant="outline">
-                    <Box transform="skew(10deg)">Sign in</Box>
+                    <Box transform="skew(10deg)">View on Sui</Box>
                   </Button>
                 </Link>
-              )}
-            </HStack>
-          </VStack>
+                {user && user.wallet === ownerAddress(hero.owner) && (
+                  <>
+                    <Button
+                      onClick={() => {
+                        setShowSendWindow(true);
+                        onOpen();
+                      }}
+                      leftIcon={TransferIcon}
+                      size="md"
+                      variant="outline"
+                      isDisabled={
+                        newLevelUpTicketIsLoading || levelUpHeroLoading
+                      }
+                    >
+                      <Box transform="skew(10deg)">Transfer</Box>
+                    </Button>
+                    <Button
+                      leftIcon={PlusIcon}
+                      size="md"
+                      variant="outline"
+                      onClick={handleLevelUp}
+                      isDisabled={
+                        !!chosenTicket ||
+                        levelUpHeroLoading ||
+                        hero.content.level >= 5
+                      }
+                      isLoading={newLevelUpTicketIsLoading}
+                    >
+                      <Box transform="skew(10deg)">
+                        {hero.content.level >= 5
+                          ? "Highest level attained"
+                          : "Level up"}
+                      </Box>
+                    </Button>
+                    <Button
+                      onClick={handleDelete}
+                      leftIcon={DeleteIcon}
+                      size="md"
+                      variant="danger"
+                      isDisabled={
+                        levelUpHeroLoading || newLevelUpTicketIsLoading
+                      }
+                    >
+                      <Box transform="skew(10deg)">Burn hero</Box>
+                    </Button>
+                  </>
+                )}
+              </HStack>
+            </VStack>
+          </Flex>
         </Flex>
       )}
       <Modal
