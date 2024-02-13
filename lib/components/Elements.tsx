@@ -127,7 +127,7 @@ export const HeroCard = ({
         justify="center"
       >
         <Text color="#2E2E2E" fontSize="32px">
-          {name}
+          {name.length > 15 ? name.substring(0, 13) + "..." : name}
         </Text>
       </VStack>
       <Box
@@ -289,6 +289,6 @@ export const SocialIcon = ({ provider }: { provider: string }) => {
     case "facebook":
       return <Image src="/facebook.svg" alt="Facebook icon" />;
     case "twitch":
-      <Image src="/twitch.svg" alt="Twitch icon" />;
+      return <Image src="/twitch.svg" alt="Twitch icon" />;
   }
 };

@@ -117,7 +117,7 @@ export default withNewZkLoginSession(
                 Sign in with Twitch
               </Button>
             )}
-            <Text>* Shinami account required</Text>
+            <Text>* Log in requires an email tied to a Shinami account.</Text>
           </VStack>
 
           <Link href="/">
@@ -154,7 +154,9 @@ export const LoginState = ({
     case "error":
       return (
         <Canvas image="/login-bg.jpg">
-          <Text fontSize="30px">Unauthorized user / Auth error</Text>
+          <Text fontSize="30px">
+            Log in requires an email tied to a Shinami account.
+          </Text>
           <Link href="/">
             <Button paddingInlineStart={0} minW="none" variant="ghost">
               Go home
@@ -174,7 +176,7 @@ export const LoginState = ({
 export const ZkLoginLoading = () => {
   return (
     <Canvas image="/login-bg.jpg">
-      <Text fontSize="30px">ZkLogin Loading...</Text>
+      <Text fontSize="30px">Initializing...</Text>
     </Canvas>
   );
 };
