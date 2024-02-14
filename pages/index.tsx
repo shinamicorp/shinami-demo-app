@@ -151,7 +151,7 @@ const UserHome = ({ user }: { user: ZkLoginUser<AuthContext> }) => {
               </Button>
             </Link>
             <Link href={`${AUTH_API_BASE}/logout`}>
-              <Button variant="ghost">Logout</Button>
+              <Button variant="ghost">Sign out</Button>
             </Link>
           </VStack>
         </VStack>

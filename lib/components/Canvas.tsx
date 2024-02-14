@@ -10,16 +10,19 @@ import {
   Link,
   Text,
   Link as ChakraLink,
+  Button,
 } from "@chakra-ui/react";
-import { ZkLoginUser } from "@shinami/nextjs-zklogin";
+import { LOGIN_PAGE_PATH, ZkLoginUser } from "@shinami/nextjs-zklogin";
 import { getSuiExplorerAccountUrl } from "../hooks/sui";
 import { SocialIcon } from "./Elements";
 import { AuthContext } from "../shared/zklogin";
+import { useRouter } from "next/router";
 
 interface CanvasProps {
   image: string | undefined;
   user?: ZkLoginUser<AuthContext> | undefined;
   hasLogo?: boolean;
+  showSignIn?: boolean;
   children:
     | string
     | number
@@ -32,7 +35,14 @@ interface CanvasProps {
     | undefined;
 }
 
-const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
+const Canvas = ({
+  image,
+  hasLogo = true,
+  showSignIn = true,
+  user,
+  children,
+}: CanvasProps) => {
+  const { asPath } = useRouter();
   return (
     <Fade transition={{ enter: { duration: 2 } }} in>
       <Flex
@@ -60,7 +70,7 @@ const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
                 <Image src="/shinami-games.svg" alt="Shinami games logo" />
               </Link>
             )}
-            {user && (
+            {user ? (
               <Flex alignItems="center" gap={2}>
                 <SocialIcon provider={user?.oidProvider} />
                 <Text fontSize="20px">
@@ -72,6 +82,18 @@ const Canvas = ({ image, hasLogo = true, user, children }: CanvasProps) => {
                   </Link>{" "}
                 </Text>
               </Flex>
+            ) : (
+              showSignIn && (
+                <Link
+                  href={`${LOGIN_PAGE_PATH}?${new URLSearchParams({
+                    redirectTo: asPath,
+                  })}`}
+                >
+                  <Button paddingInlineStart={0} minW="none" variant="ghost">
+                    Sign in
+                  </Button>
+                </Link>
+              )
             )}
           </Flex>
           <Flex
