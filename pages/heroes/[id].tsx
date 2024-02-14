@@ -58,7 +58,6 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { LOGIN_PAGE_PATH } from "@shinami/nextjs-zklogin";
 import { useZkLoginSession } from "@shinami/nextjs-zklogin/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -70,7 +69,7 @@ const heroImages = {
   2: "/warrior-bg.jpg",
 };
 
-function HeroPage({ heroId, path }: { heroId: string; path: string }) {
+function HeroPage({ heroId }: { heroId: string }) {
   const { user, localSession } = useZkLoginSession<AuthContext>();
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user?.wallet,
@@ -210,14 +209,14 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
         <Text fontSize="30px">Hero does not exist</Text>
       )}
       {hero && (
-        <Flex flexDir="column" width="90%">
+        <Flex height="80%" flexDir="column" width="90%">
           <Heading size="4xl">
             {" "}
             {hero.content.name.length > 17
               ? hero.content.name.substring(0, 17) + "..."
               : hero.content.name}
           </Heading>
-          <Flex justifyContent="space-between">
+          <Flex height="100%" justifyContent="space-between">
             <VStack flex={1} mb={20} align="start" justify="space-between">
               <Box>
                 <Heading>Level: {hero.content.level}</Heading>
@@ -558,7 +557,7 @@ function HeroPage({ heroId, path }: { heroId: string; path: string }) {
 }
 
 export default function Page() {
-  const { isReady, query, asPath } = useRouter();
+  const { isReady, query } = useRouter();
   const [heroId, setHeroId] = useState<string>();
 
   useEffect(() => {
@@ -570,5 +569,5 @@ export default function Page() {
 
   if (!heroId) return <Text fontSize="30px">Loading hero id...</Text>;
 
-  return <HeroPage heroId={heroId} path={asPath} />;
+  return <HeroPage heroId={heroId} />;
 }

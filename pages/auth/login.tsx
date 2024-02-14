@@ -38,7 +38,7 @@ export default withNewZkLoginSession(
     const redirectTo = first(router.query.redirectTo);
     const callbackBaseUrl = new URL("auth/", window.location.origin);
     return (
-      <Canvas image="/login-bg.jpg" hasLogo={false}>
+      <Canvas image="/login-bg.jpg" hasLogo={false} showSignIn={false}>
         <Flex
           height="100%"
           width="100%"
@@ -144,7 +144,7 @@ export const LoginState = ({
   switch (status) {
     case "loggingIn":
       return (
-        <Canvas image="/login-bg.jpg">
+        <Canvas image="/login-bg.jpg" showSignIn={false}>
           <Box p="20px" opacity="0.5">
             <Image src="/spinner.svg" alt="spinner" />
             <Text fontSize="30px">Chugging along...</Text>
@@ -175,7 +175,7 @@ export const LoginState = ({
 
 export const ZkLoginLoading = () => {
   return (
-    <Canvas image="/login-bg.jpg">
+    <Canvas image="/login-bg.jpg" showSignIn={false}>
       <Text fontSize="30px">Initializing...</Text>
     </Canvas>
   );
@@ -183,7 +183,7 @@ export const ZkLoginLoading = () => {
 
 export const ZkLoginRedirecting = () => {
   return (
-    <Canvas image="/login-bg.jpg">
+    <Canvas image="/login-bg.jpg" showSignIn={false}>
       <Text fontSize="30px">ZkLogin redirecting...</Text>
     </Canvas>
   );
