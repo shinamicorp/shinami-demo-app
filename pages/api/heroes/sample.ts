@@ -13,7 +13,6 @@ const curatedHeroIds = [
   "0x8c9c200ed5b12aebe2c745d003059225191914bb3b7eabc3bc099cb1c0075ca7", // Aria - rogue - 0
   "0xcde3b989bcafc8756dc64fae238cd64ada7853b2d3af6157dbb0c2a66d0d211e", // Ragnar - warrior - 0
   "0x2fa4e8cac7dc7cc35a443ab30f426cb2dabe8b85c0dbda73a6b102e05caee58a", // Shilo - fighter - 0
-  "0x53c88f85c6003c2a959bf257862cd06e3bd307bcfa7f995ec52e9adb08e55409", // second best hero - fighter - 4
   "0x32ad81b5e7c9c6ae97c8b4c9c2576be872b16ca9f0c791d71180e828e6f2ddfe", // bashful - warrior - 3
   "0x052a54e11ac603fd841967132e58b80b1814f18f39beab9bfd97feb290fbfe5e", // Wario - warrior - 2
   "0x5d8ffdf92570497f8fbddf2ae2f2e315765ae288d4efd8e74844ef946067c1cf", // ODB - fighter - 3
@@ -25,7 +24,14 @@ export default withInternalErrorHandler<Hero[]>(async (_, res) => {
     ids: curatedHeroIds,
     options: { showContent: true },
   });
-  const heroes = objs.map((x) => parseObject(x, Hero));
+  const heroes = objs.flatMap((x) => {
+    try {
+      return parseObject(x, Hero);
+    } catch (e) {
+      console.error("Failed to parse object", x, e);
+      return [];
+    }
+  });
 
   // Randomly sample one hero of each character
   const sample = heroes.reduce(
