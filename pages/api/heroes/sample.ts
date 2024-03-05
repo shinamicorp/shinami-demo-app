@@ -17,6 +17,9 @@ const curatedHeroIds = [
   "0x052a54e11ac603fd841967132e58b80b1814f18f39beab9bfd97feb290fbfe5e", // Wario - warrior - 2
   "0x5d8ffdf92570497f8fbddf2ae2f2e315765ae288d4efd8e74844ef946067c1cf", // ODB - fighter - 3
   "0x1bb78abd48f344b27cd8872dca8813fed8d72ea051eac78dde9cc5d2c41c048c", // Raekwon - warrior - 2
+  "0x2019f954d79579ddb6d21a240a3b493ea687ad03fd31711906f120e0e92add08", // hope - rogue - 1
+  "0x2817bb454aff306711181141c7687bebd45c424ffa74478c37396def05f59333", // friendly - fighter - 5
+  "0x195a29dd172f4396c1f43c8ebbb05e85449c2201fb72cd3b07b00d0c815e5685", // Giggles - warrior - 1
 ];
 
 export default withInternalErrorHandler<Hero[]>(async (_, res) => {
