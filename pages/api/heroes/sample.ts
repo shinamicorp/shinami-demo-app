@@ -28,7 +28,7 @@ export default withInternalErrorHandler<Hero[]>(async (_, res) => {
     try {
       return parseObject(x, Hero);
     } catch (e) {
-      console.error("Failed to parse object", x, e);
+      console.error("Failed to parse hero", x, e);
       return [];
     }
   });
