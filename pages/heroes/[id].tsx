@@ -26,7 +26,8 @@ import {
   useSendHero,
 } from "@/lib/hooks/api";
 import {
-  getSuiExplorerObjectUrl,
+  getSuiVisionNFTUrl,
+  getSuiVisionObjectUrl,
   useParsedSuiObject,
   useParsedSuiOwnedObjects,
 } from "@/lib/hooks/sui";
@@ -330,7 +331,7 @@ function HeroPage({ heroId }: { heroId: string }) {
               <Divider />
               <HStack mt="22px" gap="20px">
                 <Link
-                  href={getSuiExplorerObjectUrl(hero.content.id.id)}
+                  href={getSuiVisionNFTUrl(hero.content.id.id)}
                   target="_blank"
                 >
                   <Button size="md" variant="outline">

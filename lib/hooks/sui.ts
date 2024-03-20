@@ -17,7 +17,6 @@ import { throwExpression } from "../shared/utils";
 const SUI_NETWORK =
   process.env.NEXT_PUBLIC_SUI_NETWORK ??
   throwExpression(new Error("NEXT_PUBLIC_SUI_NETWORK not configured"));
-const SUI_EXPLORER_BASE_URL = "https://suiexplorer.com";
 const SUI_VISION_BASE_URL = `https://${
   SUI_NETWORK === "mainnet" ? "" : `${SUI_NETWORK}.`
 }suivision.xyz`;
@@ -33,31 +32,20 @@ export const sui = createSuiClient(
   process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE
 );
 
-export function getSuiExplorerAccountUrl(
-  address: string,
-  suiVision: boolean = false
-) {
-  return suiVision
-    ? `${SUI_VISION_BASE_URL}/account/${address}`
-    : `${SUI_EXPLORER_BASE_URL}/address/${address}?network=${SUI_NETWORK}`;
+export function getSuiVisionAccountUrl(address: string) {
+  return `${SUI_VISION_BASE_URL}/account/${address}`;
 }
 
-export function getSuiExplorerObjectUrl(
-  address: string,
-  suiVision: boolean = false
-) {
-  return suiVision
-    ? `${SUI_VISION_BASE_URL}/object/${address}`
-    : `${SUI_EXPLORER_BASE_URL}/object/${address}?network=${SUI_NETWORK}`;
+export function getSuiVisionObjectUrl(address: string) {
+  return `${SUI_VISION_BASE_URL}/object/${address}`;
 }
 
-export function getSuiExplorerTransactionUrl(
-  digest: string,
-  suiVision: boolean = false
-) {
-  return suiVision
-    ? `${SUI_VISION_BASE_URL}/txblock/${digest}`
-    : `${SUI_EXPLORER_BASE_URL}/txblock/${digest}?network=${SUI_NETWORK}`;
+export function getSuiVisionNFTUrl(address: string) {
+  return `${SUI_VISION_BASE_URL}/nft/object/${address}`;
+}
+
+export function getSuiVisionTransactionUrl(digest: string) {
+  return `${SUI_VISION_BASE_URL}/txblock/${digest}`;
 }
 
 export const suiOwnedObjectsQueryKey = ["sui", "getOwnedObjects"];
