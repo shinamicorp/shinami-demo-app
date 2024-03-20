@@ -13,7 +13,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { LOGIN_PAGE_PATH, ZkLoginUser } from "@shinami/nextjs-zklogin";
-import { getSuiExplorerAccountUrl } from "../hooks/sui";
+import { getSuiVisionAccountUrl } from "../hooks/sui";
 import { SocialIcon } from "./Elements";
 import { AuthContext } from "../shared/zklogin";
 import { useRouter } from "next/router";
@@ -75,7 +75,7 @@ const Canvas = ({
                 <SocialIcon provider={user?.oidProvider} />
                 <Text fontSize="20px">
                   <Link
-                    href={getSuiExplorerAccountUrl(user.wallet)}
+                    href={getSuiVisionAccountUrl(user.wallet)}
                     target="_blank"
                   >
                     {user.authContext.email}&apos;s wallet
