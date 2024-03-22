@@ -22,7 +22,7 @@ import { validate } from "superstruct";
 
 const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
   req,
-  { wallet, oidProvider, authContext }
+  { wallet, oidProvider, authContext },
 ) => {
   const [error, body] = validate(req.body, MintHeroRequest);
   if (error) throw new InvalidRequest(error.message);
@@ -30,7 +30,7 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
   console.debug(
     "Minting new hero for %s user %s",
     oidProvider,
-    authContext.email
+    authContext.email,
   );
 
   const gaslessTxBytes = await buildGaslessTransactionBytes({
@@ -68,7 +68,7 @@ const parseTxRes: TransactionResponseParser<
       id: ref.objectId,
       options: { showContent: true, showOwner: true },
     }),
-    Hero
+    Hero,
   );
   return { ...hero, txDigest: txRes.digest };
 };

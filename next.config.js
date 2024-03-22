@@ -13,10 +13,10 @@ const nextConfig = {
   //   };
   //   return config;
   // },
-  output: 'standalone',
-}
+  output: "standalone",
+};
 
 module.exports =
   process.env.ANALYZE === "true"
-    ? require('@next/bundle-analyzer')()(nextConfig)
+    ? require("@next/bundle-analyzer")()(nextConfig)
     : nextConfig;

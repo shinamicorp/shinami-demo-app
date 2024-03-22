@@ -29,7 +29,7 @@ const handler = withZkLoginUserRequired<
   console.debug(
     "Creating new level up ticket for %s user %s",
     oidProvider,
-    authContext.email
+    authContext.email,
   );
 
   // To optimize tx throughput involving admin cap, it's better to pre-issue a batch of tickets
@@ -54,7 +54,7 @@ const handler = withZkLoginUserRequired<
     return await adminWallet.executeGaslessTransactionBlock(
       txBytes,
       undefined,
-      { showEffects: true }
+      { showEffects: true },
     );
   });
 
@@ -76,7 +76,7 @@ const handler = withZkLoginUserRequired<
       id: ref.objectId,
       options: { showContent: true, showOwner: true },
     }),
-    LevelUpTicket
+    LevelUpTicket,
   );
   res.json({ ...ticket, txDigest: txResp.digest });
 });

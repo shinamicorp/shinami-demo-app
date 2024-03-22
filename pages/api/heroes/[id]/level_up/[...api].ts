@@ -23,7 +23,7 @@ import { validate } from "superstruct";
 
 const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
   req,
-  { oidProvider, authContext }
+  { oidProvider, authContext },
 ) => {
   const { id } = req.query;
   const [error, body] = validate(req.body, LevelUpRequest);
@@ -34,7 +34,7 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
       id: id as string,
       options: { showContent: true },
     }),
-    Hero
+    Hero,
   );
   if (
     hero.damage + body.damage > 10 ||
@@ -47,7 +47,7 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
     "Leveling up hero %s for %s user %s",
     id,
     oidProvider,
-    authContext.email
+    authContext.email,
   );
 
   const gaslessTxBytes = await buildGaslessTransactionBytes({
@@ -78,7 +78,7 @@ const parseTxRes: TransactionResponseParser<
       id: id as string,
       options: { showContent: true, showOwner: true },
     }),
-    Hero
+    Hero,
   );
   return { ...hero, txDigest: digest };
 };

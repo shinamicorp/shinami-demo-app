@@ -63,7 +63,7 @@ export default withInternalErrorHandler<Hero[]>(async (_, res) => {
         hero: Hero;
         counter: number;
       }
-    >()
+    >(),
   );
 
   res.json(Array.from(sample.values(), (x) => x.hero));

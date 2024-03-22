@@ -72,7 +72,7 @@ const NewHero = ({
   const { data: mintTickets } = useParsedSuiOwnedObjects(
     user.wallet,
     MINT_TICKET_MOVE_TYPE,
-    MintTicket
+    MintTicket,
   );
   const { mutateAsync: newMintTicket, isPending: newMintTicketPending } =
     useNewMintTicket();
@@ -104,7 +104,7 @@ const NewHero = ({
         }
       }
     },
-    [mintTickets, newMintTicket, chosenTickets, isOpen, newMintTicketPending]
+    [mintTickets, newMintTicket, chosenTickets, isOpen, newMintTicketPending],
   );
 
   useEffect(() => {
@@ -152,7 +152,7 @@ const NewHero = ({
       hero,
       heroName,
       localSession.ephemeralKeyPair,
-    ]
+    ],
   );
 
   return (
@@ -379,5 +379,5 @@ const NewHero = ({
 export default withZkLoginSessionRequired(
   NewHero,
   ZkLoginLoading,
-  ZkLoginRedirecting
+  ZkLoginRedirecting,
 );

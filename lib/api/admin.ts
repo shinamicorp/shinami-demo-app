@@ -13,7 +13,7 @@ const ADMIN_CAP =
 const adminCapLock = new Mutex();
 
 export async function runWithAdminCap<T>(
-  func: (cap: string) => Promise<T>
+  func: (cap: string) => Promise<T>,
 ): Promise<T> {
   // [IMPORTANT]
   // Prevent concurrent access to admin cap to avoid equivocation.

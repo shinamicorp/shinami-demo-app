@@ -31,7 +31,7 @@ const handler = withZkLoginUserRequired<
   console.debug(
     "Creating new mint ticket for %s user %s",
     oidProvider,
-    authContext.email
+    authContext.email,
   );
 
   const txResp = await runWithAdminCap(async (cap) => {
@@ -57,7 +57,7 @@ const handler = withZkLoginUserRequired<
     return await adminWallet.executeGaslessTransactionBlock(
       txBytes,
       undefined,
-      { showEffects: true }
+      { showEffects: true },
     );
   });
 
@@ -79,7 +79,7 @@ const handler = withZkLoginUserRequired<
       id: ref.objectId,
       options: { showContent: true, showOwner: true },
     }),
-    MintTicket
+    MintTicket,
   );
   res.json({ ...ticket, txDigest: txResp.digest });
 });

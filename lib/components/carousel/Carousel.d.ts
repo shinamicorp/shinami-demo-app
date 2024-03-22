@@ -38,7 +38,7 @@ declare class Carousel extends Component<CarouselProps, CarouselState> {
   };
   static getDerivedStateFromProps(
     props: CarouselProps,
-    state: CarouselState
+    state: CarouselState,
   ): {
     prevPropsGoToSlide: number | undefined;
     goToSlide: number | undefined;

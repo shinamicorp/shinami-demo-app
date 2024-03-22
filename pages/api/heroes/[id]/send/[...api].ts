@@ -17,7 +17,7 @@ import { validate } from "superstruct";
 
 const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
   req,
-  { oidProvider, authContext }
+  { oidProvider, authContext },
 ) => {
   const { id } = req.query;
   const [error, body] = validate(req.body, SendTarget);
@@ -28,7 +28,7 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
     id,
     body.recipient,
     oidProvider,
-    authContext.email
+    authContext.email,
   );
 
   const gaslessTxBytes = await buildGaslessTransactionBytes({

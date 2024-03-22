@@ -59,7 +59,7 @@ export type SendTarget = Infer<typeof SendTarget>;
 export async function* getOwnedObjects(
   sui: SuiClient,
   owner: string,
-  type?: string
+  type?: string,
 ): AsyncGenerator<SuiObjectResponse> {
   let more = true;
   let cursor: string | null | undefined = undefined;
@@ -95,7 +95,7 @@ export function parseObject<T>(obj: SuiObjectResponse, schema: Struct<T>): T {
 
 export function parseObjectWithOwner<T>(
   obj: SuiObjectResponse,
-  schema: Struct<T>
+  schema: Struct<T>,
 ): T & WithOwner {
   if (!obj.data?.owner) {
     console.error("Response doesn't contain an owner", obj);

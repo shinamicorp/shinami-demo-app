@@ -26,17 +26,17 @@ const ADMIN_WALLET_ID = process.env.ADMIN_WALLET_ID ?? "demo:admin";
 
 export const key = new KeyClient(
   SHINAMI_SUPER_ACCESS_KEY,
-  process.env.KEY_RPC_URL_OVERRIDE
+  process.env.KEY_RPC_URL_OVERRIDE,
 );
 
 export const wal = new WalletClient(
   SHINAMI_SUPER_ACCESS_KEY,
-  process.env.WALLET_RPC_URL_OVERRIDE
+  process.env.WALLET_RPC_URL_OVERRIDE,
 );
 
 export const gas = new GasStationClient(
   SHINAMI_SUPER_ACCESS_KEY,
-  process.env.GAS_RPC_URL_OVERRIDE
+  process.env.GAS_RPC_URL_OVERRIDE,
 );
 
 // A separate sui client for backend only, using the super key.
@@ -44,22 +44,22 @@ export const gas = new GasStationClient(
 export const sui = createSuiClient(
   SHINAMI_SUPER_ACCESS_KEY,
   process.env.NEXT_PUBLIC_NODE_RPC_URL_OVERRIDE,
-  process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE
+  process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE,
 );
 
 export const zkp = new ZkProverClient(
   SHINAMI_SUPER_ACCESS_KEY,
-  process.env.ZKPROVER_RPC_URL_OVERRIDE
+  process.env.ZKPROVER_RPC_URL_OVERRIDE,
 );
 
 export const zkw = new ZkWalletClient(
   SHINAMI_SUPER_ACCESS_KEY,
-  process.env.ZKWALLET_RPC_URL_OVERRIDE
+  process.env.ZKWALLET_RPC_URL_OVERRIDE,
 );
 
 export const adminWallet = new ShinamiWalletSigner(
   ADMIN_WALLET_ID,
   wal,
   ADMIN_WALLET_SECRET,
-  key
+  key,
 );

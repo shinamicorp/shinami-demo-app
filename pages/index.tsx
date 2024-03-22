@@ -84,12 +84,12 @@ const UserHome = ({ user }: { user: ZkLoginUser<AuthContext> }) => {
   const { data: heroes, isLoading: isLoadingHeroes } = useParsedSuiOwnedObjects(
     user.wallet,
     HERO_MOVE_TYPE,
-    Hero
+    Hero,
   );
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
-    LevelUpTicket
+    LevelUpTicket,
   );
 
   if (isLoadingHeroes) return <Text fontSize="30px">Loading heroes...</Text>;
@@ -122,7 +122,7 @@ const UserHome = ({ user }: { user: ZkLoginUser<AuthContext> }) => {
               <HStack gap="82px">
                 {heroes.map((hero) => {
                   const levelup = levelUpTickets?.find(
-                    (ticket) => ticket.hero_id === hero.id.id
+                    (ticket) => ticket.hero_id === hero.id.id,
                   );
                   return (
                     <Link key={hero.id.id} href={`/heroes/${hero.id.id}`}>

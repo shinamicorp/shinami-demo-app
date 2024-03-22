@@ -64,8 +64,8 @@ export default withNewZkLoginSession(
                       GOOGLE_CLIENT_ID!,
                       new URL("google", callbackBaseUrl),
                       redirectTo,
-                      ["email"] // optionally include email in JWT claims
-                    )
+                      ["email"], // optionally include email in JWT claims
+                    ),
                   );
                 }}
               >
@@ -86,8 +86,8 @@ export default withNewZkLoginSession(
                       FACEBOOK_CLIENT_ID!,
                       new URL("facebook", callbackBaseUrl),
                       redirectTo,
-                      ["email"] // optionally include email in JWT claims
-                    )
+                      ["email"], // optionally include email in JWT claims
+                    ),
                   );
                 }}
               >
@@ -109,8 +109,8 @@ export default withNewZkLoginSession(
                       new URL("twitch", callbackBaseUrl),
                       redirectTo,
                       ["user:read:email"], // optionally include email in JWT claims
-                      ["email", "email_verified"]
-                    )
+                      ["email", "email_verified"],
+                    ),
                   );
                 }}
               >
@@ -131,7 +131,7 @@ export default withNewZkLoginSession(
       </Canvas>
     );
   },
-  () => <ZkLoginLoading />
+  () => <ZkLoginLoading />,
 );
 
 export const LoginState = ({
