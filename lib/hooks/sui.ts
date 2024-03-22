@@ -26,10 +26,10 @@ const SUI_VISION_BASE_URL = `https://${
 export const sui = createSuiClient(
   process.env.NEXT_PUBLIC_SHINAMI_NODE_ACCESS_KEY ??
     throwExpression(
-      new Error("NEXT_PUBLIC_SHINAMI_NODE_ACCESS_KEY not configured")
+      new Error("NEXT_PUBLIC_SHINAMI_NODE_ACCESS_KEY not configured"),
     ),
   process.env.NEXT_PUBLIC_NODE_RPC_URL_OVERRIDE,
-  process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE
+  process.env.NEXT_PUBLIC_NODE_WS_URL_OVERRIDE,
 );
 
 export function getSuiVisionAccountUrl(address: string) {
@@ -53,7 +53,7 @@ export const suiOwnedObjectsQueryKey = ["sui", "getOwnedObjects"];
 export function usePaginatedSuiOwnedObject(
   owner: string | undefined, // if undefined, the query will be disabled
   type?: string,
-  pageSize: number = 10
+  pageSize: number = 10,
 ): UseInfiniteQueryResult<PaginatedObjectsResponse> {
   return useInfiniteQuery({
     enabled: !!owner,
@@ -83,7 +83,7 @@ export function useParsedSuiOwnedObjects<T>(
   owner: string | undefined, // if undefined, the query will be disabled
   type: string,
   schema: Struct<T>,
-  limit?: number
+  limit?: number,
 ) {
   return useQuery({
     enabled: !!owner,
@@ -106,7 +106,7 @@ export const suiObjectQueryKey = ["sui", "getObject"];
 
 export function useParsedSuiObject<T>(
   id: string | undefined, // if undefined, the query will be disabled
-  schema: Struct<T>
+  schema: Struct<T>,
 ) {
   return useQuery({
     enabled: !!id,

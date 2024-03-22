@@ -16,7 +16,7 @@ import {
 
 const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
   req,
-  { oidProvider, authContext }
+  { oidProvider, authContext },
 ) => {
   const { id } = req.query;
 
@@ -24,7 +24,7 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
     "Burning hero %s for %s user %s",
     id,
     oidProvider,
-    authContext.email
+    authContext.email,
   );
 
   const gaslessTxBytes = await buildGaslessTransactionBytes({

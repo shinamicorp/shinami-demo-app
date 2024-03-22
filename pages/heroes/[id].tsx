@@ -75,14 +75,14 @@ function HeroPage({ heroId }: { heroId: string }) {
   const { data: levelUpTickets } = useParsedSuiOwnedObjects(
     user?.wallet,
     LEVEL_UP_TICKET_MOVE_TYPE,
-    LevelUpTicket
+    LevelUpTicket,
   );
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { data: hero, isLoading: isLoadingHero } = useParsedSuiObject(
     heroId,
-    Hero
+    Hero,
   );
   const {
     mutateAsync: newLevelUpTicket,
@@ -129,7 +129,7 @@ function HeroPage({ heroId }: { heroId: string }) {
       !levelUpTickets.some((x) => x.id.id === chosenTicket.id.id)
     ) {
       const ticket = levelUpTickets.find(
-        (x) => x.hero_id === hero.content.id.id
+        (x) => x.hero_id === hero.content.id.id,
       );
       setChosenTicket(ticket);
       setLevelUpPoints(ticket ? ticket.attribute_points : 0);
@@ -198,7 +198,7 @@ function HeroPage({ heroId }: { heroId: string }) {
         });
       }
     },
-    [hero, transferRecipient, localSession, sendHero]
+    [hero, transferRecipient, localSession, sendHero],
   );
   return (
     <Canvas

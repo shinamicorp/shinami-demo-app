@@ -24,7 +24,7 @@ const userRpc =
 async function authorizeUser(
   provider: OidProvider,
   user: ZkLoginUserId,
-  jwtClaims: JwtClaims
+  jwtClaims: JwtClaims,
 ): Promise<AuthContext | undefined> {
   const { email, email_verified } = jwtClaims;
 
@@ -39,7 +39,7 @@ async function authorizeUser(
     if (!userRpc) {
       console.warn(
         "Disallow user sign in because USER_RPC_URL env isn't configured. " +
-          "To allow all users, set it to ALLOW_ALL."
+          "To allow all users, set it to ALLOW_ALL.",
       );
       return undefined;
     }
@@ -67,5 +67,5 @@ export default authHandler(
     facebook: FACEBOOK_CLIENT_ID ? [FACEBOOK_CLIENT_ID] : undefined,
     twitch: TWITCH_CLIENT_ID ? [TWITCH_CLIENT_ID] : undefined,
   },
-  authorizeUser
+  authorizeUser,
 );
