@@ -65,6 +65,7 @@ export default withNewZkLoginSession(
                       new URL("google", callbackBaseUrl),
                       redirectTo,
                       ["email"], // optionally include email in JWT claims
+                      ["select_account"],
                     ),
                   );
                 }}
