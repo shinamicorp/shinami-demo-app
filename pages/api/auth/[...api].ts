@@ -5,6 +5,7 @@
 
 import { sui, zkp, zkw } from "@/lib/api/shinami";
 import {
+  APPLE_CLIENT_ID,
   AuthContext,
   FACEBOOK_CLIENT_ID,
   GOOGLE_CLIENT_ID,
@@ -66,6 +67,7 @@ export default authHandler(
     google: GOOGLE_CLIENT_ID ? [GOOGLE_CLIENT_ID] : undefined,
     facebook: FACEBOOK_CLIENT_ID ? [FACEBOOK_CLIENT_ID] : undefined,
     twitch: TWITCH_CLIENT_ID ? [TWITCH_CLIENT_ID] : undefined,
+    apple: APPLE_CLIENT_ID ? [APPLE_CLIENT_ID] : undefined,
   },
   authorizeUser,
 );

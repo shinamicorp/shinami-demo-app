@@ -8,13 +8,14 @@ import {
   Box,
   Button as ChakraButton,
   Flex,
+  HStack,
   Heading,
   Image,
-  VStack,
-  Text,
-  HStack,
   ScaleFade,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
+import { OidProvider } from "@shinami/nextjs-zklogin";
 import { SetStateAction } from "react";
 import { Hero, HeroAttributes } from "../shared/hero";
 
@@ -282,7 +283,7 @@ export const HeroAttribute = ({
   );
 };
 
-export const SocialIcon = ({ provider }: { provider: string }) => {
+export const SocialIcon = ({ provider }: { provider: OidProvider }) => {
   switch (provider) {
     case "google":
       return <Image src="/google.svg" alt="Google icon" />;
@@ -290,5 +291,7 @@ export const SocialIcon = ({ provider }: { provider: string }) => {
       return <Image src="/facebook.svg" alt="Facebook icon" />;
     case "twitch":
       return <Image src="/twitch.svg" alt="Twitch icon" />;
+    case "apple":
+      return <Image src="/apple.svg" alt="Apple icon" />;
   }
 };

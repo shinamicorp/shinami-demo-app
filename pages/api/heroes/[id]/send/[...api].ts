@@ -6,16 +6,16 @@
 import { gas, sui } from "@/lib/api/shinami";
 import { SendTarget, WithOwner, WithTxDigest } from "@/lib/shared/sui";
 import { AuthContext } from "@/lib/shared/zklogin";
-import { buildGaslessTransactionBytes } from "@shinami/clients";
+import { buildGaslessTransaction } from "@shinami/clients/sui";
 import {
-  GaslessTransactionBytesBuilder,
+  GaslessTransactionBuilder,
   InvalidRequest,
   TransactionResponseParser,
   zkLoginSponsoredTxExecHandler,
 } from "@shinami/nextjs-zklogin/server/pages";
 import { validate } from "superstruct";
 
-const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
+const buildTx: GaslessTransactionBuilder<AuthContext> = async (
   req,
   { oidProvider, authContext },
 ) => {
@@ -31,13 +31,15 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
     authContext.email,
   );
 
-  const gaslessTxBytes = await buildGaslessTransactionBytes({
-    sui,
-    build: async (txb) => {
-      txb.transferObjects([txb.object(id as string)], txb.pure(body.recipient));
+  return await buildGaslessTransaction(
+    async (txb) => {
+      txb.transferObjects(
+        [txb.object(id as string)],
+        txb.pure.address(body.recipient),
+      );
     },
-  });
-  return { gaslessTxBytes };
+    { sui },
+  );
 };
 
 const parseTxRes: TransactionResponseParser<

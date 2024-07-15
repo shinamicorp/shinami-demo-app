@@ -3,14 +3,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import Canvas from "@/lib/components/Canvas";
+import { Divider, SocialIcon } from "@/lib/components/Elements";
 import { sui } from "@/lib/hooks/sui";
 import { first } from "@/lib/shared/utils";
 import {
+  APPLE_CLIENT_ID,
   FACEBOOK_CLIENT_ID,
   GOOGLE_CLIENT_ID,
   TWITCH_CLIENT_ID,
 } from "@/lib/shared/zklogin";
 import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Image,
+  Link,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { OidProvider } from "@shinami/nextjs-zklogin";
+import {
+  CallbackStatus,
+  getAppleAuthUrl,
   getFacebookAuthUrl,
   getGoogleAuthUrl,
   getTwitchAuthUrl,
@@ -18,25 +34,13 @@ import {
   withNewZkLoginSession,
 } from "@shinami/nextjs-zklogin/client";
 import { useRouter } from "next/router";
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Image,
-  VStack,
-  Text,
-  Link,
-} from "@chakra-ui/react";
-import { Divider, SocialIcon } from "@/lib/components/Elements";
-import Canvas from "@/lib/components/Canvas";
 
 export default withNewZkLoginSession(
   () => relativeToCurrentEpoch(sui),
   ({ session }) => {
     const router = useRouter();
     const redirectTo = first(router.query.redirectTo);
-    const callbackBaseUrl = new URL("auth/", window.location.origin);
+
     return (
       <Canvas image="/login-bg.jpg" hasLogo={false} showSignIn={false}>
         <Flex
@@ -62,7 +66,7 @@ export default withNewZkLoginSession(
                     getGoogleAuthUrl(
                       session,
                       GOOGLE_CLIENT_ID!,
-                      new URL("google", callbackBaseUrl),
+                      "google",
                       redirectTo,
                       ["email"], // optionally include email in JWT claims
                       ["select_account"],
@@ -85,7 +89,7 @@ export default withNewZkLoginSession(
                     getFacebookAuthUrl(
                       session,
                       FACEBOOK_CLIENT_ID!,
-                      new URL("facebook", callbackBaseUrl),
+                      "facebook",
                       redirectTo,
                       ["email"], // optionally include email in JWT claims
                     ),
@@ -107,7 +111,7 @@ export default withNewZkLoginSession(
                     getTwitchAuthUrl(
                       session,
                       TWITCH_CLIENT_ID!,
-                      new URL("twitch", callbackBaseUrl),
+                      "twitch",
                       redirectTo,
                       ["user:read:email"], // optionally include email in JWT claims
                       ["email", "email_verified"],
@@ -116,6 +120,29 @@ export default withNewZkLoginSession(
                 }}
               >
                 Sign in with Twitch
+              </Button>
+            )}
+            {APPLE_CLIENT_ID && (
+              <Button
+                fontFamily="sans-serif"
+                variant="signIn"
+                leftIcon={<SocialIcon provider="apple" />}
+                color="black"
+                bg="white"
+                borderColor="black"
+                onClick={() => {
+                  router.replace(
+                    getAppleAuthUrl(
+                      session,
+                      APPLE_CLIENT_ID!,
+                      "apple",
+                      redirectTo,
+                      ["email"],
+                    ),
+                  );
+                }}
+              >
+                Sign in with Apple
               </Button>
             )}
             <Text>* Log in requires an email tied to a Shinami account.</Text>
@@ -139,8 +166,8 @@ export const LoginState = ({
   status,
   provider,
 }: {
-  status: string;
-  provider: string;
+  status: CallbackStatus;
+  provider: OidProvider;
 }) => {
   switch (status) {
     case "loggingIn":
