@@ -127,9 +127,8 @@ export default withNewZkLoginSession(
                 fontFamily="sans-serif"
                 variant="signIn"
                 leftIcon={<SocialIcon provider="apple" />}
-                color="black"
-                bg="white"
-                borderColor="black"
+                color="white"
+                bg="black"
                 onClick={() => {
                   router.replace(
                     getAppleAuthUrl(
