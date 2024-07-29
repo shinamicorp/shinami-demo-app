@@ -70,7 +70,7 @@ export function useNewMintTicket(): UseMutationResult<
       resultSchema: intersection([WithMintTicket, WithOwner, WithTxDigest]),
     }),
     onSuccess: async (res) => {
-      await sui.waitForTransactionBlock({ digest: res.txDigest });
+      await sui.waitForTransaction({ digest: res.txDigest });
 
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries({
@@ -95,7 +95,7 @@ export function useMintHero(): UseMutationResult<
       resultSchema: intersection([WithHero, WithOwner, WithTxDigest]),
     }),
     onSuccess: async (res, { ticketId }) => {
-      await sui.waitForTransactionBlock({ digest: res.txDigest });
+      await sui.waitForTransaction({ digest: res.txDigest });
 
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries({
@@ -127,7 +127,7 @@ export function useNewLevelUpTicket(): UseMutationResult<
       resultSchema: intersection([WithLevelUpTicket, WithOwner, WithTxDigest]),
     }),
     onSuccess: async (res) => {
-      await sui.waitForTransactionBlock({ digest: res.txDigest });
+      await sui.waitForTransaction({ digest: res.txDigest });
 
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries({
@@ -157,7 +157,7 @@ export function useLevelUpHero(): UseMutationResult<
       resultSchema: intersection([WithHero, WithOwner, WithTxDigest]),
     }),
     onSuccess: async (res, { ticketId }) => {
-      await sui.waitForTransactionBlock({ digest: res.txDigest });
+      await sui.waitForTransaction({ digest: res.txDigest });
 
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries({
@@ -196,7 +196,7 @@ export function useBurnHero(): UseMutationResult<
       resultSchema: intersection([WithOwner, WithTxDigest]),
     }),
     onSuccess: async (res, { heroId }) => {
-      await sui.waitForTransactionBlock({ digest: res.txDigest });
+      await sui.waitForTransaction({ digest: res.txDigest });
 
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries({
@@ -225,7 +225,7 @@ export function useSendHero(): UseMutationResult<
       resultSchema: intersection([WithOwner, WithTxDigest]),
     }),
     onSuccess: async (res, { heroId }) => {
-      await sui.waitForTransactionBlock({ digest: res.txDigest });
+      await sui.waitForTransaction({ digest: res.txDigest });
 
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries({
@@ -254,7 +254,7 @@ export function useUpdateHero(): UseMutationResult<
       resultSchema: intersection([WithHero, WithOwner, WithTxDigest]),
     }),
     onSuccess: async (res) => {
-      await sui.waitForTransactionBlock({ digest: res.txDigest });
+      await sui.waitForTransaction({ digest: res.txDigest });
 
       const owner = ownerAddress(res.owner);
       queryClient.invalidateQueries({

@@ -27,7 +27,6 @@ import {
 } from "@/lib/hooks/api";
 import {
   getSuiVisionNFTUrl,
-  getSuiVisionObjectUrl,
   useParsedSuiObject,
   useParsedSuiOwnedObjects,
 } from "@/lib/hooks/sui";

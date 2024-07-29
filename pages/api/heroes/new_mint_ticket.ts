@@ -12,7 +12,7 @@ import {
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
 import { AuthContext } from "@/lib/shared/zklogin";
-import { buildGaslessTransactionBytes } from "@shinami/clients";
+import { buildGaslessTransaction } from "@shinami/clients/sui";
 import { ApiErrorBody } from "@shinami/nextjs-zklogin";
 import { withZkLoginUserRequired } from "@shinami/nextjs-zklogin/server/pages";
 import {
@@ -35,30 +35,28 @@ const handler = withZkLoginUserRequired<
   );
 
   const txResp = await runWithAdminCap(async (cap) => {
-    const txBytes = await buildGaslessTransactionBytes({
-      sui,
-      build: async (txb) => {
+    const gaslessTx = await buildGaslessTransaction(
+      async (txb) => {
         const ticket = txb.moveCall({
           target: `${PACKAGE_ID}::hero::new_mint_ticket`,
           arguments: [
             txb.object(cap),
-            txb.pure(body.character),
-            txb.pure(0),
-            txb.pure(10),
+            txb.pure.u8(body.character),
+            txb.pure.u8(0),
+            txb.pure.u8(10),
           ],
         });
         txb.moveCall({
           target: `${PACKAGE_ID}::hero::transfer_mint_ticket`,
-          arguments: [txb.object(cap), ticket, txb.pure(wallet)],
+          arguments: [txb.object(cap), ticket, txb.pure.address(wallet)],
         });
       },
-    });
-
-    return await adminWallet.executeGaslessTransactionBlock(
-      txBytes,
-      undefined,
-      { showEffects: true },
+      { sui },
     );
+
+    return await adminWallet.executeGaslessTransaction(gaslessTx, {
+      showEffects: true,
+    });
   });
 
   if (txResp.effects?.status.status !== "success") {

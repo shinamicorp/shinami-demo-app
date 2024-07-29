@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { PaginatedObjectsResponse } from "@mysten/sui.js/client";
-import { createSuiClient } from "@shinami/clients";
+import { PaginatedObjectsResponse } from "@mysten/sui/client";
+import { createSuiClient } from "@shinami/clients/sui";
 import {
   UseInfiniteQueryResult,
   useInfiniteQuery,

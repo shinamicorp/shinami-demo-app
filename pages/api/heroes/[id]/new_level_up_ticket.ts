@@ -12,7 +12,7 @@ import {
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
 import { AuthContext } from "@/lib/shared/zklogin";
-import { buildGaslessTransactionBytes } from "@shinami/clients";
+import { buildGaslessTransaction } from "@shinami/clients/sui";
 import { ApiErrorBody } from "@shinami/nextjs-zklogin";
 import { withZkLoginUserRequired } from "@shinami/nextjs-zklogin/server/pages";
 import {
@@ -36,26 +36,24 @@ const handler = withZkLoginUserRequired<
   // (with admin cap) and simply transer them to users' wallets upon request. The transfer tx
   // doesn't require admin cap. We didn't implement this optimization in this demo.
   const txResp = await runWithAdminCap(async (cap) => {
-    const txBytes = await buildGaslessTransactionBytes({
-      sui,
-      build: async (txb) => {
+    const gaslessTx = await buildGaslessTransaction(
+      async (txb) => {
         const ticket = txb.moveCall({
           target: `${PACKAGE_ID}::hero::new_level_up_ticket`,
           arguments: [
             txb.object(cap),
-            txb.pure(id as string),
-            txb.pure(4), // 4 more atrribute points
+            txb.pure.id(id as string),
+            txb.pure.u8(4), // 4 more atrribute points
           ],
         });
-        txb.transferObjects([ticket], txb.pure(wallet));
+        txb.transferObjects([ticket], txb.pure.address(wallet));
       },
-    });
-
-    return await adminWallet.executeGaslessTransactionBlock(
-      txBytes,
-      undefined,
-      { showEffects: true },
+      { sui },
     );
+
+    return await adminWallet.executeGaslessTransaction(gaslessTx, {
+      showEffects: true,
+    });
   });
 
   if (txResp.effects?.status.status !== "success") {

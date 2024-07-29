@@ -12,16 +12,16 @@ import {
   parseObjectWithOwner,
 } from "@/lib/shared/sui";
 import { AuthContext } from "@/lib/shared/zklogin";
-import { buildGaslessTransactionBytes } from "@shinami/clients";
+import { buildGaslessTransaction } from "@shinami/clients/sui";
 import {
-  GaslessTransactionBytesBuilder,
+  GaslessTransactionBuilder,
   InvalidRequest,
   TransactionResponseParser,
   zkLoginSponsoredTxExecHandler,
 } from "@shinami/nextjs-zklogin/server/pages";
 import { validate } from "superstruct";
 
-const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
+const buildTx: GaslessTransactionBuilder<AuthContext> = async (
   req,
   { oidProvider, authContext },
 ) => {
@@ -50,22 +50,21 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
     authContext.email,
   );
 
-  const gaslessTxBytes = await buildGaslessTransactionBytes({
-    sui,
-    build: async (txb) => {
+  return await buildGaslessTransaction(
+    async (txb) => {
       txb.moveCall({
         target: `${PACKAGE_ID}::hero::level_up_hero`,
         arguments: [
           txb.object(id as string),
           txb.object(body.ticketId),
-          txb.pure(body.damage),
-          txb.pure(body.speed),
-          txb.pure(body.defense),
+          txb.pure.u8(body.damage),
+          txb.pure.u8(body.speed),
+          txb.pure.u8(body.defense),
         ],
       });
     },
-  });
-  return { gaslessTxBytes };
+    { sui },
+  );
 };
 
 const parseTxRes: TransactionResponseParser<

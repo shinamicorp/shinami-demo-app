@@ -72,7 +72,7 @@ const Canvas = ({
             )}
             {user ? (
               <Flex alignItems="center" gap={2}>
-                <SocialIcon provider={user?.oidProvider} />
+                <SocialIcon provider={user.oidProvider} />
                 <Text fontSize="20px">
                   <Link
                     href={getSuiVisionAccountUrl(user.wallet)}

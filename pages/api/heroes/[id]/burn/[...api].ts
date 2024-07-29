@@ -7,14 +7,14 @@ import { gas, sui } from "@/lib/api/shinami";
 import { PACKAGE_ID } from "@/lib/shared/hero";
 import { WithOwner, WithTxDigest } from "@/lib/shared/sui";
 import { AuthContext } from "@/lib/shared/zklogin";
-import { buildGaslessTransactionBytes } from "@shinami/clients";
+import { buildGaslessTransaction } from "@shinami/clients/sui";
 import {
-  GaslessTransactionBytesBuilder,
+  GaslessTransactionBuilder,
   TransactionResponseParser,
   zkLoginSponsoredTxExecHandler,
 } from "@shinami/nextjs-zklogin/server/pages";
 
-const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
+const buildTx: GaslessTransactionBuilder<AuthContext> = async (
   req,
   { oidProvider, authContext },
 ) => {
@@ -27,16 +27,15 @@ const buildTx: GaslessTransactionBytesBuilder<AuthContext> = async (
     authContext.email,
   );
 
-  const gaslessTxBytes = await buildGaslessTransactionBytes({
-    sui,
-    build: async (txb) => {
+  return await buildGaslessTransaction(
+    async (txb) => {
       txb.moveCall({
         target: `${PACKAGE_ID}::hero::burn_hero`,
         arguments: [txb.object(id as string)],
       });
     },
-  });
-  return { gaslessTxBytes };
+    { sui },
+  );
 };
 
 const parseTxRes: TransactionResponseParser<

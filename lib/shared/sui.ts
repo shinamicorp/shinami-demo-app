@@ -7,7 +7,7 @@ import {
   SuiClient,
   ObjectOwner as SuiObjectOwner,
   SuiObjectResponse,
-} from "@mysten/sui.js/client";
+} from "@mysten/sui/client";
 import {
   Describe,
   Infer,
