@@ -60,6 +60,7 @@ const parseTxRes: TransactionResponseParser<
     console.error("Object not created", txRes);
     throw new Error("Object not created");
   }
+  await sui.waitForTransaction({ digest: txRes.digest });
 
   const hero = parseObjectWithOwner(
     await sui.getObject({
