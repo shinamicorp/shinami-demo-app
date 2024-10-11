@@ -51,6 +51,7 @@ const parseTxRes: TransactionResponseParser<
   Hero & WithOwner & WithTxDigest
 > = async (req, { digest }) => {
   const { id } = req.query;
+  await sui.waitForTransaction({ digest });
   const hero = parseObjectWithOwner(
     await sui.getObject({
       id: id as string,

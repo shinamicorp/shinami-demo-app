@@ -51,8 +51,10 @@ const handler = withZkLoginUserRequired<
       { sui },
     );
 
-    return await adminWallet.executeGaslessTransaction(gaslessTx, {
-      showEffects: true,
+    const { digest } = await adminWallet.executeGaslessTransaction(gaslessTx);
+    return await sui.waitForTransaction({
+      digest,
+      options: { showEffects: true },
     });
   });
 
